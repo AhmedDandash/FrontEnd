@@ -1,0 +1,448 @@
+.agentsPage {
+  padding: 0;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Page Header */
+.pageHeader {
+  background: linear-gradient(135deg, #003366 0%, #00478c 100%);
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 24px;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.15);
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.headerIcon {
+  font-size: 48px;
+  color: #00aa64;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.pageSubtitle {
+  margin: 8px 0 0 0;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.pageSubtitle strong {
+  color: #00aa64;
+  font-weight: 600;
+}
+
+.addButton {
+  height: 48px;
+  padding: 0 32px;
+  font-size: 16px;
+  font-weight: 600;
+  background: #00aa64;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 170, 100, 0.3);
+  transition: all 0.3s ease;
+}
+
+.addButton:hover {
+  background: #00b478 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 170, 100, 0.4) !important;
+}
+
+/* Stats Row */
+.statsRow {
+  margin-bottom: 24px;
+}
+
+.statCard {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.statCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Filter Card */
+.filterCard {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.searchInput {
+  border-radius: 8px;
+}
+
+.filterLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Agents Grid */
+.agentsGrid {
+  margin-bottom: 24px;
+}
+
+.agentCard {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.agentCard:hover {
+  border-color: #00478c;
+  box-shadow: 0 8px 24px rgba(0, 71, 140, 0.12);
+  transform: translateY(-4px);
+}
+
+.agentCard :global(.ant-card-body) {
+  padding: 0;
+}
+
+/* Card Header */
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px;
+  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.agentHeaderLeft {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+}
+
+.agentAvatar {
+  background: linear-gradient(135deg, #00478c 0%, #0056a3 100%);
+  flex-shrink: 0;
+}
+
+.agentNameSection {
+  flex: 1;
+}
+
+.agentName {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #003366;
+}
+
+.agentTag {
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+.actionButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: #6b7280;
+  transition: all 0.3s ease;
+}
+
+.actionButton:hover {
+  background: #f3f4f6 !important;
+  color: #003366 !important;
+}
+
+/* Branch Info */
+.branchInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.branchIcon {
+  color: #00478c;
+  font-size: 16px;
+}
+
+.branchText {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Card Content */
+.cardContent {
+  padding: 24px;
+}
+
+.infoRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.infoRow:last-of-type {
+  margin-bottom: 20px;
+}
+
+.infoIcon {
+  width: 40px;
+  height: 40px;
+  background: #f3f4f6;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00478c;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.infoContent {
+  flex: 1;
+}
+
+.infoLabel {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  margin: 0;
+  font-size: 14px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Agent Stats */
+.agentStats {
+  display: flex;
+  gap: 24px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.statIcon {
+  font-size: 20px;
+  color: #00478c;
+  margin-bottom: 4px;
+}
+
+.statValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #003366;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Card Footer */
+.cardFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 24px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cardFooter :global(.ant-btn-link) {
+  font-weight: 500;
+}
+
+/* Pagination */
+.paginationWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* RTL Support */
+[dir='rtl'] .headerLeft {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .agentHeaderLeft {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .infoRow {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .branchInfo {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .cardFooter {
+  flex-direction: row-reverse;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pageHeader {
+    padding: 24px 20px;
+  }
+
+  .headerContent {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerLeft {
+    gap: 16px;
+  }
+
+  .headerIcon {
+    font-size: 36px;
+  }
+
+  .pageTitle {
+    font-size: 24px;
+  }
+
+  .pageSubtitle {
+    font-size: 14px;
+  }
+
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .searchInput {
+    width: 100% !important;
+  }
+
+  .cardHeader {
+    padding: 20px;
+  }
+
+  .agentHeaderLeft {
+    flex-wrap: wrap;
+  }
+
+  .agentName {
+    font-size: 16px;
+  }
+
+  .cardContent {
+    padding: 20px;
+  }
+
+  .agentStats {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .statItem {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .cardFooter {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .paginationWrapper :global(.ant-pagination) {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageHeader {
+    padding: 20px 16px;
+  }
+
+  .headerIcon {
+    font-size: 32px;
+  }
+
+  .pageTitle {
+    font-size: 20px;
+  }
+
+  .addButton {
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .agentAvatar {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .agentName {
+    font-size: 15px;
+  }
+
+  .infoValue {
+    font-size: 13px;
+  }
+
+  .statValue {
+    font-size: 16px;
+  }
+}
