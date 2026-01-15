@@ -272,12 +272,10 @@ export default function Sidebar({
         <Image
           src="/images/logo.png"
           alt="Logo"
-          width={collapsed ? 40 : 50}
-          height={collapsed ? 40 : 50}
+          fill
+          className={styles.logoImage}
+          sizes={collapsed ? '60px' : '200px'}
         />
-        {!collapsed && (
-          <div className={styles.logoText}>{language === 'ar' ? 'سيجما' : 'Sigma'}</div>
-        )}
       </div>
 
       <Menu
