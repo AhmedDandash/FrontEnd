@@ -61,7 +61,7 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Mock validation
-      if (values.username === 'admin' && values.password === 'password') {
+      if (values.username === 'a' && values.password === 'a') {
         message.success(t('login.loginSuccess'));
 
         if (rememberMe) {

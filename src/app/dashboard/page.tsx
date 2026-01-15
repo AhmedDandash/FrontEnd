@@ -233,7 +233,7 @@ export default function DashboardPage() {
       <Row gutter={[24, 24]} className={styles.statsRow}>
         {statsCards.map((stat, index) => (
           <Col xs={24} sm={12} lg={6} key={index}>
-            <Card className={styles.statCard} bordered={false}>
+            <Card className={styles.statCard} variant="borderless">
               <div className={styles.statCardContent}>
                 <div className={styles.statIcon} style={{ background: stat.bgGradient }}>
                   {stat.icon}
@@ -273,7 +273,7 @@ export default function DashboardPage() {
           <Card
             className={styles.infoCard}
             title={language === 'ar' ? 'معلومات الفرع' : 'Branch Information'}
-            bordered={false}
+            variant="borderless"
           >
             <div className={styles.branchHeader}>
               <Avatar size={64} icon={<UserOutlined />} className={styles.branchAvatar} />
@@ -302,7 +302,7 @@ export default function DashboardPage() {
           <Card
             className={styles.statusCard}
             title={language === 'ar' ? 'حالة العقود' : 'Contracts Status'}
-            bordered={false}
+            variant="borderless"
             style={{ marginTop: 24 }}
           >
             {contractsStatus.map((item, index) => (
@@ -334,7 +334,7 @@ export default function DashboardPage() {
                 <Badge count={recentContracts.length} style={{ backgroundColor: '#00AA64' }} />
               </div>
             }
-            bordered={false}
+            variant="borderless"
           >
             <Table
               dataSource={recentContracts}
@@ -363,7 +363,7 @@ export default function DashboardPage() {
                 />
               </div>
             }
-            bordered={false}
+            variant="borderless"
           >
             <div className={styles.arrivalsList}>
               {upcomingArrivals.map((item, index) => (
@@ -396,7 +396,7 @@ export default function DashboardPage() {
                 <CheckCircleOutlined style={{ color: '#00AA64' }} />
               </div>
             }
-            bordered={false}
+            variant="borderless"
           >
             <div className={styles.updatesList}>
               {externalUpdates.map((item, index) => (

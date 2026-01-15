@@ -170,7 +170,7 @@ export default function Header({ collapsed, onToggleSidebar, onToggleMobileDrawe
           menu={{ items: notificationItems }}
           placement="bottomRight"
           trigger={['click']}
-          overlayClassName={styles.notificationDropdown}
+          classNames={{ root: styles.notificationDropdown }}
         >
           <Badge count={5} overflowCount={99} className={styles.notificationBadge}>
             <Button type="text" icon={<BellOutlined />} className={styles.iconBtn} />

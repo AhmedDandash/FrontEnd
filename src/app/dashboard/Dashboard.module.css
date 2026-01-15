@@ -4,6 +4,16 @@
   padding: 24px;
   min-height: 100vh;
   background: var(--gray-50, #f9fafb);
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Stats Row */

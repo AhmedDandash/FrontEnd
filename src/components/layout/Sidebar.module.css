@@ -8,6 +8,9 @@
   top: 0;
   bottom: 0;
   z-index: 100;
+  transform: translateZ(0);
+  will-change: transform;
+  contain: layout style paint;
 }
 
 [dir='rtl'] .sidebar {
@@ -51,7 +54,7 @@
   font-weight: 500;
   margin: 4px 4px;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .menu :global(.ant-menu-item:hover),

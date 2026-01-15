@@ -311,7 +311,7 @@ export default function Sidebar({
         onClose={onMobileDrawerClose}
         open={mobileDrawerVisible}
         className={styles.mobileDrawer}
-        width={260}
+        size="default"
         closeIcon={null}
         styles={{ body: { padding: 0 } }}
       >
