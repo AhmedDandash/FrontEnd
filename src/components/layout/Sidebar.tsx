@@ -16,6 +16,7 @@ import {
   IdcardOutlined,
   WarningOutlined,
   SettingOutlined,
+  ShopOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
@@ -61,6 +62,12 @@ export default function Sidebar({
       icon: <DashboardOutlined />,
       label: language === 'ar' ? 'لوحة التحكم' : 'Dashboard',
       onClick: () => router.push('/dashboard'),
+    },
+    {
+      key: '/branch',
+      icon: <ShopOutlined />,
+      label: language === 'ar' ? 'إدارة الفروع' : 'Branch Management',
+      onClick: () => router.push('/branch'),
     },
     {
       key: 'statistics',
@@ -243,7 +250,6 @@ export default function Sidebar({
       icon: <SettingOutlined />,
       label: language === 'ar' ? 'الإعدادات' : 'Settings',
       children: [
-        { key: '/settings/branch', label: language === 'ar' ? 'الفرع' : 'Branch' },
         { key: '/settings/documents', label: language === 'ar' ? 'المستندات' : 'Documents' },
         { key: '/settings/rules', label: language === 'ar' ? 'إدارة القواعد' : 'Rules Management' },
         { key: '/settings/themes', label: language === 'ar' ? 'المظهر' : 'Themes' },
