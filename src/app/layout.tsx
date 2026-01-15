@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { AntdProvider } from '@/components/AntdProvider';
+import MainLayout from '@/components/layout/MainLayout';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -16,7 +17,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
-        <AntdProvider>{children}</AntdProvider>
+        <AntdProvider>
+          <MainLayout>{children}</MainLayout>
+        </AntdProvider>
       </body>
     </html>
   );
