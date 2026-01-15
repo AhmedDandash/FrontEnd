@@ -10,7 +10,6 @@ import {
   FallOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  WarningOutlined,
   GlobalOutlined,
   TrophyOutlined,
   RocketOutlined,
