@@ -1,0 +1,369 @@
+.container {
+  padding: 24px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 64px);
+  transform: translateZ(0);
+  contain: layout style paint;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #003366 0%, #00478C 100%);
+  padding: 32px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.15);
+  animation: fadeIn 0.3s ease-in;
+}
+
+.title {
+  color: #fff;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+/* Statistics */
+.statsRow {
+  margin-bottom: 24px;
+}
+
+.statCard {
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+  transform: translateZ(0);
+}
+
+.statCard:hover {
+  transform: translateY(-4px) translateZ(0);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Filters */
+.filtersCard {
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
+.filterLabel {
+  display: block;
+  margin-bottom: 8px;
+  color: #003366;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Complaints List */
+.complaintsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.complaintCard {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+  position: relative;
+}
+
+.complaintCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px) translateZ(0);
+}
+
+.statusBanner {
+  background: linear-gradient(90deg, rgba(0, 170, 100, 0.1) 0%, rgba(0, 170, 100, 0.05) 100%);
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(0, 170, 100, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.cardContent {
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* Number Section */
+.numberSection {
+  flex-shrink: 0;
+  width: 120px;
+  text-align: center;
+  padding: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+}
+
+.sequenceNumber {
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.complaintNumber {
+  font-size: 24px;
+  font-weight: 700;
+  color: #003366;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.dateText {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+/* Details Section */
+.detailsSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.infoItem {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.icon {
+  color: #00478C;
+  font-size: 16px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.infoLabel {
+  font-size: 11px;
+  color: #6c757d;
+  font-weight: 500;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  font-size: 14px;
+  color: #212529;
+  font-weight: 500;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.finishNotesSection {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  background: rgba(0, 170, 100, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid #00AA64;
+}
+
+.finishNotesSection .icon {
+  color: #00AA64;
+}
+
+/* Status Section */
+.statusSection {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+  min-width: 140px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tags {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+/* Pagination */
+.paginationContainer {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* RTL Support */
+html[dir='rtl'] .cardContent {
+  direction: rtl;
+}
+
+html[dir='rtl'] .infoItem {
+  direction: rtl;
+}
+
+html[dir='rtl'] .statusSection {
+  align-items: flex-start;
+}
+
+html[dir='rtl'] .tags {
+  align-items: flex-start;
+}
+
+html[dir='rtl'] .finishNotesSection {
+  border-left: none;
+  border-right: 3px solid #00AA64;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    padding: 24px 16px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .statsRow {
+    margin-bottom: 16px;
+  }
+
+  .filtersCard {
+    padding: 16px;
+  }
+
+  .cardContent {
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .numberSection {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+  }
+
+  .sequenceNumber {
+    margin-bottom: 0;
+  }
+
+  .complaintNumber {
+    font-size: 20px;
+    margin-bottom: 0;
+  }
+
+  .dateText {
+    margin-top: 0;
+    text-align: right;
+  }
+
+  html[dir='rtl'] .dateText {
+    text-align: left;
+  }
+
+  .statusSection {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .tags {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  html[dir='rtl'] .statusSection {
+    flex-direction: row;
+  }
+
+  html[dir='rtl'] .tags {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 20px 12px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .statCard {
+    padding: 16px;
+  }
+
+  .filtersCard {
+    padding: 12px;
+  }
+
+  .cardContent {
+    padding: 12px;
+  }
+
+  .numberSection {
+    padding: 10px;
+  }
+
+  .complaintNumber {
+    font-size: 18px;
+  }
+
+  .infoValue {
+    font-size: 13px;
+  }
+
+  .statusBadge {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+}
