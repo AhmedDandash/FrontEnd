@@ -386,9 +386,9 @@ export default function SponsorshipTransferPage() {
                       <Col xs={24} sm={8} md={4}>
                         <div className={styles.contractNumber}>
                           <div className={styles.numberBadge}>
-                            <span className={styles.sequenceNumber}>{contract.id}</span>
+                            <span className={styles.sequenceNumber}>{contract.contractNumber}</span>
                             <h2 className={styles.mainNumber}>
-                              {contract.contractNumber.split('-')[1]}
+                              {contract.id}
                             </h2>
                             <span className={styles.dateText}>{contract.creationDate}</span>
                           </div>
