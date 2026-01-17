@@ -277,25 +277,6 @@
   text-align: right;
 }
 
-/* Branch Tag */
-.branchTag {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-}
-
-[dir='rtl'] .branchTag {
-  right: auto;
-  left: 12px;
-}
-
-.branchTag :global(.ant-tag) {
-  font-size: 12px;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-weight: 600;
-}
-
 /* Pagination */
 .paginationWrapper {
   display: flex;
@@ -390,11 +371,6 @@
   }
 
   .statusActions {
-    margin-top: 16px;
-  }
-
-  .branchTag {
-    position: static;
     margin-top: 16px;
   }
 }

@@ -439,13 +439,6 @@ export default function SponsorshipTransferPage() {
                         </div>
                       </Col>
                     </Row>
-
-                    {/* Branch Tag */}
-                    <div className={styles.branchTag}>
-                      <Tag color="blue">
-                        {language === 'ar' ? contract.branchNameAr : contract.branchName}
-                      </Tag>
-                    </div>
                   </Card>
                 </Col>
               );
