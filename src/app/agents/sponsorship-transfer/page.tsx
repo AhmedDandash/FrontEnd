@@ -14,7 +14,6 @@ import {
   Pagination,
   Statistic,
   Badge,
-  Tag,
   Divider,
 } from 'antd';
 import {
@@ -67,6 +66,8 @@ export default function SponsorshipTransferPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>('0');
   const [selectedNationalities, setSelectedNationalities] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
+  const [creationDateRange, setCreationDateRange] = useState<[string, string] | null>(null);
+  const [transferDateRange, setTransferDateRange] = useState<[string, string] | null>(null);
 
   const nationalities = [
     { value: '359', label: 'Philippines', labelAr: 'الفلبين' },
@@ -118,6 +119,8 @@ export default function SponsorshipTransferPage() {
       transferDate: { ar: 'تاريخ تأكيد نقل الكفالة', en: 'Transfer Confirmation Date' },
       contractStatus: { ar: 'حالة العقد', en: 'Contract Status' },
       nationality: { ar: 'الجنسية', en: 'Nationality' },
+      creationDateRange: { ar: 'نطاق تاريخ الإنشاء', en: 'Creation Date Range' },
+      transferDateRange: { ar: 'نطاق تاريخ النقل', en: 'Transfer Date Range' },
       marketer: { ar: 'المسوق', en: 'Marketer' },
       createdBy: { ar: 'أنشئ بواسطة', en: 'Created By' },
       search: { ar: 'بحث', en: 'Search' },
@@ -155,7 +158,23 @@ export default function SponsorshipTransferPage() {
         (nat) => nationalities.find((n) => n.value === nat)?.label === contract.nationality
       );
 
-    return matchesSearch && matchesStatus && matchesNationality;
+    const matchesCreationDate =
+      !creationDateRange ||
+      (new Date(contract.creationDate) >= new Date(creationDateRange[0]) &&
+        new Date(contract.creationDate) <= new Date(creationDateRange[1]));
+
+    const matchesTransferDate =
+      !transferDateRange ||
+      (new Date(contract.transferConfirmationDate) >= new Date(transferDateRange[0]) &&
+        new Date(contract.transferConfirmationDate) <= new Date(transferDateRange[1]));
+
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesNationality &&
+      matchesCreationDate &&
+      matchesTransferDate
+    );
   });
 
   const paginatedContracts = filteredContracts.slice(
@@ -303,6 +322,42 @@ export default function SponsorshipTransferPage() {
                   label: language === 'ar' ? n.labelAr : n.label,
                 }))}
                 maxTagCount="responsive"
+              />
+            </Col>
+            <Col xs={24} md={12}>
+              <label className={styles.filterLabel}>{t('creationDateRange')}</label>
+              <RangePicker
+                size="large"
+                style={{ width: '100%' }}
+                onChange={(dates) => {
+                  if (dates && dates[0] && dates[1]) {
+                    setCreationDateRange([
+                      dates[0].format('YYYY-MM-DD'),
+                      dates[1].format('YYYY-MM-DD'),
+                    ]);
+                  } else {
+                    setCreationDateRange(null);
+                  }
+                }}
+                placeholder={[t('creationDate'), t('creationDate')]}
+              />
+            </Col>
+            <Col xs={24} md={12}>
+              <label className={styles.filterLabel}>{t('transferDateRange')}</label>
+              <RangePicker
+                size="large"
+                style={{ width: '100%' }}
+                onChange={(dates) => {
+                  if (dates && dates[0] && dates[1]) {
+                    setTransferDateRange([
+                      dates[0].format('YYYY-MM-DD'),
+                      dates[1].format('YYYY-MM-DD'),
+                    ]);
+                  } else {
+                    setTransferDateRange(null);
+                  }
+                }}
+                placeholder={[t('transferDate'), t('transferDate')]}
               />
             </Col>
           </Row>
