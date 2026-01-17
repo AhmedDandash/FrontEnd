@@ -239,7 +239,7 @@ export default function Sidebar({
       key: '/complaints',
       icon: <WarningOutlined />,
       label: (
-        <Badge count={3} offset={[10, 0]} size="small">
+        <Badge offset={[10, 0]} size="small">
           {language === 'ar' ? 'الشكاوى' : 'Complaints'}
         </Badge>
       ),

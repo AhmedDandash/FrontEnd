@@ -77,7 +77,7 @@
 }
 
 .menu :global(.ant-menu-sub) {
-  background: rgba(0, 0, 0, 0.2) !important;
+  background: rgba(196, 166, 166, 0.2) !important;
 }
 
 .menu :global(.ant-menu-item) :global(.anticon),
@@ -91,8 +91,24 @@
 
 /* Badge Styles */
 .menu :global(.ant-badge-count) {
-  background-color: #ff4d4f;
-  box-shadow: 0 0 0 1px #003366;
+  background-color: #ff4d4f !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+  border: 2px solid #ffffff;
+}
+
+/* Fix Badge wrapper text color */
+.menu :global(.ant-badge) {
+  color: inherit !important;
+}
+
+.menu :global(.ant-menu-item) :global(.ant-badge) {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.menu :global(.ant-menu-item-selected) :global(.ant-badge) {
+  color: #ffffff !important;
 }
 
 /* Mobile Drawer */
