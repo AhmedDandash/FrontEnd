@@ -3,7 +3,14 @@
 import React, { useState, useMemo } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { Input, Select, DatePicker, Statistic, Row, Col, Badge, Empty, Pagination } from 'antd';
-import { SearchOutlined, PhoneOutlined, UserOutlined, MessageOutlined, CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, FileTextOutlined } from '@ant-design/icons';
+import {
+  SearchOutlined,
+  UserOutlined,
+  MessageOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  FileTextOutlined,
+} from '@ant-design/icons';
 import styles from './Complaints.module.css';
 
 const { RangePicker } = DatePicker;
@@ -75,7 +82,7 @@ export default function ComplaintsPage() {
       creationDate: '2026-01-13',
       endServiceDate: '2026-01-13',
       updateDate: '2026-01-13',
-      idNumber: '1234567890'
+      idNumber: '1234567890',
     },
     {
       id: 7995,
@@ -100,7 +107,7 @@ export default function ComplaintsPage() {
       creationDate: '2026-01-13',
       endServiceDate: '2026-01-13',
       updateDate: '2026-01-13',
-      idNumber: '2345678901'
+      idNumber: '2345678901',
     },
     {
       id: 7993,
@@ -125,7 +132,7 @@ export default function ComplaintsPage() {
       creationDate: '2026-01-12',
       endServiceDate: '2026-01-12',
       updateDate: '2026-01-12',
-      idNumber: '3456789012'
+      idNumber: '3456789012',
     },
     {
       id: 7992,
@@ -150,7 +157,7 @@ export default function ComplaintsPage() {
       creationDate: '2026-01-12',
       endServiceDate: '2026-01-12',
       updateDate: '2026-01-12',
-      idNumber: '4567890123'
+      idNumber: '4567890123',
     },
     {
       id: 7985,
@@ -175,7 +182,7 @@ export default function ComplaintsPage() {
       creationDate: '2026-01-11',
       endServiceDate: '',
       updateDate: '2026-01-12',
-      idNumber: '5678901234'
+      idNumber: '5678901234',
     },
     {
       id: 7980,
@@ -200,7 +207,7 @@ export default function ComplaintsPage() {
       creationDate: '2026-01-10',
       endServiceDate: '',
       updateDate: '2026-01-11',
-      idNumber: '6789012345'
+      idNumber: '6789012345',
     },
     {
       id: 7975,
@@ -225,7 +232,7 @@ export default function ComplaintsPage() {
       creationDate: '2026-01-09',
       endServiceDate: '',
       updateDate: '2026-01-10',
-      idNumber: '7890123456'
+      idNumber: '7890123456',
     },
     {
       id: 7970,
@@ -250,7 +257,7 @@ export default function ComplaintsPage() {
       creationDate: '2026-01-08',
       endServiceDate: '2026-01-09',
       updateDate: '2026-01-09',
-      idNumber: '8901234567'
+      idNumber: '8901234567',
     },
     {
       id: 7965,
@@ -275,7 +282,7 @@ export default function ComplaintsPage() {
       creationDate: '2026-01-07',
       endServiceDate: '',
       updateDate: '2026-01-08',
-      idNumber: '9012345678'
+      idNumber: '9012345678',
     },
     {
       id: 7960,
@@ -300,8 +307,8 @@ export default function ComplaintsPage() {
       creationDate: '2026-01-06',
       endServiceDate: '',
       updateDate: '2026-01-07',
-      idNumber: '0123456789'
-    }
+      idNumber: '0123456789',
+    },
   ];
 
   // Translations
@@ -420,10 +427,14 @@ export default function ComplaintsPage() {
         complaint.notes.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus = statusFilter === 'all' || complaint.status === statusFilter;
-      const matchesContractType = contractTypeFilter === 'all' || complaint.contractType === contractTypeFilter;
-      const matchesComplaintFrom = complaintFromFilter === 'all' || complaint.complaintFrom === complaintFromFilter;
-      const matchesIssueState = issueStateFilter === 'all' || complaint.issueState === issueStateFilter;
-      const matchesNationality = nationalityFilter === 'all' || complaint.nationality === nationalityFilter;
+      const matchesContractType =
+        contractTypeFilter === 'all' || complaint.contractType === contractTypeFilter;
+      const matchesComplaintFrom =
+        complaintFromFilter === 'all' || complaint.complaintFrom === complaintFromFilter;
+      const matchesIssueState =
+        issueStateFilter === 'all' || complaint.issueState === issueStateFilter;
+      const matchesNationality =
+        nationalityFilter === 'all' || complaint.nationality === nationalityFilter;
 
       const matchesCreationDate =
         !creationDateRange ||
@@ -446,7 +457,17 @@ export default function ComplaintsPage() {
         matchesUpdateDate
       );
     });
-  }, [searchTerm, statusFilter, contractTypeFilter, complaintFromFilter, issueStateFilter, nationalityFilter, creationDateRange, updateDateRange, mockComplaints]);
+  }, [
+    searchTerm,
+    statusFilter,
+    contractTypeFilter,
+    complaintFromFilter,
+    issueStateFilter,
+    nationalityFilter,
+    creationDateRange,
+    updateDateRange,
+    mockComplaints,
+  ]);
 
   // Pagination
   const paginatedComplaints = useMemo(() => {
@@ -467,8 +488,8 @@ export default function ComplaintsPage() {
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { color: string; icon: React.ReactNode; text: string }> = {
       open: { color: '#faad14', icon: <ClockCircleOutlined />, text: t('open') },
-      closed: { color: '#00AA64', icon: <CheckCircleOutlined />, text: t('closed') },
-      pending: { color: '#00478C', icon: <ClockCircleOutlined />, text: t('pending') },
+      closed: { color: '#00aa64', icon: <CheckCircleOutlined />, text: t('closed') },
+      pending: { color: '#8c0000', icon: <ClockCircleOutlined />, text: t('pending') },
     };
     const config = statusConfig[status] || statusConfig.open;
     return (
@@ -624,7 +645,10 @@ export default function ComplaintsPage() {
               style={{ width: '100%' }}
               onChange={(dates) => {
                 if (dates && dates[0] && dates[1]) {
-                  setCreationDateRange([dates[0].format('YYYY-MM-DD'), dates[1].format('YYYY-MM-DD')]);
+                  setCreationDateRange([
+                    dates[0].format('YYYY-MM-DD'),
+                    dates[1].format('YYYY-MM-DD'),
+                  ]);
                 } else {
                   setCreationDateRange(null);
                 }
@@ -637,7 +661,10 @@ export default function ComplaintsPage() {
               style={{ width: '100%' }}
               onChange={(dates) => {
                 if (dates && dates[0] && dates[1]) {
-                  setUpdateDateRange([dates[0].format('YYYY-MM-DD'), dates[1].format('YYYY-MM-DD')]);
+                  setUpdateDateRange([
+                    dates[0].format('YYYY-MM-DD'),
+                    dates[1].format('YYYY-MM-DD'),
+                  ]);
                 } else {
                   setUpdateDateRange(null);
                 }
@@ -730,18 +757,15 @@ export default function ComplaintsPage() {
                 <div className={styles.statusSection}>
                   {complaint.status !== 'closed' && getStatusBadge(complaint.status)}
                   <div className={styles.tags}>
-                    <Badge
+                    {/* <Badge
                       count={t(complaint.contractType.replace('-', ''))}
                       style={{ backgroundColor: '#003366' }}
                     />
                     <Badge
                       count={t(complaint.complaintFrom)}
                       style={{ backgroundColor: '#505050' }}
-                    />
-                    <Badge
-                      count={complaint.nationality}
-                      style={{ backgroundColor: '#00478C' }}
-                    />
+                    /> */}
+                    <Badge count={complaint.nationality} style={{ backgroundColor: '#00478C' }} />
                   </div>
                 </div>
               </div>
@@ -762,7 +786,9 @@ export default function ComplaintsPage() {
               setPageSize(size);
             }}
             showSizeChanger
-            showTotal={(total, range) => `${range[0]}-${range[1]} ${t('of')} ${total} ${t('items')}`}
+            showTotal={(total, range) =>
+              `${range[0]}-${range[1]} ${t('of')} ${total} ${t('items')}`
+            }
             pageSizeOptions={['10', '20', '30', '50']}
           />
         </div>

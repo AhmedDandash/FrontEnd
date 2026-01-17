@@ -8,7 +8,7 @@
 
 /* Header */
 .header {
-  background: linear-gradient(135deg, #003366 0%, #00478C 100%);
+  background: linear-gradient(135deg, #003366 0%, #00478c 100%);
   padding: 32px;
   border-radius: 12px;
   margin-bottom: 24px;
@@ -144,7 +144,7 @@
 }
 
 .icon {
-  color: #00478C;
+  color: #00478c;
   font-size: 16px;
   margin-top: 4px;
   flex-shrink: 0;
@@ -174,11 +174,11 @@
   padding: 12px;
   background: rgba(0, 170, 100, 0.05);
   border-radius: 6px;
-  border-left: 3px solid #00AA64;
+  border-left: 3px solid #00aa64;
 }
 
 .finishNotesSection .icon {
-  color: #00AA64;
+  color: #00aa64;
 }
 
 /* Status Section */
@@ -251,7 +251,7 @@ html[dir='rtl'] .tags {
 
 html[dir='rtl'] .finishNotesSection {
   border-left: none;
-  border-right: 3px solid #00AA64;
+  border-right: 3px solid #00aa64;
 }
 
 /* Responsive Design */
