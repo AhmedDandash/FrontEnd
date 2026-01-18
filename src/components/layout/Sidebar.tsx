@@ -64,10 +64,19 @@ export default function Sidebar({
       onClick: () => router.push('/dashboard'),
     },
     {
-      key: '/branch',
+      key: 'branch',
       icon: <ShopOutlined />,
-      label: language === 'ar' ? 'إدارة الفروع' : 'Branch Management',
-      onClick: () => router.push('/branch'),
+      label: language === 'ar' ? ' الفروع' : 'Branch',
+      children: [
+        {
+          key: '/branch/management',
+          label: language === 'ar' ? 'إدارة الفروع' : 'Branch Management',
+        },
+        {
+          key: '/branch/documents',
+          label: language === 'ar' ? 'المستندات' : 'Documents',
+        },
+      ],
     },
     {
       key: 'statistics',
@@ -111,7 +120,7 @@ export default function Sidebar({
       icon: <FileTextOutlined />,
       label: language === 'ar' ? 'العقود' : 'Contracts',
       children: [
-        { key: '/contracts', label: language === 'ar' ? 'جميع العقود' : 'All Contracts'},
+        { key: '/contracts', label: language === 'ar' ? 'جميع العقود' : 'All Contracts' },
         { key: '/contracts/rent', label: language === 'ar' ? 'عقود الإيجار' : 'Rent Contracts' },
         { key: '/contracts/delegates', label: language === 'ar' ? 'مندوبو العقود' : 'Delegates' },
         { key: '/contracts/penalties', label: language === 'ar' ? 'غرامات العقود' : 'Penalties' },
@@ -243,7 +252,6 @@ export default function Sidebar({
       icon: <SettingOutlined />,
       label: language === 'ar' ? 'الإعدادات' : 'Settings',
       children: [
-        { key: '/settings/documents', label: language === 'ar' ? 'المستندات' : 'Documents' },
         { key: '/settings/rules', label: language === 'ar' ? 'إدارة القواعد' : 'Rules Management' },
         { key: '/settings/themes', label: language === 'ar' ? 'المظهر' : 'Themes' },
         {
