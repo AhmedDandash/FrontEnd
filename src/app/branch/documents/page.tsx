@@ -17,8 +17,6 @@ import {
   Modal,
   Form,
   message,
-  Badge,
-  Tooltip,
   Progress,
 } from 'antd';
 import type { MenuProps } from 'antd';
@@ -38,15 +36,12 @@ import {
   WarningOutlined,
   FileProtectOutlined,
   DownloadOutlined,
-  UploadOutlined,
   FolderOpenOutlined,
   HomeOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
 import styles from './Documents.module.css';
-import type { Dayjs } from 'dayjs';
 
-const { RangePicker } = DatePicker;
 
 interface Document {
   id: number;
