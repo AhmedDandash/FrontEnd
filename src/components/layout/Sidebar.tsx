@@ -111,14 +111,7 @@ export default function Sidebar({
       icon: <FileTextOutlined />,
       label: language === 'ar' ? 'العقود' : 'Contracts',
       children: [
-        {
-          key: '/contracts',
-          label: (
-            <Badge count={5} offset={[10, 0]} size="small">
-              {language === 'ar' ? 'جميع العقود' : 'All Contracts'}
-            </Badge>
-          ),
-        },
+        { key: '/contracts', label: language === 'ar' ? 'جميع العقود' : 'All Contracts'},
         { key: '/contracts/rent', label: language === 'ar' ? 'عقود الإيجار' : 'Rent Contracts' },
         { key: '/contracts/delegates', label: language === 'ar' ? 'مندوبو العقود' : 'Delegates' },
         { key: '/contracts/penalties', label: language === 'ar' ? 'غرامات العقود' : 'Penalties' },
