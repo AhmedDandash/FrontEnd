@@ -131,17 +131,16 @@
 /* Customer Card Header */
 .customerCardHeader {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr auto;
   align-items: center;
   width: 100%;
-  gap: 20px;
+  gap: 24px;
 }
 
 .customerMainInfo {
   display: flex;
   align-items: center;
   gap: 16px;
-  justify-self: start;
 }
 
 .customerAvatar {
@@ -204,7 +203,7 @@
 .copyIcon {
   color: #666;
   cursor: pointer;
-  margin-left: 4px;
+  margin-inline-start: 4px;
   transition: color 0.3s ease;
 }
 
@@ -217,8 +216,8 @@
   display: flex;
   gap: 24px;
   flex-wrap: wrap;
-  justify-self: center;
   justify-content: center;
+  align-items: center;
 }
 
 .statItem {
@@ -226,6 +225,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  min-width: 80px;
 }
 
 .statLabel {
@@ -344,18 +344,15 @@
 
   .customerCardHeader {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
     gap: 16px;
   }
 
   .customerMainInfo {
     width: 100%;
-    justify-self: start;
   }
 
   .customerStats {
     width: 100%;
-    justify-self: start;
     justify-content: flex-start;
   }
 
@@ -419,98 +416,18 @@
   }
 }
 
-/* RTL Support */
-html[dir='rtl'] .customersPage {
-  direction: rtl;
-  text-align: right;
+/* RTL Support - Using logical properties for automatic mirroring */
+/* The layout uses CSS logical properties (margin-inline-start, etc.) which automatically 
+   flip in RTL mode. Additional RTL-specific overrides are kept minimal. */
+
+/* Phone numbers should remain LTR for readability */
+.contactIcons {
+  unicode-bidi: plaintext;
 }
 
-html[dir='rtl'] .pageHeader {
-  direction: rtl;
-}
-
-html[dir='rtl'] .headerContent {
-  flex-direction: row-reverse;
-}
-
-html[dir='rtl'] .headerTitle {
-  flex-direction: row-reverse;
-}
-
-html[dir='rtl'] .customerCardHeader {
-  direction: rtl;
-}
-
-html[dir='rtl'] .customerMainInfo {
-  flex-direction: row-reverse;
-  justify-self: end;
-}
-
-html[dir='rtl'] .customerNameSection {
-  align-items: flex-end;
-  text-align: right;
-}
-
-html[dir='rtl'] .customerName {
-  flex-direction: row-reverse;
-}
-
-html[dir='rtl'] .customerStats {
-  flex-direction: row-reverse;
-  justify-self: center;
-}
-
-html[dir='rtl'] .statItem {
-  text-align: center;
-}
-
-html[dir='rtl'] .infoItem {
-  flex-direction: row-reverse;
-}
-
-html[dir='rtl'] .copyIcon {
-  margin-left: 0;
-  margin-right: 4px;
-}
-
-html[dir='rtl'] .contactIcons {
+.contactIcons a {
   direction: ltr;
-  justify-content: flex-end;
-}
-
-html[dir='rtl'] .customerCollapse :global(.ant-collapse-header) {
-  flex-direction: row-reverse;
-}
-
-html[dir='rtl'] .customerCollapse :global(.ant-collapse-expand-icon) {
-  margin-right: 0 !important;
-  margin-left: 12px !important;
-}
-
-html[dir='rtl'] .customerCollapse :global(.ant-collapse-extra) {
-  margin-left: 0 !important;
-  margin-right: auto !important;
-}
-
-html[dir='rtl'] .customerCollapse :global(.ant-collapse-header-text) {
-  flex: 1;
-}
-
-html[dir='rtl'] .customerCollapse :global(.ant-tabs-nav) {
-  direction: rtl;
-}
-
-html[dir='rtl'] .customerCollapse :global(.ant-tabs-tab + .ant-tabs-tab) {
-  margin-left: 0 !important;
-  margin-right: 24px !important;
-}
-
-html[dir='rtl'] .customerActions {
-  direction: rtl;
-}
-
-html[dir='rtl'] .customerActions :global(.ant-space) {
-  flex-direction: row-reverse;
+  unicode-bidi: embed;
 }
 
 /* Print Styles */
@@ -587,7 +504,7 @@ html[dir='rtl'] .customerActions :global(.ant-space) {
 }
 
 .customerCollapse :global(.ant-tabs-tab + .ant-tabs-tab) {
-  margin-left: 16px;
+  margin-inline-start: 24px;
 }
 
 .customerCollapse :global(.ant-tabs-tab-active) {
