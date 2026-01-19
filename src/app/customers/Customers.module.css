@@ -492,33 +492,72 @@
   background: #00478c;
 }
 
-/* Tabs Customization */
+/* Tabs Customization - RTL/LTR Safe using CSS Logical Properties */
+
+/* 
+ * Tab container uses flexbox with gap for consistent spacing.
+ * gap is direction-agnostic - works the same in LTR and RTL.
+ * No need for margin-left/right which would need RTL overrides.
+ */
 .customerCollapse :global(.ant-tabs-nav) {
-  margin-bottom: 20px;
+  margin-block-end: 20px; /* Logical: bottom margin in LTR, same in RTL */
 }
 
+.customerCollapse :global(.ant-tabs-nav-list) {
+  display: flex;
+  gap: 8px; /* Direction-agnostic spacing between tabs */
+}
+
+/* 
+ * Individual tab styling using logical properties.
+ * padding-inline: horizontal padding (start/end)
+ * padding-block: vertical padding (top/bottom)
+ * These automatically flip in RTL without any overrides.
+ */
 .customerCollapse :global(.ant-tabs-tab) {
   font-weight: 500;
-  padding: 12px 16px;
-  margin: 0;
+  font-size: 13px;
+  /* Using logical padding - works in both LTR and RTL */
+  padding-block: 10px; /* Vertical: top and bottom */
+  padding-inline: 16px; /* Horizontal: start and end (flips in RTL) */
+  /* Reset any physical margins that might conflict */
+  margin: 0 !important;
+  /* Ensure text alignment respects direction */
+  text-align: center;
 }
 
+/* 
+ * Remove the old adjacent sibling margin approach.
+ * Using gap on the container is cleaner and RTL-safe.
+ */
 .customerCollapse :global(.ant-tabs-tab + .ant-tabs-tab) {
-  margin-inline-start: 24px;
+  /* Gap handles spacing now, no margin needed */
+  margin: 0 !important;
 }
 
 .customerCollapse :global(.ant-tabs-tab-active) {
   color: #003366;
 }
 
+/* 
+ * Active tab indicator (ink bar) - already horizontal,
+ * Ant Design handles RTL positioning automatically.
+ */
 .customerCollapse :global(.ant-tabs-ink-bar) {
   background: #003366;
 }
 
+/* 
+ * Tab button content (icon + text).
+ * gap is direction-agnostic for spacing.
+ * Icons inside flex container will naturally follow text direction.
+ */
 .customerCollapse :global(.ant-tabs-tab-btn) {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 6px; /* Direction-agnostic spacing between icon and text */
+  white-space: nowrap;
 }
 
 /* Badge Customization */

@@ -477,7 +477,7 @@ export default function CustomersPage() {
           </Space>
         }
       >
-        <Tabs items={tabItems} size="large" tabBarGutter={16} />
+        <Tabs items={tabItems} size="middle" />
         <Divider />
         <div className={styles.customerActions}>
           <Space wrap size="small">
