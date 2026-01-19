@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   Row,
@@ -15,18 +15,25 @@ import {
   Modal,
   Progress,
   Badge,
+  Dropdown,
+  DatePicker,
 } from 'antd';
+import type { MenuProps } from 'antd';
 import {
   FileTextOutlined,
   SearchOutlined,
   PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
   PrinterOutlined,
   UserOutlined,
   CalendarOutlined,
   DollarOutlined,
+  EyeOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
   ExclamationCircleOutlined,
+  MoreOutlined,
   FileExcelOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
@@ -34,30 +41,33 @@ import {
   FileProtectOutlined,
   WarningOutlined,
   MoneyCollectOutlined,
-  SafetyOutlined,
   UserDeleteOutlined,
   UserAddOutlined,
-  SwapOutlined,
   CloseCircleOutlined,
   BarsOutlined,
+  ReloadOutlined,
+  HomeOutlined,
 } from '@ant-design/icons';
 
 import { useAuthStore } from '@/store/authStore';
-import styles from './Contracts.module.css';
+import styles from './RentContracts.module.css';
 
-interface Contract {
+const { RangePicker } = DatePicker;
+
+interface RentContract {
   id: string;
   contractNumber: string;
   customerName: string;
   customerNameAr: string;
   customerPhone: string;
-  contractType: 'mediation' | 'operation' | 'sponsorship' | 'rent';
-  status: 'active' | 'pending' | 'completed' | 'cancelled' | 'expired';
+  status: 'active' | 'pending' | 'expired' | 'renewed' | 'cancelled';
   startDate: string;
   endDate: string;
-  totalAmount: number;
-  paidAmount: number;
+  monthlyRent: number;
+  totalCollected: number;
   remainingAmount: number;
+  workerName: string;
+  workerNameAr: string;
   nationality: string;
   nationalityAr: string;
   profession: string;
@@ -66,18 +76,23 @@ interface Contract {
   agentAr: string;
   branch: string;
   branchAr: string;
+  renewalCount: number;
+  daysRemaining: number;
   createdAt: string;
   notes: string;
   notesAr: string;
 }
 
-// Mock data for contracts
-const mockContracts: Contract[] = Array.from({ length: 60 }, (_, i) => {
-  const total = Math.floor(Math.random() * 20000) + 5000;
-  const paid = Math.floor(Math.random() * total);
+// Mock data for rent contracts
+const mockRentContracts: RentContract[] = Array.from({ length: 50 }, (_, i) => {
+  const monthlyRent = Math.floor(Math.random() * 2000) + 1000;
+  const monthsActive = Math.floor(Math.random() * 24) + 1;
+  const totalCollected = monthlyRent * monthsActive;
+  const daysRemaining = Math.floor(Math.random() * 365);
+
   return {
-    id: `contract-${i + 1}`,
-    contractNumber: `${2024000 + i}`,
+    id: `rent-${i + 1}`,
+    contractNumber: `R${2024000 + i}`,
     customerName: [
       'Ahmed Al-Rashid',
       'Fatima Hassan',
@@ -87,11 +102,7 @@ const mockContracts: Contract[] = Array.from({ length: 60 }, (_, i) => {
       'Nora Al-Saud',
       'Omar Mansour',
       'Layla Ahmed',
-      'Youssef Al-Harbi',
-      'Hana Mahmoud',
-      'Ali Al-Dosari',
-      'Mona Saleh',
-    ][i % 12],
+    ][i % 8],
     customerNameAr: [
       'أحمد الراشد',
       'فاطمة حسن',
@@ -101,49 +112,51 @@ const mockContracts: Contract[] = Array.from({ length: 60 }, (_, i) => {
       'نورة آل سعود',
       'عمر منصور',
       'ليلى أحمد',
-      'يوسف الحربي',
-      'هناء محمود',
-      'علي الدوسري',
-      'منى صالح',
-    ][i % 12],
+    ][i % 8],
     customerPhone: `05${Math.floor(Math.random() * 9)}${String(Math.floor(Math.random() * 10000000)).padStart(7, '0')}`,
-    contractType: (['mediation', 'operation', 'sponsorship', 'rent'] as const)[i % 4],
-    status: (['active', 'pending', 'completed', 'cancelled', 'expired'] as const)[i % 5],
-    startDate: new Date(Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000).toISOString(),
-    endDate: new Date(Date.now() + Math.random() * 180 * 24 * 60 * 60 * 1000).toISOString(),
-    totalAmount: total,
-    paidAmount: paid,
-    remainingAmount: total - paid,
-    nationality: ['Philippines', 'India', 'Indonesia', 'Bangladesh', 'Sri Lanka'][i % 5],
-    nationalityAr: ['الفلبين', 'الهند', 'إندونيسيا', 'بنغلاديش', 'سريلانكا'][i % 5],
-    profession: ['Housemaid', 'Driver', 'Cook', 'Nurse', 'Nanny'][i % 5],
-    professionAr: ['خادمة منزلية', 'سائق', 'طباخ', 'ممرضة', 'مربية'][i % 5],
+    status: (['active', 'pending', 'expired', 'renewed', 'cancelled'] as const)[i % 5],
+    startDate: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
+    endDate: new Date(Date.now() + Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
+    monthlyRent,
+    totalCollected,
+    remainingAmount: Math.floor(Math.random() * monthlyRent),
+    workerName: ['Maria Santos', 'Kumar Patel', 'Siti Rahman', 'Fatima Ali'][i % 4],
+    workerNameAr: ['ماريا سانتوس', 'كومار باتل', 'سيتي رحمن', 'فاطمة علي'][i % 4],
+    nationality: ['Philippines', 'India', 'Indonesia', 'Bangladesh'][i % 4],
+    nationalityAr: ['الفلبين', 'الهند', 'إندونيسيا', 'بنغلاديش'][i % 4],
+    profession: ['Housemaid', 'Driver', 'Cook', 'Nurse'][i % 4],
+    professionAr: ['خادمة منزلية', 'سائق', 'طباخ', 'ممرضة'][i % 4],
     agent: ['Siham Al-Harbi', 'Mohammed Al-Otaibi', 'Sara Al-Dosari'][i % 3],
     agentAr: ['سهام الحربي', 'محمد العتيبي', 'سارة الدوسري'][i % 3],
     branch: 'Sigma Recruitment Office',
     branchAr: 'سيجما الكفاءات للاستقدام',
-    createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-    notes: 'Contract processed successfully',
-    notesAr: 'تم معالجة العقد بنجاح',
+    renewalCount: Math.floor(Math.random() * 5),
+    daysRemaining,
+    createdAt: new Date(Date.now() - Math.random() * 730 * 24 * 60 * 60 * 1000).toISOString(),
+    notes: 'Rent contract in good standing',
+    notesAr: 'عقد الإيجار في وضع جيد',
   };
 });
 
-export default function ContractsPage() {
+export default function RentContractsPage() {
   const language = useAuthStore((state) => state.language);
+  const [mounted, setMounted] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [nationalityFilter, setNationalityFilter] = useState<string>('all');
-  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
+  const [dateRange, setDateRange] = useState<[any, any] | null>(null);
+  const [selectedContract, setSelectedContract] = useState<RentContract | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Translations
   const t = {
-    pageTitle: language === 'ar' ? 'عقود الوساطة' : 'Mediation Contracts',
+    pageTitle: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts',
     pageSubtitle:
-      language === 'ar'
-        ? 'إدارة جميع عقود الوساطة والتشغيل'
-        : 'Manage all mediation and operation contracts',
+      language === 'ar' ? 'إدارة جميع عقود تشغيل العمالة' : 'Manage all operation worker contracts',
     addContract: language === 'ar' ? 'إضافة عقد' : 'Add Contract',
     exportExcel: language === 'ar' ? 'تصدير إكسل' : 'Export Excel',
     print: language === 'ar' ? 'طباعة' : 'Print',
@@ -151,78 +164,81 @@ export default function ContractsPage() {
       language === 'ar'
         ? 'بحث برقم العقد أو اسم العميل...'
         : 'Search by contract number or customer name...',
-    allTypes: language === 'ar' ? 'جميع الأنواع' : 'All Types',
-    mediation: language === 'ar' ? 'وساطة' : 'Mediation',
-    operation: language === 'ar' ? 'تشغيل' : 'Operation',
-    sponsorship: language === 'ar' ? 'كفالة' : 'Sponsorship',
-    rent: language === 'ar' ? 'إيجار' : 'Rent',
     allStatuses: language === 'ar' ? 'جميع الحالات' : 'All Statuses',
     active: language === 'ar' ? 'نشط' : 'Active',
     pending: language === 'ar' ? 'معلق' : 'Pending',
-    completed: language === 'ar' ? 'مكتمل' : 'Completed',
-    cancelled: language === 'ar' ? 'ملغى' : 'Cancelled',
     expired: language === 'ar' ? 'منتهي' : 'Expired',
+    renewed: language === 'ar' ? 'متجدد' : 'Renewed',
+    cancelled: language === 'ar' ? 'ملغى' : 'Cancelled',
     allNationalities: language === 'ar' ? 'جميع الجنسيات' : 'All Nationalities',
+    dateRange: language === 'ar' ? 'نطاق التاريخ' : 'Date Range',
+    startDate: language === 'ar' ? 'تاريخ البداية' : 'Start Date',
+    endDate: language === 'ar' ? 'تاريخ النهاية' : 'End Date',
     totalContracts: language === 'ar' ? 'إجمالي العقود' : 'Total Contracts',
     activeContracts: language === 'ar' ? 'عقود نشطة' : 'Active Contracts',
-    pendingContracts: language === 'ar' ? 'عقود معلقة' : 'Pending Contracts',
+    expiringContracts: language === 'ar' ? 'عقود قرب الانتهاء' : 'Expiring Soon',
     totalRevenue: language === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue',
     contractNumber: language === 'ar' ? 'رقم العقد' : 'Contract Number',
     customer: language === 'ar' ? 'العميل' : 'Customer',
-    type: language === 'ar' ? 'النوع' : 'Type',
+    worker: language === 'ar' ? 'العامل' : 'Worker',
     status: language === 'ar' ? 'الحالة' : 'Status',
-    amount: language === 'ar' ? 'المبلغ' : 'Amount',
-    paid: language === 'ar' ? 'المدفوع' : 'Paid',
+    monthlyRent: language === 'ar' ? 'الإيجار الشهري' : 'Monthly Rent',
+    collected: language === 'ar' ? 'المحصل' : 'Collected',
     remaining: language === 'ar' ? 'المتبقي' : 'Remaining',
-    startDate: language === 'ar' ? 'تاريخ البداية' : 'Start Date',
-    endDate: language === 'ar' ? 'تاريخ الانتهاء' : 'End Date',
     nationality: language === 'ar' ? 'الجنسية' : 'Nationality',
     profession: language === 'ar' ? 'المهنة' : 'Profession',
-    agent: language === 'ar' ? 'الوكيل' : 'Agent',
+    renewals: language === 'ar' ? 'التجديدات' : 'Renewals',
+    daysLeft: language === 'ar' ? 'الأيام المتبقية' : 'Days Left',
+    viewDetails: language === 'ar' ? 'عرض التفاصيل' : 'View Details',
     edit: language === 'ar' ? 'تعديل' : 'Edit',
     delete: language === 'ar' ? 'حذف' : 'Delete',
     noResults: language === 'ar' ? 'لا توجد نتائج' : 'No results found',
     phone: language === 'ar' ? 'الهاتف' : 'Phone',
-    paymentProgress: language === 'ar' ? 'تقدم الدفع' : 'Payment Progress',
     addNote: language === 'ar' ? 'إضافة ملاحظة' : 'Add Note',
     addComplaint: language === 'ar' ? 'إضافة شكوى' : 'Add Complaint',
     addContact: language === 'ar' ? 'إضافة اتصال' : 'Add Contact',
-    payBill: language === 'ar' ? 'دفع الفاتورة' : 'Pay Bill',
-    addInsurance: language === 'ar' ? 'إضافة تأمين' : 'Add Insurance',
-    releaseApplicant: language === 'ar' ? 'تحرير المتقدم' : 'Release Applicant',
-    addDelegate: language === 'ar' ? 'إضافة مندوب' : 'Add Delegate',
-    changeType: language === 'ar' ? 'تغيير النوع' : 'Change Type',
+    collectPayment: language === 'ar' ? 'تحصيل دفعة' : 'Collect Payment',
+    renewContract: language === 'ar' ? 'تجديد العقد' : 'Renew Contract',
+    releaseWorker: language === 'ar' ? 'تحرير العامل' : 'Release Worker',
+    transferWorker: language === 'ar' ? 'نقل العامل' : 'Transfer Worker',
     cancel: language === 'ar' ? 'إلغاء' : 'Cancel',
     followUpStatus: language === 'ar' ? 'حالة المتابعة' : 'Follow-up Status',
-    actions: language === 'ar' ? 'الإجراءات' : 'Actions',
+    refresh: language === 'ar' ? 'تحديث' : 'Refresh',
   };
 
   // Filter contracts
   const filteredContracts = useMemo(() => {
-    return mockContracts.filter((contract) => {
+    return mockRentContracts.filter((contract) => {
       const searchLower = searchText.toLowerCase();
       const matchesSearch =
         !searchText ||
-        contract.contractNumber.includes(searchText) ||
+        contract.contractNumber.toLowerCase().includes(searchLower) ||
         contract.customerName.toLowerCase().includes(searchLower) ||
-        contract.customerNameAr.includes(searchText);
+        contract.customerNameAr.includes(searchText) ||
+        contract.workerName.toLowerCase().includes(searchLower) ||
+        contract.workerNameAr.includes(searchText);
 
-      const matchesType = typeFilter === 'all' || contract.contractType === typeFilter;
       const matchesStatus = statusFilter === 'all' || contract.status === statusFilter;
       const matchesNationality =
         nationalityFilter === 'all' || contract.nationality === nationalityFilter;
 
-      return matchesSearch && matchesType && matchesStatus && matchesNationality;
+      const matchesDate =
+        !dateRange ||
+        (new Date(contract.startDate) >= dateRange[0].toDate() &&
+          new Date(contract.startDate) <= dateRange[1].toDate());
+
+      return matchesSearch && matchesStatus && matchesNationality && matchesDate;
     });
-  }, [searchText, typeFilter, statusFilter, nationalityFilter]);
+  }, [searchText, statusFilter, nationalityFilter, dateRange]);
 
   // Statistics
   const stats = useMemo(
     () => ({
-      total: mockContracts.length,
-      active: mockContracts.filter((c) => c.status === 'active').length,
-      pending: mockContracts.filter((c) => c.status === 'pending').length,
-      revenue: mockContracts.reduce((sum, c) => sum + c.totalAmount, 0),
+      total: mockRentContracts.length,
+      active: mockRentContracts.filter((c) => c.status === 'active').length,
+      expiring: mockRentContracts.filter((c) => c.daysRemaining < 30 && c.status === 'active')
+        .length,
+      revenue: mockRentContracts.reduce((sum, c) => sum + c.totalCollected, 0),
     }),
     []
   );
@@ -243,31 +259,60 @@ export default function ContractsPage() {
     }).format(amount);
   };
 
-  const getTypeTag = (type: string) => {
-    const config: Record<string, { color: string; label: string }> = {
-      mediation: { color: 'blue', label: t.mediation },
-      operation: { color: 'green', label: t.operation },
-      sponsorship: { color: 'purple', label: t.sponsorship },
-      rent: { color: 'orange', label: t.rent },
-    };
-    return config[type] || { color: 'default', label: type };
-  };
-
   const getStatusConfig = (status: string) => {
     const config: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
       active: { color: 'success', label: t.active, icon: <CheckCircleOutlined /> },
       pending: { color: 'warning', label: t.pending, icon: <ClockCircleOutlined /> },
-      completed: { color: 'success', label: t.completed, icon: <CheckCircleOutlined /> },
-      cancelled: { color: 'error', label: t.cancelled, icon: <ExclamationCircleOutlined /> },
-      expired: { color: 'default', label: t.expired, icon: <ClockCircleOutlined /> },
+      expired: { color: 'error', label: t.expired, icon: <ExclamationCircleOutlined /> },
+      renewed: { color: 'processing', label: t.renewed, icon: <ReloadOutlined /> },
+      cancelled: { color: 'default', label: t.cancelled, icon: <CloseCircleOutlined /> },
     };
-    return config[status] || { color: 'default', label: status, icon: <ClockCircleOutlined /> };
+    return (
+      config[status] || {
+        color: 'default',
+        label: status,
+        icon: <ClockCircleOutlined />,
+      }
+    );
   };
 
-  const renderContractCard = (contract: Contract) => {
-    const paymentProgress = (contract.paidAmount / contract.totalAmount) * 100;
+  const handleViewDetails = (contract: RentContract) => {
+    setSelectedContract(contract);
+    setShowDetailsModal(true);
+  };
+
+  const getMenuItems = (contract: RentContract): MenuProps['items'] => [
+    {
+      key: 'view',
+      label: t.viewDetails,
+      icon: <EyeOutlined />,
+      onClick: () => handleViewDetails(contract),
+    },
+    {
+      key: 'edit',
+      label: t.edit,
+      icon: <EditOutlined />,
+    },
+    {
+      key: 'print',
+      label: t.print,
+      icon: <PrinterOutlined />,
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'delete',
+      label: t.delete,
+      icon: <DeleteOutlined />,
+      danger: true,
+    },
+  ];
+
+  const renderContractCard = (contract: RentContract) => {
     const statusConfig = getStatusConfig(contract.status);
-    const typeTag = getTypeTag(contract.contractType);
+    const collectionProgress =
+      (contract.totalCollected / (contract.totalCollected + contract.remainingAmount)) * 100;
 
     return (
       <Col xs={24} key={contract.id}>
@@ -280,15 +325,26 @@ export default function ContractsPage() {
                 <div className={styles.contractNumber}>
                   <FileTextOutlined className={styles.contractIcon} />
                   <span>#{contract.contractNumber}</span>
+                  {contract.renewalCount > 0 && (
+                    <Tag color="cyan" className={styles.renewalTag}>
+                      <ReloadOutlined /> {contract.renewalCount}{' '}
+                      {language === 'ar' ? 'تجديد' : 'Renewals'}
+                    </Tag>
+                  )}
                 </div>
+                <Dropdown menu={{ items: getMenuItems(contract) }} trigger={['click']}>
+                  <Button type="text" icon={<MoreOutlined />} className={styles.moreBtn} />
+                </Dropdown>
               </div>
 
-              {/* Contract Type & Status */}
+              {/* Status & Days Left */}
               <div className={styles.tagsSection}>
-                <Tag color={typeTag.color} className={styles.typeTag}>
-                  {typeTag.label}
-                </Tag>
                 <Badge status={statusConfig.color as any} text={statusConfig.label} />
+                {contract.status === 'active' && contract.daysRemaining < 30 && (
+                  <Tag color="warning" icon={<ClockCircleOutlined />}>
+                    {contract.daysRemaining} {t.daysLeft}
+                  </Tag>
+                )}
               </div>
 
               {/* Customer Info */}
@@ -305,22 +361,31 @@ export default function ContractsPage() {
                 </div>
               </div>
 
-              {/* Contract Details */}
-              <div className={styles.detailsSection}>
-                <div className={styles.detailItem}>
-                  <EnvironmentOutlined className={styles.detailIcon} />
-                  <div className={styles.detailText}>
-                    <span className={styles.detailLabel}>{t.nationality}</span>
-                    <span className={styles.detailValue}>
+              {/* Worker Info */}
+              <div className={styles.workerSection}>
+                <div className={styles.workerItem}>
+                  <HomeOutlined className={styles.workerIcon} />
+                  <div className={styles.workerText}>
+                    <span className={styles.workerLabel}>{t.worker}</span>
+                    <span className={styles.workerValue}>
+                      {language === 'ar' ? contract.workerNameAr : contract.workerName}
+                    </span>
+                  </div>
+                </div>
+                <div className={styles.workerItem}>
+                  <EnvironmentOutlined className={styles.workerIcon} />
+                  <div className={styles.workerText}>
+                    <span className={styles.workerLabel}>{t.nationality}</span>
+                    <span className={styles.workerValue}>
                       {language === 'ar' ? contract.nationalityAr : contract.nationality}
                     </span>
                   </div>
                 </div>
-                <div className={styles.detailItem}>
-                  <TeamOutlined className={styles.detailIcon} />
-                  <div className={styles.detailText}>
-                    <span className={styles.detailLabel}>{t.profession}</span>
-                    <span className={styles.detailValue}>
+                <div className={styles.workerItem}>
+                  <TeamOutlined className={styles.workerIcon} />
+                  <div className={styles.workerText}>
+                    <span className={styles.workerLabel}>{t.profession}</span>
+                    <span className={styles.workerValue}>
                       {language === 'ar' ? contract.professionAr : contract.profession}
                     </span>
                   </div>
@@ -330,25 +395,25 @@ export default function ContractsPage() {
 
             {/* Right Section */}
             <div className={styles.cardRight}>
-              {/* Payment Progress */}
-              <div className={styles.paymentSection}>
-                <div className={styles.paymentHeader}>
-                  <span className={styles.paymentLabel}>{t.paymentProgress}</span>
-                  <span className={styles.paymentPercentage}>{Math.round(paymentProgress)}%</span>
+              {/* Monthly Rent */}
+              <div className={styles.rentSection}>
+                <div className={styles.rentHeader}>
+                  <span className={styles.rentLabel}>{t.monthlyRent}</span>
+                  <span className={styles.rentAmount}>{formatCurrency(contract.monthlyRent)}</span>
                 </div>
                 <Progress
-                  percent={paymentProgress}
+                  percent={collectionProgress}
                   showInfo={false}
                   strokeColor={{
                     '0%': '#003366',
                     '100%': '#0056b3',
                   }}
                 />
-                <div className={styles.paymentAmounts}>
+                <div className={styles.rentAmounts}>
                   <div className={styles.amountItem}>
-                    <span className={styles.amountLabel}>{t.paid}</span>
+                    <span className={styles.amountLabel}>{t.collected}</span>
                     <span className={styles.amountValue} style={{ color: '#52c41a' }}>
-                      {formatCurrency(contract.paidAmount)}
+                      {formatCurrency(contract.totalCollected)}
                     </span>
                   </div>
                   <div className={styles.amountItem}>
@@ -374,6 +439,15 @@ export default function ContractsPage() {
               </div>
 
               {/* View Details Button */}
+              <Button
+                type="primary"
+                block
+                icon={<EyeOutlined />}
+                className={styles.viewBtn}
+                onClick={() => handleViewDetails(contract)}
+              >
+                {t.viewDetails}
+              </Button>
             </div>
           </div>
 
@@ -392,37 +466,24 @@ export default function ContractsPage() {
               <Button
                 type="link"
                 icon={<MoneyCollectOutlined />}
-                className={styles.actionBtn}
-                block
-              >
-                {t.payBill}
-              </Button>
-              <Button
-                type="link"
-                icon={<SafetyOutlined />}
                 className={`${styles.actionBtn} ${styles.successBtn}`}
                 block
               >
-                {t.addInsurance}
+                {t.collectPayment}
+              </Button>
+              <Button
+                type="link"
+                icon={<ReloadOutlined />}
+                className={`${styles.actionBtn} ${styles.successBtn}`}
+                block
+              >
+                {t.renewContract}
               </Button>
               <Button type="link" icon={<UserDeleteOutlined />} className={styles.actionBtn} block>
-                {t.releaseApplicant}
+                {t.releaseWorker}
               </Button>
-              <Button
-                type="link"
-                icon={<UserAddOutlined />}
-                className={`${styles.actionBtn} ${styles.successBtn}`}
-                block
-              >
-                {t.addDelegate}
-              </Button>
-              <Button
-                type="link"
-                icon={<SwapOutlined />}
-                className={`${styles.actionBtn} ${styles.dangerBtn}`}
-                block
-              >
-                {t.changeType}
+              <Button type="link" icon={<UserAddOutlined />} className={styles.actionBtn} block>
+                {t.transferWorker}
               </Button>
               <Button
                 type="link"
@@ -442,8 +503,12 @@ export default function ContractsPage() {
     );
   };
 
+  if (!mounted) {
+    return null;
+  }
+
   return (
-    <div className={styles.contractsPage}>
+    <div className={styles.rentContractsPage}>
       {/* Page Header */}
       <div className={styles.pageHeader}>
         <div className={styles.headerContent}>
@@ -493,8 +558,8 @@ export default function ContractsPage() {
         <Col xs={12} sm={6}>
           <Card className={styles.statCard}>
             <Statistic
-              title={t.pendingContracts}
-              value={stats.pending}
+              title={t.expiringContracts}
+              value={stats.expiring}
               prefix={<ClockCircleOutlined style={{ color: '#faad14' }} />}
               valueStyle={{ color: '#faad14' }}
             />
@@ -529,21 +594,6 @@ export default function ContractsPage() {
           </Col>
           <Col xs={12} sm={6} md={4}>
             <Select
-              value={typeFilter}
-              onChange={setTypeFilter}
-              style={{ width: '100%' }}
-              size="large"
-              options={[
-                { value: 'all', label: t.allTypes },
-                { value: 'mediation', label: t.mediation },
-                { value: 'operation', label: t.operation },
-                { value: 'sponsorship', label: t.sponsorship },
-                { value: 'rent', label: t.rent },
-              ]}
-            />
-          </Col>
-          <Col xs={12} sm={6} md={4}>
-            <Select
               value={statusFilter}
               onChange={setStatusFilter}
               style={{ width: '100%' }}
@@ -552,9 +602,9 @@ export default function ContractsPage() {
                 { value: 'all', label: t.allStatuses },
                 { value: 'active', label: t.active },
                 { value: 'pending', label: t.pending },
-                { value: 'completed', label: t.completed },
-                { value: 'cancelled', label: t.cancelled },
                 { value: 'expired', label: t.expired },
+                { value: 'renewed', label: t.renewed },
+                { value: 'cancelled', label: t.cancelled },
               ]}
             />
           </Col>
@@ -570,8 +620,17 @@ export default function ContractsPage() {
                 { value: 'India', label: language === 'ar' ? 'الهند' : 'India' },
                 { value: 'Indonesia', label: language === 'ar' ? 'إندونيسيا' : 'Indonesia' },
                 { value: 'Bangladesh', label: language === 'ar' ? 'بنغلاديش' : 'Bangladesh' },
-                { value: 'Sri Lanka', label: language === 'ar' ? 'سريلانكا' : 'Sri Lanka' },
               ]}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={8}>
+            <RangePicker
+              value={dateRange}
+              onChange={(dates) => setDateRange(dates)}
+              style={{ width: '100%' }}
+              size="large"
+              placeholder={[t.startDate, t.endDate]}
+              format="YYYY-MM-DD"
             />
           </Col>
         </Row>
@@ -581,8 +640,8 @@ export default function ContractsPage() {
       <div className={styles.resultsInfo}>
         <span>
           {language === 'ar'
-            ? `عرض ${filteredContracts.length} من ${mockContracts.length} عقد`
-            : `Showing ${filteredContracts.length} of ${mockContracts.length} contracts`}
+            ? `عرض ${filteredContracts.length} من ${mockRentContracts.length} عقد`
+            : `Showing ${filteredContracts.length} of ${mockRentContracts.length} contracts`}
         </span>
       </div>
 
@@ -610,7 +669,7 @@ export default function ContractsPage() {
             {language === 'ar' ? 'إغلاق' : 'Close'}
           </Button>
         }
-        width={600}
+        width={650}
       >
         {selectedContract && (
           <div className={styles.detailsModal}>
@@ -625,12 +684,14 @@ export default function ContractsPage() {
                   </p>
                 </div>
               </Col>
-              <Col span={12}>
+              <Col span={24}>
                 <div className={styles.modalSection}>
-                  <h4>{t.type}</h4>
-                  <Tag color={getTypeTag(selectedContract.contractType).color}>
-                    {getTypeTag(selectedContract.contractType).label}
-                  </Tag>
+                  <h4>{t.worker}</h4>
+                  <p className={styles.modalValue}>
+                    {language === 'ar'
+                      ? selectedContract.workerNameAr
+                      : selectedContract.workerName}
+                  </p>
                 </div>
               </Col>
               <Col span={12}>
@@ -640,6 +701,12 @@ export default function ContractsPage() {
                     status={getStatusConfig(selectedContract.status).color as any}
                     text={getStatusConfig(selectedContract.status).label}
                   />
+                </div>
+              </Col>
+              <Col span={12}>
+                <div className={styles.modalSection}>
+                  <h4>{t.renewals}</h4>
+                  <p className={styles.modalValue}>{selectedContract.renewalCount}</p>
                 </div>
               </Col>
               <Col span={12}>
@@ -676,17 +743,17 @@ export default function ContractsPage() {
               </Col>
               <Col span={8}>
                 <div className={styles.modalSection}>
-                  <h4>{t.amount}</h4>
+                  <h4>{t.monthlyRent}</h4>
                   <p className={styles.modalValue}>
-                    {formatCurrency(selectedContract.totalAmount)}
+                    {formatCurrency(selectedContract.monthlyRent)}
                   </p>
                 </div>
               </Col>
               <Col span={8}>
                 <div className={styles.modalSection}>
-                  <h4>{t.paid}</h4>
+                  <h4>{t.collected}</h4>
                   <p className={styles.modalValue} style={{ color: '#52c41a' }}>
-                    {formatCurrency(selectedContract.paidAmount)}
+                    {formatCurrency(selectedContract.totalCollected)}
                   </p>
                 </div>
               </Col>
