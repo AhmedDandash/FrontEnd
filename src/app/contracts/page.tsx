@@ -15,24 +15,18 @@ import {
   Modal,
   Progress,
   Badge,
-  Dropdown,
 } from 'antd';
-import type { MenuProps } from 'antd';
 import {
   FileTextOutlined,
   SearchOutlined,
   PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
   PrinterOutlined,
   UserOutlined,
   CalendarOutlined,
   DollarOutlined,
-  EyeOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
   ExclamationCircleOutlined,
-  MoreOutlined,
   FileExcelOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
@@ -185,7 +179,6 @@ export default function ContractsPage() {
     nationality: language === 'ar' ? 'الجنسية' : 'Nationality',
     profession: language === 'ar' ? 'المهنة' : 'Profession',
     agent: language === 'ar' ? 'الوكيل' : 'Agent',
-    viewDetails: language === 'ar' ? 'عرض التفاصيل' : 'View Details',
     edit: language === 'ar' ? 'تعديل' : 'Edit',
     delete: language === 'ar' ? 'حذف' : 'Delete',
     noResults: language === 'ar' ? 'لا توجد نتائج' : 'No results found',
@@ -271,39 +264,6 @@ export default function ContractsPage() {
     return config[status] || { color: 'default', label: status, icon: <ClockCircleOutlined /> };
   };
 
-  const handleViewDetails = (contract: Contract) => {
-    setSelectedContract(contract);
-    setShowDetailsModal(true);
-  };
-
-  const getMenuItems = (contract: Contract): MenuProps['items'] => [
-    {
-      key: 'view',
-      label: t.viewDetails,
-      icon: <EyeOutlined />,
-      onClick: () => handleViewDetails(contract),
-    },
-    {
-      key: 'edit',
-      label: t.edit,
-      icon: <EditOutlined />,
-    },
-    {
-      key: 'print',
-      label: t.print,
-      icon: <PrinterOutlined />,
-    },
-    {
-      type: 'divider',
-    },
-    {
-      key: 'delete',
-      label: t.delete,
-      icon: <DeleteOutlined />,
-      danger: true,
-    },
-  ];
-
   const renderContractCard = (contract: Contract) => {
     const paymentProgress = (contract.paidAmount / contract.totalAmount) * 100;
     const statusConfig = getStatusConfig(contract.status);
@@ -321,9 +281,6 @@ export default function ContractsPage() {
                   <FileTextOutlined className={styles.contractIcon} />
                   <span>#{contract.contractNumber}</span>
                 </div>
-                <Dropdown menu={{ items: getMenuItems(contract) }} trigger={['click']}>
-                  <Button type="text" icon={<MoreOutlined />} className={styles.moreBtn} />
-                </Dropdown>
               </div>
 
               {/* Contract Type & Status */}
@@ -417,15 +374,6 @@ export default function ContractsPage() {
               </div>
 
               {/* View Details Button */}
-              <Button
-                type="primary"
-                block
-                icon={<EyeOutlined />}
-                className={styles.viewBtn}
-                onClick={() => handleViewDetails(contract)}
-              >
-                {t.viewDetails}
-              </Button>
             </div>
           </div>
 
