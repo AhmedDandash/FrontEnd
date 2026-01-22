@@ -1,18 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import {
-  Card,
-  Button,
-  Input,
-  Select,
-  Modal,
-  Form,
-  Statistic,
-  Tag,
-  Empty,
-  InputNumber,
-} from 'antd';
+import { Card, Button, Input, Select, Modal, Form, Statistic, Tag, Empty, InputNumber } from 'antd';
 import {
   SearchOutlined,
   PlusOutlined,
@@ -29,6 +18,8 @@ import {
   IdcardOutlined,
   GlobalOutlined,
   SafetyOutlined,
+  UserDeleteOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
 import styles from './Warranty.module.css';
@@ -423,6 +414,22 @@ export default function WarrantyPage() {
           >
             {language === 'ar' ? 'إعادة للإيواء' : 'Housing'}
           </Button>
+          <Button
+            size="small"
+            danger
+            icon={<UserDeleteOutlined />}
+            onClick={() => handleModalOpen('receive', warranty)}
+          >
+            {language === 'ar' ? 'استلام العاملة' : 'Receive Worker'}
+          </Button>
+          <Button
+            size="small"
+            danger
+            icon={<LogoutOutlined />}
+            onClick={() => handleModalOpen('escape', warranty)}
+          >
+            {language === 'ar' ? 'هروب العاملة' : 'Escape Worker'}
+          </Button>
         </div>
       </Card>
     );
@@ -636,6 +643,100 @@ export default function WarrantyPage() {
                 { label: 'مخزون التاجير سيجما الكفاءات', value: '73' },
                 { label: 'مخزون التاجير / سيجما', value: '115' },
                 { label: 'مخزون التاجير / التطبيق', value: '116' },
+              ]}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Receive Worker Modal */}
+      <Modal
+        title={
+          selectedContract
+            ? `${language === 'ar' ? 'استلام العاملة من العميل - عقد' : 'Receive Worker From Client - Contract'} #${selectedContract.contractNumber}`
+            : language === 'ar'
+              ? 'استلام العاملة من العميل'
+              : 'Receive Worker From Client'
+        }
+        open={modalType === 'receive'}
+        onCancel={handleModalClose}
+        onOk={handleModalSubmit}
+        confirmLoading={loading}
+        okText={language === 'ar' ? 'تأكيد الاستلام' : 'Confirm Receipt'}
+        cancelText={language === 'ar' ? 'إلغاء' : 'Cancel'}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label={language === 'ar' ? 'سبب الاستلام' : 'Reason for Receiving'}
+            name="receiveReason"
+            rules={[{ required: true }]}
+          >
+            <Select
+              placeholder={language === 'ar' ? 'اختر السبب' : 'Select Reason'}
+              options={[
+                {
+                  label: language === 'ar' ? 'عدم التوافق' : 'Incompatibility',
+                  value: 'incompatibility',
+                },
+                { label: language === 'ar' ? 'مشاكل صحية' : 'Health Issues', value: 'health' },
+                {
+                  label: language === 'ar' ? 'طلب العميل' : 'Client Request',
+                  value: 'client_request',
+                },
+                { label: language === 'ar' ? 'أخرى' : 'Other', value: 'other' },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item label={language === 'ar' ? 'ملاحظات' : 'Notes'} name="receiveNotes">
+            <Input.TextArea rows={3} />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Escape Worker Modal */}
+      <Modal
+        title={
+          selectedContract
+            ? `${language === 'ar' ? 'تسجيل هروب العاملة - عقد' : 'Report Worker Escape - Contract'} #${selectedContract.contractNumber}`
+            : language === 'ar'
+              ? 'تسجيل هروب العاملة'
+              : 'Report Worker Escape'
+        }
+        open={modalType === 'escape'}
+        onCancel={handleModalClose}
+        onOk={handleModalSubmit}
+        confirmLoading={loading}
+        okText={language === 'ar' ? 'تأكيد البلاغ' : 'Confirm Report'}
+        cancelText={language === 'ar' ? 'إلغاء' : 'Cancel'}
+        okButtonProps={{ danger: true }}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label={language === 'ar' ? 'تاريخ الهروب' : 'Escape Date'}
+            name="escapeDate"
+            rules={[{ required: true }]}
+          >
+            <Input type="date" style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item
+            label={language === 'ar' ? 'تفاصيل الهروب' : 'Escape Details'}
+            name="escapeDetails"
+            rules={[{ required: true }]}
+          >
+            <Input.TextArea
+              rows={3}
+              placeholder={language === 'ar' ? 'أدخل تفاصيل الهروب...' : 'Enter escape details...'}
+            />
+          </Form.Item>
+          <Form.Item
+            label={language === 'ar' ? 'هل تم إبلاغ الجهات المختصة؟' : 'Authorities Notified?'}
+            name="authoritiesNotified"
+          >
+            <Select
+              placeholder={language === 'ar' ? 'اختر' : 'Select'}
+              options={[
+                { label: language === 'ar' ? 'نعم' : 'Yes', value: 'yes' },
+                { label: language === 'ar' ? 'لا' : 'No', value: 'no' },
               ]}
             />
           </Form.Item>

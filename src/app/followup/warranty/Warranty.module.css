@@ -263,9 +263,16 @@
 /* Card Actions */
 .cardActions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 16px 20px;
   background: #fafbfc;
+  justify-content: flex-start;
+}
+
+.cardActions button {
+  flex: 1 1 auto;
+  min-width: fit-content;
 }
 
 /* Responsive Design */
@@ -327,7 +334,11 @@
   }
 
   .cardActions {
-    flex-direction: column;
+    flex-wrap: wrap;
+  }
+
+  .cardActions button {
+    flex: 1 1 calc(50% - 4px);
   }
 
   .arrivalInfo {
@@ -349,6 +360,10 @@
 
   .contractBadge {
     flex-direction: column;
+  }
+
+  .cardActions button {
+    flex: 1 1 100%;
   }
 
   .headerActions {
