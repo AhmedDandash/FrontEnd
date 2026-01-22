@@ -62,6 +62,11 @@ interface ContractFollowup {
   nationalityAr: string;
   profession: string;
   professionAr: string;
+  age: number;
+  religion: string;
+  religionAr: string;
+  experience: string;
+  experienceAr: string;
   agentName: string;
   agentNameAr: string;
   contractStatus: 'unsigned' | 'pending-payment' | 'paid' | 'invoice-issued' | 'worker-chosen';
@@ -134,6 +139,15 @@ const mockFollowups: ContractFollowup[] = Array.from({ length: 35 }, (_, i) => {
     nationalityAr: ['الهند', 'باكستان', 'بنغلاديش', 'الفلبين'][i % 4],
     profession: ['Driver', 'Housemaid', 'Cook', 'Nurse'][i % 4],
     professionAr: ['سائق', 'خادمة منزلية', 'طباخ', 'ممرضة'][i % 4],
+    age: 25 + Math.floor(Math.random() * 20),
+    religion: ['Muslim', 'Christian', 'Hindu', 'Buddhist'][i % 4],
+    religionAr: ['مسلم', 'مسيحي', 'هندوسي', 'بوذي'][i % 4],
+    experience: [`${Math.floor(Math.random() * 10) + 1} Years`, 'Fresh', '6 Months', '2 Years'][
+      i % 4
+    ],
+    experienceAr: [`${Math.floor(Math.random() * 10) + 1} سنوات`, 'بدون خبرة', '6 أشهر', 'سنتان'][
+      i % 4
+    ],
     agentName: ['M. T TRAVEL AGENCY', 'Pakistan Delegate', 'India Services'][i % 3],
     agentNameAr: ['وكالة إم تي للسفر', 'تفويض باكستان', 'خدمات الهند'][i % 3],
     contractStatus: statuses[i % 5],
@@ -228,6 +242,9 @@ export default function AutomaticFollowupPage() {
     followupInfo: language === 'ar' ? 'معلومات المتابعة' : 'Followup Information',
     nationality: language === 'ar' ? 'الجنسية' : 'Nationality',
     profession: language === 'ar' ? 'المهنة' : 'Profession',
+    age: language === 'ar' ? 'العمر' : 'Age',
+    religion: language === 'ar' ? 'الديانة' : 'Religion',
+    experience: language === 'ar' ? 'الخبرة' : 'Experience',
     createdBy: language === 'ar' ? 'أنشأ بواسطة' : 'Created By',
     createdAt: language === 'ar' ? 'تاريخ الإنشاء' : 'Created At',
     daysAgo: language === 'ar' ? 'يوم مضى' : 'days ago',
@@ -308,16 +325,6 @@ export default function AutomaticFollowupPage() {
     );
   };
 
-  const getWorkflowStatus = (followup: ContractFollowup) => {
-    const statuses = [
-      { name: t.medical, status: followup.medicalStatus, color: '#faad14' },
-      { name: t.biometric, status: followup.biometricStatus, color: '#1890ff' },
-      { name: t.visaStamp, status: followup.visaStampStatus, color: '#52c41a' },
-      { name: t.travelClearance, status: followup.travelClearanceStatus, color: '#722ed1' },
-    ];
-    return statuses;
-  };
-
   const handleViewDetails = (followup: ContractFollowup) => {
     setSelectedFollowup(followup);
     setShowDetailsModal(true);
@@ -353,47 +360,8 @@ export default function AutomaticFollowupPage() {
 
   const renderFollowupCard = (followup: ContractFollowup) => {
     const statusConfig = getStatusConfig(followup.contractStatus);
-    const workflows = getWorkflowStatus(followup);
     const daysRemaining = Math.max(0, followup.daysUntilExpiry);
     const isAtRisk = followup.daysUntilExpiry < 0;
-
-    const allStatusButtons: MenuProps['items'] = [
-      {
-        key: 'medical',
-        label: language === 'ar' ? 'فحص طبي' : 'Medical',
-        icon: <FileTextOutlined />,
-      },
-      {
-        key: 'biometric',
-        label: language === 'ar' ? 'بصمة' : 'Biometric',
-        icon: <FileTextOutlined />,
-      },
-      {
-        key: 'tesda',
-        label: language === 'ar' ? 'تدريب' : 'TESDA',
-        icon: <FileTextOutlined />,
-      },
-      {
-        key: 'owwa',
-        label: language === 'ar' ? 'تأمين' : 'OWWA',
-        icon: <FileTextOutlined />,
-      },
-      {
-        key: 'visa_stamp',
-        label: language === 'ar' ? 'ختم فيزا' : 'Visa Stamping',
-        icon: <FileTextOutlined />,
-      },
-      {
-        key: 'travel_clearance',
-        label: language === 'ar' ? 'إذن سفر' : 'Travel Clearance',
-        icon: <FileTextOutlined />,
-      },
-      {
-        key: 'flight_ticket',
-        label: language === 'ar' ? 'تذكرة طيران' : 'Flight Ticket',
-        icon: <FileTextOutlined />,
-      },
-    ];
 
     return (
       <Col xs={24} key={followup.id}>
@@ -493,45 +461,60 @@ export default function AutomaticFollowupPage() {
                     </span>
                   </div>
                 </div>
+                <div className={styles.infoItem}>
+                  <ClockCircleOutlined className={styles.infoIcon} />
+                  <div className={styles.infoText}>
+                    <span className={styles.infoLabel}>{t.age}</span>
+                    <span className={styles.infoValue}>{followup.age}</span>
+                  </div>
+                </div>
+                <div className={styles.infoItem}>
+                  <CheckCircleOutlined className={styles.infoIcon} />
+                  <div className={styles.infoText}>
+                    <span className={styles.infoLabel}>{t.religion}</span>
+                    <span className={styles.infoValue}>
+                      {language === 'ar' ? followup.religionAr : followup.religion}
+                    </span>
+                  </div>
+                </div>
+                <div className={styles.infoItem}>
+                  <FileTextOutlined className={styles.infoIcon} />
+                  <div className={styles.infoText}>
+                    <span className={styles.infoLabel}>{t.experience}</span>
+                    <span className={styles.infoValue}>
+                      {language === 'ar' ? followup.experienceAr : followup.experience}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Created By Section */}
+              <div className={styles.createdInfo}>
+                <div className={styles.createdItem}>
+                  <UserOutlined className={styles.createdIcon} />
+                  <div className={styles.createdText}>
+                    <span className={styles.createdLabel}>{t.createdBy}</span>
+                    <span className={styles.createdValue}>
+                      {language === 'ar' ? followup.createdByAr : followup.createdBy}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Middle Section - Workflow Progress */}
-            <div className={styles.cardMiddle}>
-              <div className={styles.workflowHeader}>
-                <span className={styles.workflowLabel}>{t.agentStatus}</span>
-              </div>
-              <div className={styles.workflowSteps}>
-                {workflows.map((workflow, idx) => (
-                  <div
-                    key={idx}
-                    className={styles.workflowStep}
-                    onClick={() => handleViewDetails(followup)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div
-                      className={styles.stepDot}
-                      style={{
-                        backgroundColor: workflow.color,
-                        opacity:
-                          workflow.status === 'done' ||
-                          workflow.status === 'submitted' ||
-                          workflow.status === 'stamped'
-                            ? 1
-                            : 0.5,
-                      }}
-                    >
-                      {workflow.status === 'done' ||
-                      workflow.status === 'submitted' ||
-                      workflow.status === 'stamped' ? (
-                        <CheckOutlined style={{ color: 'white', fontSize: '10px' }} />
-                      ) : null}
-                    </div>
-                    <span className={styles.stepLabel}>{workflow.name}</span>
-                  </div>
-                ))}
+            {/* Right Section - Actions */}
+            <div className={styles.cardRight}>
+              <div className={styles.agentInfo}>
+                <TeamOutlined className={styles.agentIcon} />
+                <div>
+                  <span className={styles.agentLabel}>{t.agent}</span>
+                  <span className={styles.agentValue}>
+                    {language === 'ar' ? followup.agentNameAr : followup.agentName}
+                  </span>
+                </div>
               </div>
 
+              {/* Dates Section */}
               <div className={styles.datesSection}>
                 <div className={styles.dateItem}>
                   <span className={styles.dateLabel}>{t.createdAt}</span>
@@ -550,38 +533,6 @@ export default function AutomaticFollowupPage() {
                     {isAtRisk
                       ? `${Math.abs(daysRemaining)} ${t.days} (${language === 'ar' ? 'متأخر' : 'Overdue'})`
                       : `${daysRemaining} ${t.days}`}
-                  </span>
-                </div>
-              </div>
-
-              {/* Update Status Buttons */}
-              <div className={styles.statusUpdateSection}>
-                <Button
-                  type="primary"
-                  size="small"
-                  block
-                  icon={<EditOutlined />}
-                  className={styles.updateStatusBtn}
-                  onClick={() => handleViewDetails(followup)}
-                >
-                  {language === 'ar' ? 'تحديث الحالة' : 'Update Status'}
-                </Button>
-                <Dropdown menu={{ items: allStatusButtons }} placement="bottomRight">
-                  <Button type="dashed" size="small" block icon={<MoreOutlined />}>
-                    {language === 'ar' ? 'المزيد' : 'More'}
-                  </Button>
-                </Dropdown>
-              </div>
-            </div>
-
-            {/* Right Section - Actions */}
-            <div className={styles.cardRight}>
-              <div className={styles.agentInfo}>
-                <TeamOutlined className={styles.agentIcon} />
-                <div>
-                  <span className={styles.agentLabel}>{t.agent}</span>
-                  <span className={styles.agentValue}>
-                    {language === 'ar' ? followup.agentNameAr : followup.agentName}
                   </span>
                 </div>
               </div>
@@ -663,26 +614,49 @@ export default function AutomaticFollowupPage() {
                   {language === 'ar' ? 'رقم العقد' : 'Edit Contract'}
                 </Button>
               </div>
+            </div>
 
-              <div className={styles.createdInfo}>
-                <div className={styles.createdItem}>
-                  <span className={styles.createdLabel}>{t.createdBy}</span>
-                  <span className={styles.createdValue}>
-                    {language === 'ar' ? followup.createdByAr : followup.createdBy}
-                  </span>
+            {/* Bottom Section - Status Update Buttons */}
+            <div className={styles.cardBottom}>
+              <div className={styles.buttonGroup}>
+                <Button
+                  type="primary"
+                  size="middle"
+                  icon={<EditOutlined />}
+                  className={styles.updateStatusBtn}
+                  onClick={() => handleViewDetails(followup)}
+                >
+                  {language === 'ar' ? 'تحديث الحالة' : 'Update Status'}
+                </Button>
+              </div>
+              <div className={styles.buttonGroup}>
+                <span className={styles.groupLabel}>
+                  {language === 'ar' ? 'التحديثات السريعة' : 'Quick Updates'}
+                </span>
+                <div className={styles.groupButtons}>
+                  <Button size="small" icon={<SafetyOutlined />} className={styles.actionBtn}>
+                    {language === 'ar' ? 'فحص طبي' : 'Medical'}
+                  </Button>
+                  <Button size="small" icon={<IdcardOutlined />} className={styles.actionBtn}>
+                    {language === 'ar' ? 'بصمة' : 'Biometric'}
+                  </Button>
+                  <Button size="small" icon={<FileTextOutlined />} className={styles.actionBtn}>
+                    {language === 'ar' ? 'تدريب' : 'TESDA'}
+                  </Button>
+                  <Button size="small" icon={<SafetyOutlined />} className={styles.actionBtn}>
+                    {language === 'ar' ? 'تأمين' : 'OWWA'}
+                  </Button>
+                  <Button size="small" icon={<CheckCircleOutlined />} className={styles.actionBtn}>
+                    {language === 'ar' ? 'ختم فيزا' : 'Visa Stamp'}
+                  </Button>
+                  <Button size="small" icon={<CheckOutlined />} className={styles.actionBtn}>
+                    {language === 'ar' ? 'إذن سفر' : 'Travel Clearance'}
+                  </Button>
+                  <Button size="small" icon={<EnvironmentOutlined />} className={styles.actionBtn}>
+                    {language === 'ar' ? 'تذكرة طيران' : 'Flight Ticket'}
+                  </Button>
                 </div>
               </div>
-
-              <Button
-                type="primary"
-                ghost
-                block
-                icon={<EyeOutlined />}
-                className={styles.detailsBtn}
-                onClick={() => handleViewDetails(followup)}
-              >
-                {t.viewDetails}
-              </Button>
             </div>
           </div>
         </Card>

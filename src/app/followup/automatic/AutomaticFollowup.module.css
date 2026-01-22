@@ -177,23 +177,90 @@
   min-inline-size: 300px;
 }
 
-.cardMiddle {
-  inline-size: 260px;
-  padding: 20px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  border-inline-end: 1px solid #f0f0f0;
-}
-
 .cardRight {
-  inline-size: 280px;
+  inline-size: 320px;
   padding: 20px;
   background: linear-gradient(135deg, #f9f0ff 0%, #f3e6ff 100%);
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.cardBottom {
+  inline-size: 100%;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #fafbfc 0%, #f0f2f5 100%);
+  border-block-start: 1px solid #e8e8e8;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.buttonGroup:first-child {
+  padding-inline-end: 20px;
+  border-inline-end: 1px solid #e8e8e8;
+}
+
+.groupLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8c8c8c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-block-end: 4px;
+}
+
+.groupButtons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.updateStatusBtn {
+  background: linear-gradient(135deg, #003366 0%, #00478c 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding-inline: 24px;
+  height: 36px;
+}
+
+.updateStatusBtn:hover {
+  background: linear-gradient(135deg, #00478c 0%, #0056b3 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.25) !important;
+}
+
+.actionBtn {
+  border: 1px solid #d9d9d9;
+  background: white;
+  color: #595959;
+  font-weight: 500;
+  font-size: 12px;
+  padding-inline: 12px;
+  height: 28px;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.actionBtn:hover {
+  border-color: #003366 !important;
+  color: #003366 !important;
+  background: #f0f5ff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 51, 102, 0.15) !important;
+}
+
+.actionBtn:active {
+  transform: translateY(0);
 }
 
 /* Card Header */
@@ -285,9 +352,9 @@
 
 /* Info Section */
 .infoSection {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 16px;
 }
 
 .infoItem {
@@ -438,30 +505,6 @@
   gap: 4px;
 }
 
-/* Status Update Section */
-.statusUpdateSection {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-block: 12px;
-  border-block-start: 1px solid rgba(0, 0, 0, 0.1);
-  border-block-end: 1px solid rgba(0, 0, 0, 0.1);
-  margin-block: 8px;
-}
-
-.updateStatusBtn {
-  background: linear-gradient(135deg, #003366 0%, #00478c 100%);
-  border: none;
-  color: white;
-  font-weight: 600;
-  height: 32px;
-}
-
-.updateStatusBtn:hover {
-  background: linear-gradient(135deg, #00478c 0%, #0056b3 100%);
-  transform: translateY(-1px);
-}
-
 /* Agent Info */
 .agentInfo {
   display: flex;
@@ -591,27 +634,39 @@
 
 /* Created Info */
 .createdInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-block: 8px;
-  margin-block-end: 8px;
+  margin-block-start: 16px;
+  padding-block-start: 16px;
+  border-block-start: 1px solid #f0f0f0;
 }
 
 .createdItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.createdIcon {
+  font-size: 16px;
+  color: #003366;
+  margin-block-start: 2px;
+  flex-shrink: 0;
+}
+
+.createdText {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 .createdLabel {
-  font-size: 11px;
-  color: #666;
+  font-size: 12px;
+  color: #8c8c8c;
   font-weight: 500;
 }
 
 .createdValue {
-  font-size: 12px;
+  font-size: 14px;
   color: #262626;
   font-weight: 600;
 }
