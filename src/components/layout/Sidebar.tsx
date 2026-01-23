@@ -208,7 +208,7 @@ export default function Sidebar({
         },
         {
           key: '/communication/tracking-sms',
-          label: language === 'ar' ? 'رسائل التتبع' : 'Tracking SMS',
+          label: language === 'ar' ? 'إعدادات قوالب الرسائل' : 'SMS Templates Settings',
         },
       ],
     },
