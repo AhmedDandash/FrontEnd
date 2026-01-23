@@ -203,8 +203,8 @@ export default function Sidebar({
           label: language === 'ar' ? 'إرسال بريد إلكتروني' : 'Send Email',
         },
         {
-          key: '/communication/auto-sms',
-          label: language === 'ar' ? 'الرسائل التلقائية' : 'Automatic SMS',
+          key: '/communication/templates-sms',
+          label: language === 'ar' ? 'إعدادات قوالب الرسائل' : 'SMS Templates Settings',
         },
         {
           key: '/communication/tracking-sms',
