@@ -265,7 +265,38 @@ export default function Sidebar({
         { key: '/settings/sms', label: language === 'ar' ? 'إعدادات الرسائل' : 'SMS Settings' },
       ],
     },
+    {
+      key: 'System Settings',
+      icon: <SettingOutlined />,
+      label: language === 'ar' ? 'إعدادات النظام' : 'System Settings',
+      children: [
+        {
+          key: 'general-settings',
+          label: language === 'ar' ? 'إعدادات عامة' : 'General Settings',
+          children: [
+            {
+              key: '/system-entities/',
+              label: language === 'ar' ? 'الكيانات النظامية' : 'System Entities',
+            },
+            {
+              key: '/airline-companies',
+              label: language === 'ar' ? 'شركات الطيران' : 'Airline Companies',
+            },
+          ],
+        },
+        {
+          key: '/system-settings/general',
+          label: language === 'ar' ? 'الإعدادات العامة' : 'General Settings',
+          children: [{
+            key: '/system-settings/users',
+            label: language === 'ar' ? 'إدارة المستخدمين' : 'User Management',
+          }],
+        },
+      ],
+    },
   ];
+
+  
 
   const handleMenuClick = (e: { key: string }) => {
     router.push(e.key);
