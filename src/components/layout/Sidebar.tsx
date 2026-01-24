@@ -129,6 +129,7 @@ export default function Sidebar({
           key: '/contracts/cancellation',
           label: language === 'ar' ? 'إلغاء العقود' : 'Cancellation',
         },
+        { key: '/contracts/CollectionAndRenewal', label: language === 'ar' ? 'التحصيل والتجديد' : 'Collection And Renewal' },
       ],
     },
     {
