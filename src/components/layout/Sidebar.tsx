@@ -266,17 +266,17 @@ export default function Sidebar({
       ],
     },
     {
-      key: 'System Settings',
+      key: 'system-settings',
       icon: <SettingOutlined />,
       label: language === 'ar' ? 'إعدادات النظام' : 'System Settings',
       children: [
         {
           key: 'general-settings',
-          label: language === 'ar' ? 'إعدادات عامة' : 'General Settings',
+          label: language === 'ar' ? 'الإعدادات العامة' : 'General Settings',
           children: [
             {
-              key: '/system-entities/',
-              label: language === 'ar' ? 'الكيانات النظامية' : 'System Entities',
+              key: '/system-entities',
+              label: language === 'ar' ? 'كيانات النظام' : 'System Entities',
             },
             {
               key: '/airline-companies',
@@ -285,12 +285,18 @@ export default function Sidebar({
           ],
         },
         {
-          key: '/system-settings/general',
-          label: language === 'ar' ? 'الإعدادات العامة' : 'General Settings',
-          children: [{
-            key: '/system-settings/users',
-            label: language === 'ar' ? 'إدارة المستخدمين' : 'User Management',
-          }],
+          key: 'user-management',
+          label: language === 'ar' ? 'إدارة المستخدمين' : 'User Management',
+          children: [
+            {
+              key: '/system-settings/users',
+              label: language === 'ar' ? 'المستخدمين' : 'Users',
+            },
+            {
+              key: '/system-settings/roles',
+              label: language === 'ar' ? 'الصلاحيات' : 'Roles & Permissions',
+            },
+          ],
         },
       ],
     },
