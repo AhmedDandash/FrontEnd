@@ -467,82 +467,46 @@ export default function CollectionRenewalPage() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <Row gutter={[16, 16]} className={styles.statsRow}>
+      {/* Statistics Cards */}
+      <Row gutter={[16, 16]} className={styles.statisticsRow}>
         <Col xs={12} sm={6}>
-          <Card
-            className={`${styles.statCard} ${styles.totalCard}`}
-            onClick={() => setStatusFilter('all')}
-          >
-            <div className={styles.statContent}>
-              <div className={styles.statIcon}>
-                <FileTextOutlined />
-              </div>
-              <div className={styles.statInfo}>
-                <Statistic
-                  title={isRTL ? 'إجمالي العقود' : 'Total Contracts'}
-                  value={stats.total}
-                  valueStyle={{ color: '#003366', fontWeight: 700 }}
-                />
-              </div>
-            </div>
+          <Card className={styles.statCard}>
+            <Statistic
+              title={isRTL ? 'إجمالي العقود' : 'Total Contracts'}
+              value={stats.total}
+              prefix={<FileTextOutlined style={{ color: '#003366' }} />}
+              valueStyle={{ color: '#003366' }}
+            />
           </Card>
         </Col>
         <Col xs={12} sm={6}>
-          <Card
-            className={`${styles.statCard} ${styles.validCard}`}
-            onClick={() => setStatusFilter('valid')}
-          >
-            <div className={styles.statContent}>
-              <div className={`${styles.statIcon} ${styles.successIcon}`}>
-                <CheckCircleOutlined />
-              </div>
-              <div className={styles.statInfo}>
-                <Statistic
-                  title={isRTL ? 'عقود سارية' : 'Valid Contracts'}
-                  value={stats.valid}
-                  valueStyle={{ color: '#52c41a', fontWeight: 700 }}
-                />
-              </div>
-            </div>
+          <Card className={styles.statCard}>
+            <Statistic
+              title={isRTL ? 'عقود سارية' : 'Valid Contracts'}
+              value={stats.valid}
+              prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+              valueStyle={{ color: '#52c41a' }}
+            />
           </Card>
         </Col>
         <Col xs={12} sm={6}>
-          <Card
-            className={`${styles.statCard} ${styles.warningCard}`}
-            onClick={() => setStatusFilter('expiring-soon')}
-          >
-            <div className={styles.statContent}>
-              <div className={`${styles.statIcon} ${styles.warningIcon}`}>
-                <WarningOutlined />
-              </div>
-              <div className={styles.statInfo}>
-                <Statistic
-                  title={isRTL ? 'تنتهي قريباً' : 'Expiring Soon'}
-                  value={stats.expiringSoon}
-                  valueStyle={{ color: '#faad14', fontWeight: 700 }}
-                />
-              </div>
-            </div>
+          <Card className={styles.statCard}>
+            <Statistic
+              title={isRTL ? 'تنتهي قريباً' : 'Expiring Soon'}
+              value={stats.expiringSoon}
+              prefix={<WarningOutlined style={{ color: '#faad14' }} />}
+              valueStyle={{ color: '#faad14' }}
+            />
           </Card>
         </Col>
         <Col xs={12} sm={6}>
-          <Card
-            className={`${styles.statCard} ${styles.expiredCard}`}
-            onClick={() => setStatusFilter('expired')}
-          >
-            <div className={styles.statContent}>
-              <div className={`${styles.statIcon} ${styles.errorIcon}`}>
-                <CloseCircleOutlined />
-              </div>
-              <div className={styles.statInfo}>
-                <Statistic
-                  title={isRTL ? 'عقود منتهية' : 'Expired Contracts'}
-                  value={stats.expired}
-                  valueStyle={{ color: '#ff4d4f', fontWeight: 700 }}
-                />
-              </div>
-            </div>
+          <Card className={styles.statCard}>
+            <Statistic
+              title={isRTL ? 'عقود منتهية' : 'Expired Contracts'}
+              value={stats.expired}
+              prefix={<CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
+              valueStyle={{ color: '#ff4d4f' }}
+            />
           </Card>
         </Col>
       </Row>
@@ -865,7 +829,10 @@ export default function CollectionRenewalPage() {
             <div className={`${styles.statusBanner} ${styles[selectedContract.status]}`}>
               {getStatusConfig(selectedContract.status, selectedContract.remainingDays).icon}
               <span>
-                {getStatusConfig(selectedContract.status, selectedContract.remainingDays).description}
+                {
+                  getStatusConfig(selectedContract.status, selectedContract.remainingDays)
+                    .description
+                }
               </span>
             </div>
 
@@ -907,7 +874,9 @@ export default function CollectionRenewalPage() {
               </h4>
               <div className={styles.detailGrid}>
                 <div className={styles.detailItem}>
-                  <span className={styles.detailLabel}>{isRTL ? 'تاريخ التوقيع' : 'Sign Date'}</span>
+                  <span className={styles.detailLabel}>
+                    {isRTL ? 'تاريخ التوقيع' : 'Sign Date'}
+                  </span>
                   <span className={styles.detailValue}>
                     {formatFullDate(selectedContract.signDate)}
                   </span>
@@ -964,7 +933,9 @@ export default function CollectionRenewalPage() {
                   </span>
                 </div>
                 <div className={styles.amountCard}>
-                  <span className={styles.amountLabel}>{isRTL ? 'المبلغ المحصل' : 'Paid Amount'}</span>
+                  <span className={styles.amountLabel}>
+                    {isRTL ? 'المبلغ المحصل' : 'Paid Amount'}
+                  </span>
                   <span className={styles.amountValue}>
                     {selectedContract.paidAmount.toLocaleString()} {isRTL ? 'ريال' : 'SAR'}
                   </span>
