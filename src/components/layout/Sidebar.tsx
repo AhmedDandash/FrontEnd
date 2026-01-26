@@ -285,16 +285,16 @@ export default function Sidebar({
           ],
         },
         {
-          key: 'user-management',
+          key: 'templates-reports',
           label: language === 'ar' ? 'إدارة المستخدمين' : 'User Management',
           children: [
             {
-              key: '/system-settings/users',
-              label: language === 'ar' ? 'المستخدمين' : 'Users',
+              key: '/management/templates',
+              label: language === 'ar' ? 'قوالب التقارير' : 'Report Templates',
             },
             {
-              key: '/system-settings/roles',
-              label: language === 'ar' ? 'الصلاحيات' : 'Roles & Permissions',
+              key: '/management/report-generator',
+              label: language === 'ar' ? 'منشئ التقارير' : 'Report Generator',
             },
           ],
         },
