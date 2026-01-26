@@ -275,11 +275,11 @@ export default function Sidebar({
           label: language === 'ar' ? 'الإعدادات العامة' : 'General Settings',
           children: [
             {
-              key: '/system-entities',
+              key: '/system/system-entities',
               label: language === 'ar' ? 'كيانات النظام' : 'System Entities',
             },
             {
-              key: '/airline-companies',
+              key: '/system/airline-companies',
               label: language === 'ar' ? 'شركات الطيران' : 'Airline Companies',
             },
           ],
