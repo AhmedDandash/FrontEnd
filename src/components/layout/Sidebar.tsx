@@ -286,7 +286,7 @@ export default function Sidebar({
         },
         {
           key: 'templates-reports',
-          label: language === 'ar' ? 'إدارة المستخدمين' : 'User Management',
+          label: language === 'ar' ? 'قوالب وتقارير' : 'Templates & Reports',
           children: [
             {
               key: '/management/templates',
