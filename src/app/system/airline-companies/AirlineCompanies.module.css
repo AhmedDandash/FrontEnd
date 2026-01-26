@@ -1,3 +1,8 @@
+/* Fix sorted header style (ascending/descending) to keep custom header color */
+.dataTable :global(.ant-table-thead > tr > th.ant-table-column-sort) {
+  background: linear-gradient(135deg, #003366 0%, #00478c 100%) !important;
+  color: #fff !important;
+}
 /* Page Container */
 .pageContainer {
   min-height: 100vh;
@@ -148,6 +153,14 @@
   color: #fff;
   font-weight: 600;
   border: none;
+  transition: none;
+}
+
+/* Remove hover effect on table header */
+.dataTable :global(.ant-table-thead > tr > th:hover) {
+  background: linear-gradient(135deg, #003366 0%, #00478c 100%) !important;
+  color: #fff !important;
+  cursor: default;
 }
 
 .dataTable :global(.ant-table-thead > tr > th::before) {
