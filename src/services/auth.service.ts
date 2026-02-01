@@ -24,11 +24,17 @@ export class AuthService {
         console.log('💾 Storing token:', tokenValue.substring(0, 30) + '...');
         console.log('📍 Token length:', tokenValue.length);
         localStorage.setItem('authToken', tokenValue);
-        console.log('✅ Token stored successfully');
-        
+
+        // Store token in cookie for middleware access
+        document.cookie = `authToken=${tokenValue}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+        console.log('✅ Token stored in localStorage and cookie');
+
         // Verify storage immediately
         const storedToken = localStorage.getItem('authToken');
-        console.log('🔍 Verification - Token retrieved:', storedToken === tokenValue ? 'MATCH ✓' : 'MISMATCH ✗');
+        console.log(
+          '🔍 Verification - Token retrieved:',
+          storedToken === tokenValue ? 'MATCH ✓' : 'MISMATCH ✗'
+        );
 
         const userData = response.data?.user;
         if (userData) {
@@ -59,11 +65,20 @@ export class AuthService {
     try {
       await api.post(API_ENDPOINTS.AUTH.LOGOUT);
     } finally {
-      // Clear local storage regardless of API response
+      // Clear local storage and cookies regardless of API response
       if (typeof window !== 'undefined') {
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
         sessionStorage.clear();
+
+        // Clear auth cookie with multiple approaches to ensure it's deleted
+        document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        document.cookie =
+          'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
+        document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+        document.cookie = 'authToken=; path=/; max-age=0';
+
+        console.log('🔓 Auth token cleared from localStorage and cookies');
       }
     }
   }

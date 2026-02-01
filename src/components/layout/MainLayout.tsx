@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Layout } from 'antd';
+import { Layout, Spin } from 'antd';
+import { useRouter } from 'next/navigation';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import Breadcrumbs from './Breadcrumbs';
@@ -11,17 +12,52 @@ import styles from './MainLayout.module.css';
 
 const { Content } = Layout;
 
+// Routes that don't require authentication
+const publicRoutes = ['/login', '/register', '/forgot-password'];
+
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileDrawerVisible, setMobileDrawerVisible] = useState(false);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const pathname = usePathname();
   const language = useAuthStore((state) => state.language);
   const isHydrated = useAuthStore((state) => state.isHydrated);
   const setIsHydrated = useAuthStore((state) => state.setIsHydrated);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('authToken');
+      const isPublicRoute = publicRoutes.includes(pathname);
+
+      if (!token && !isPublicRoute) {
+        // No token and trying to access protected route - redirect to login
+        router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+        setIsAuthorized(false);
+        setIsAuthChecking(false);
+        return;
+      }
+
+      if (token && pathname === '/login') {
+        // Has token but on login page - redirect to dashboard
+        router.replace('/dashboard');
+        setIsAuthorized(false);
+        setIsAuthChecking(false);
+        return;
+      }
+
+      setIsAuthorized(true);
+      setIsAuthChecking(false);
+    };
+
+    checkAuth();
+  }, [pathname, router]);
 
   // Set document direction immediately on mount to prevent glitching
   useEffect(() => {
@@ -30,9 +66,31 @@ export default function MainLayout({ children }: MainLayoutProps) {
     setIsHydrated(true);
   }, [language, setIsHydrated]);
 
+  // Show loading while checking auth
+  if (isAuthChecking) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          background: '#f0f2f5',
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   // Don't show layout on login page
   if (pathname === '/login') {
     return <>{children}</>;
+  }
+
+  // Prevent unauthorized access
+  if (!isAuthorized) {
+    return null;
   }
 
   // Prevent flash of unstyled content during hydration
