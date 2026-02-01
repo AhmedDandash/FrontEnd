@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { AntdProvider } from '@/components/AntdProvider';
+import { ReactQueryProvider } from '@/lib/providers/ReactQueryProvider';
 import MainLayout from '@/components/layout/MainLayout';
 import './globals.css';
 
@@ -17,9 +18,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
-        <AntdProvider>
-          <MainLayout>{children}</MainLayout>
-        </AntdProvider>
+        <ReactQueryProvider>
+          <AntdProvider>
+            <MainLayout>{children}</MainLayout>
+          </AntdProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

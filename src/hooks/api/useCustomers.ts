@@ -1,0 +1,112 @@
+/**
+ * useCustomers Hook
+ * React Query hooks for customer operations
+ */
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { message } from 'antd';
+import { CustomerService } from '@/services';
+import type { CreateCustomerDto, UpdateCustomerDto, CustomerPhoneDto } from '@/types/api.types';
+
+const QUERY_KEY = 'customers';
+
+export function useCustomers() {
+  const queryClient = useQueryClient();
+
+  // Get all customers
+  const {
+    data: customers,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: [QUERY_KEY],
+    queryFn: () => CustomerService.getAll(),
+  });
+
+  // Get customer by ID
+  const useCustomer = (id: number) => {
+    return useQuery({
+      queryKey: [QUERY_KEY, id],
+      queryFn: () => CustomerService.getById(id),
+      enabled: !!id,
+    });
+  };
+
+  // Create customer
+  const createMutation = useMutation({
+    mutationFn: (data: CreateCustomerDto) => CustomerService.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      message.success('تمت إضافة العميل بنجاح / Customer created successfully');
+    },
+    onError: (error: any) => {
+      message.error(
+        error.response?.data?.message || 'فشل إضافة العميل / Failed to create customer'
+      );
+    },
+  });
+
+  // Update customer
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateCustomerDto }) =>
+      CustomerService.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      message.success('تم تحديث العميل بنجاح / Customer updated successfully');
+    },
+    onError: (error: any) => {
+      message.error(
+        error.response?.data?.message || 'فشل تحديث العميل / Failed to update customer'
+      );
+    },
+  });
+
+  // Delete customer
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => CustomerService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      message.success('تم حذف العميل بنجاح / Customer deleted successfully');
+    },
+    onError: (error: any) => {
+      message.error(error.response?.data?.message || 'فشل حذف العميل / Failed to delete customer');
+    },
+  });
+
+  // Get all customer phones
+  const { data: customerPhones, isLoading: isPhonesLoading } = useQuery({
+    queryKey: [QUERY_KEY, 'phones'],
+    queryFn: () => CustomerService.getAllPhones(),
+  });
+
+  // Create customer phone
+  const createPhoneMutation = useMutation({
+    mutationFn: (data: CustomerPhoneDto) => CustomerService.createPhone(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'phones'] });
+      message.success('تمت إضافة الهاتف بنجاح / Phone created successfully');
+    },
+    onError: (error: any) => {
+      message.error(error.response?.data?.message || 'فشل إضافة الهاتف / Failed to create phone');
+    },
+  });
+
+  return {
+    customers,
+    isLoading,
+    error,
+    refetch,
+    useCustomer,
+    createCustomer: createMutation.mutate,
+    updateCustomer: updateMutation.mutate,
+    deleteCustomer: deleteMutation.mutate,
+    isCreating: createMutation.isPending,
+    isUpdating: updateMutation.isPending,
+    isDeleting: deleteMutation.isPending,
+    customerPhones,
+    isPhonesLoading,
+    createPhone: createPhoneMutation.mutate,
+    isCreatingPhone: createPhoneMutation.isPending,
+  };
+}

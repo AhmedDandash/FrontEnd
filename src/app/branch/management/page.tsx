@@ -14,6 +14,9 @@ import {
   Badge,
   Empty,
   Tooltip,
+  Modal,
+  Form,
+  Spin,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -22,7 +25,6 @@ import {
   MoreOutlined,
   EditOutlined,
   DeleteOutlined,
-  EyeOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
   SafetyCertificateOutlined,
@@ -30,63 +32,31 @@ import {
   FileProtectOutlined,
   ShopOutlined,
   CheckCircleOutlined,
+  ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
+import { useBranches } from '@/hooks/api/useBranches';
+import type { Branch, BranchDto } from '@/types/api.types';
 import styles from './Branch.module.css';
-
-interface BranchData {
-  id: number;
-  name: string;
-  nameAr: string;
-  address: string;
-  addressAr: string;
-  phone?: string;
-  mobile?: string;
-  licenseId: string;
-  tradingId: string;
-  taxNumber: string;
-  logoUrl?: string;
-  isActive: boolean;
-  branchType: string;
-}
 
 export default function BranchPage() {
   const language = useAuthStore((state) => state.language);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
+  const [form] = Form.useForm();
 
-  // Mock data based on HTML
-  const branches: BranchData[] = [
-    {
-      id: 120,
-      name: 'SIGMA',
-      nameAr: 'مكتب سيجما للاستقدام',
-      address: 'Jeddah - Sari Street - Al Bawadi District - Saudi Arabia',
-      addressAr: 'جده - شارع صاري - حي البوادي - المملكة العربية السعودية',
-      phone: '',
-      mobile: '',
-      licenseId: '41092024',
-      tradingId: '4030365803',
-      taxNumber: '312957255600003',
-      logoUrl: '/images/logo.png',
-      isActive: true,
-      branchType: 'main',
-    },
-    {
-      id: 107,
-      name: 'Sigma Competences Recruitment Office',
-      nameAr: 'سيجما الكفاءات للاستقدام',
-      address: 'Saudi Arabia - Jeddah - Sari Street',
-      addressAr: 'المملكة العربية السعودية - جدة - شارع صاري',
-      phone: '920003692',
-      mobile: '0556619911',
-      licenseId: '3709201',
-      tradingId: '4030287427',
-      taxNumber: '312960652200003',
-      logoUrl: '/images/logo.png',
-      isActive: true,
-      branchType: 'branch',
-    },
-  ];
+  // Use the real API hooks
+  const {
+    branches,
+    isLoading,
+    createBranch,
+    updateBranch,
+    deleteBranch,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useBranches();
 
   const t = (key: string) => {
     const translations: { [key: string]: { ar: string; en: string } } = {
@@ -94,14 +64,18 @@ export default function BranchPage() {
       addBranch: { ar: 'إضافة فرع جديد', en: 'Add New Branch' },
       searchPlaceholder: { ar: 'البحث عن فرع...', en: 'Search branch...' },
       branchName: { ar: 'اسم الفرع', en: 'Branch Name' },
+      branchNameAr: { ar: 'اسم الفرع بالعربي', en: 'Branch Name (Arabic)' },
+      branchNameEn: { ar: 'اسم الفرع بالإنجليزي', en: 'Branch Name (English)' },
       address: { ar: 'العنوان', en: 'Address' },
+      addressAr: { ar: 'العنوان بالعربي', en: 'Address (Arabic)' },
+      addressEn: { ar: 'العنوان بالإنجليزي', en: 'Address (English)' },
       contactInfo: { ar: 'معلومات الاتصال', en: 'Contact Information' },
       phone: { ar: 'الهاتف', en: 'Phone' },
       mobile: { ar: 'الجوال', en: 'Mobile' },
+      email: { ar: 'البريد الإلكتروني', en: 'Email' },
       licenseId: { ar: 'رقم الترخيص', en: 'License ID' },
       tradingId: { ar: 'السجل التجاري', en: 'Trading ID' },
       taxNumber: { ar: 'الرقم الضريبي', en: 'Tax Number' },
-      view: { ar: 'عرض', en: 'View' },
       edit: { ar: 'تعديل', en: 'Edit' },
       delete: { ar: 'حذف', en: 'Delete' },
       actions: { ar: 'الإجراءات', en: 'Actions' },
@@ -110,35 +84,96 @@ export default function BranchPage() {
       subBranch: { ar: 'فرع', en: 'Branch' },
       noBranches: { ar: 'لا توجد فروع', en: 'No Branches Found' },
       totalBranches: { ar: 'إجمالي الفروع', en: 'Total Branches' },
+      save: { ar: 'حفظ', en: 'Save' },
+      cancel: { ar: 'إلغاء', en: 'Cancel' },
+      confirmDelete: {
+        ar: 'هل أنت متأكد من حذف هذا الفرع؟',
+        en: 'Are you sure you want to delete this branch?',
+      },
+      deleteTitle: { ar: 'حذف الفرع', en: 'Delete Branch' },
     };
     return translations[key]?.[language] || key;
   };
 
-  const filteredBranches = branches.filter((branch) => {
+  const filteredBranches = (branches || []).filter((branch) => {
     const searchLower = searchTerm.toLowerCase();
-    const name = language === 'ar' ? branch.nameAr : branch.name;
-    const address = language === 'ar' ? branch.addressAr : branch.address;
+    const name = language === 'ar' ? branch.nameAr : branch.nameEn;
+    const address = language === 'ar' ? branch.addressAr : branch.addressEn;
     return (
-      name.toLowerCase().includes(searchLower) ||
-      address.toLowerCase().includes(searchLower) ||
-      branch.licenseId.includes(searchLower) ||
-      branch.taxNumber.includes(searchLower)
+      (name || '').toLowerCase().includes(searchLower) ||
+      (address || '').toLowerCase().includes(searchLower) ||
+      (branch.branchLicense || '').includes(searchLower) ||
+      (branch.taxNumber || '').includes(searchLower)
     );
   });
 
-  const getActionMenu = (branch: BranchData): MenuProps => ({
+  const handleAddBranch = () => {
+    setEditingBranch(null);
+    form.resetFields();
+    setIsModalVisible(true);
+  };
+
+  const handleEditBranch = (branch: Branch) => {
+    setEditingBranch(branch);
+    form.setFieldsValue({
+      nameAr: branch.nameAr,
+      nameEn: branch.nameEn,
+      addressAr: branch.addressAr,
+      addressEn: branch.addressEn,
+      phone: branch.phone,
+      mobile: branch.mobile,
+      email: branch.email,
+      branchLicense: branch.branchLicense,
+      commercialRegistrationNumber: branch.commercialRegistrationNumber,
+      taxNumber: branch.taxNumber,
+    });
+    setIsModalVisible(true);
+  };
+
+  const handleDeleteBranch = (branch: Branch) => {
+    Modal.confirm({
+      title: t('deleteTitle'),
+      icon: <ExclamationCircleOutlined />,
+      content: t('confirmDelete'),
+      okText: t('delete'),
+      cancelText: t('cancel'),
+      okButtonProps: { danger: true },
+      onOk: () => deleteBranch(branch.id),
+    });
+  };
+
+  const handleModalSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      const branchData: BranchDto = values;
+
+      if (editingBranch) {
+        updateBranch({ id: editingBranch.id, data: branchData });
+      } else {
+        createBranch(branchData);
+      }
+
+      setIsModalVisible(false);
+      form.resetFields();
+    } catch (error) {
+      console.error('Validation failed:', error);
+    }
+  };
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
+    form.resetFields();
+    setEditingBranch(null);
+  };
+
+  const getActionMenu = (branch: Branch): MenuProps => ({
     items: [
-      {
-        key: 'view',
-        label: t('view'),
-        icon: <EyeOutlined />,
-        onClick: () => console.log('View', branch.id),
-      },
+      
       {
         key: 'edit',
         label: t('edit'),
         icon: <EditOutlined />,
-        onClick: () => console.log('Edit', branch.id),
+        onClick: () => handleEditBranch(branch),
       },
       {
         type: 'divider',
@@ -148,7 +183,7 @@ export default function BranchPage() {
         label: t('delete'),
         icon: <DeleteOutlined />,
         danger: true,
-        onClick: () => console.log('Delete', branch.id),
+        onClick: () => handleDeleteBranch(branch),
       },
     ],
   });
@@ -163,11 +198,18 @@ export default function BranchPage() {
             <div>
               <h1 className={styles.pageTitle}>{t('pageTitle')}</h1>
               <p className={styles.pageSubtitle}>
-                {t('totalBranches')}: <strong>{branches.length}</strong>
+                {t('totalBranches')}: <strong>{branches?.length || 0}</strong>
               </p>
             </div>
           </div>
-          <Button type="primary" size="large" icon={<PlusOutlined />} className={styles.addButton}>
+          <Button
+            type="primary"
+            size="large"
+            icon={<PlusOutlined />}
+            className={styles.addButton}
+            onClick={handleAddBranch}
+            loading={isCreating}
+          >
             {t('addBranch')}
           </Button>
         </div>
@@ -196,7 +238,7 @@ export default function BranchPage() {
               </div>
               <div className={styles.statInfo}>
                 <p className={styles.statLabel}>{t('totalBranches')}</p>
-                <h3 className={styles.statValue}>{branches.length}</h3>
+                <h3 className={styles.statValue}>{branches?.length || 0}</h3>
               </div>
             </div>
           </Card>
@@ -209,7 +251,9 @@ export default function BranchPage() {
               </div>
               <div className={styles.statInfo}>
                 <p className={styles.statLabel}>{t('active')}</p>
-                <h3 className={styles.statValue}>{branches.filter((b) => b.isActive).length}</h3>
+                <h3 className={styles.statValue}>
+                  {branches?.filter((b) => b.nameAr || b.nameEn).length || 0}
+                </h3>
               </div>
             </div>
           </Card>
@@ -223,7 +267,7 @@ export default function BranchPage() {
               <div className={styles.statInfo}>
                 <p className={styles.statLabel}>{t('mainBranch')}</p>
                 <h3 className={styles.statValue}>
-                  {branches.filter((b) => b.branchType === 'main').length}
+                  {branches?.filter((b) => b.mainBranch === null).length || 0}
                 </h3>
               </div>
             </div>
@@ -232,7 +276,13 @@ export default function BranchPage() {
       </Row>
 
       {/* Branch Cards Grid */}
-      {filteredBranches.length > 0 ? (
+      {isLoading ? (
+        <Card>
+          <div style={{ textAlign: 'center', padding: '60px 0' }}>
+            <Spin size="large" />
+          </div>
+        </Card>
+      ) : filteredBranches.length > 0 ? (
         <Row gutter={[24, 24]} className={styles.branchGrid}>
           {filteredBranches.map((branch) => (
             <Col xs={24} lg={12} key={branch.id}>
@@ -240,23 +290,18 @@ export default function BranchPage() {
                 {/* Card Header */}
                 <div className={styles.cardHeader}>
                   <div className={styles.branchHeaderLeft}>
-                    <Avatar
-                      size={64}
-                      src={branch.logoUrl}
-                      icon={<ShopOutlined />}
-                      className={styles.branchAvatar}
-                    />
+                    <Avatar size={64} icon={<ShopOutlined />} className={styles.branchAvatar} />
                     <div className={styles.branchNameSection}>
                       <h3 className={styles.branchName}>
-                        {language === 'ar' ? branch.nameAr : branch.name}
+                        {language === 'ar' ? branch.nameAr : branch.nameEn}
                       </h3>
                       <Space size={8}>
-                        {branch.isActive && <Badge status="success" text={t('active')} />}
+                        <Badge status="success" text={t('active')} />
                         <Tag
-                          color={branch.branchType === 'main' ? 'blue' : 'default'}
+                          color={branch.mainBranch === null ? 'blue' : 'default'}
                           className={styles.branchTag}
                         >
-                          {branch.branchType === 'main' ? t('mainBranch') : t('subBranch')}
+                          {branch.mainBranch === null ? t('mainBranch') : t('subBranch')}
                         </Tag>
                       </Space>
                     </div>
@@ -269,20 +314,22 @@ export default function BranchPage() {
                 {/* Card Content */}
                 <div className={styles.cardContent}>
                   {/* Address */}
-                  <div className={styles.infoRow}>
-                    <div className={styles.infoIcon}>
-                      <EnvironmentOutlined />
+                  {(branch.addressAr || branch.addressEn) && (
+                    <div className={styles.infoRow}>
+                      <div className={styles.infoIcon}>
+                        <EnvironmentOutlined />
+                      </div>
+                      <div className={styles.infoContent}>
+                        <p className={styles.infoLabel}>{t('address')}</p>
+                        <p className={styles.infoValue}>
+                          {language === 'ar' ? branch.addressAr : branch.addressEn}
+                        </p>
+                      </div>
                     </div>
-                    <div className={styles.infoContent}>
-                      <p className={styles.infoLabel}>{t('address')}</p>
-                      <p className={styles.infoValue}>
-                        {language === 'ar' ? branch.addressAr : branch.address}
-                      </p>
-                    </div>
-                  </div>
+                  )}
 
                   {/* Contact Information */}
-                  {(branch.phone || branch.mobile) && (
+                  {(branch.phone || branch.mobile || branch.email) && (
                     <div className={styles.infoRow}>
                       <div className={styles.infoIcon}>
                         <PhoneOutlined />
@@ -300,6 +347,11 @@ export default function BranchPage() {
                               {t('mobile')}: {branch.mobile}
                             </p>
                           )}
+                          {branch.email && (
+                            <p className={styles.infoValue}>
+                              {t('email')}: {branch.email}
+                            </p>
+                          )}
                         </Space>
                       </div>
                     </div>
@@ -308,56 +360,58 @@ export default function BranchPage() {
                   {/* Official Documents */}
                   <div className={styles.documentsSection}>
                     <Row gutter={[12, 12]}>
-                      <Col span={24}>
-                        <Tooltip title={t('licenseId')}>
-                          <div className={styles.documentItem}>
-                            <SafetyCertificateOutlined className={styles.docIcon} />
-                            <div>
-                              <p className={styles.docLabel}>{t('licenseId')}</p>
-                              <p className={styles.docValue}>{branch.licenseId}</p>
+                      {branch.branchLicense && (
+                        <Col span={24}>
+                          <Tooltip title={t('licenseId')}>
+                            <div className={styles.documentItem}>
+                              <SafetyCertificateOutlined className={styles.docIcon} />
+                              <div>
+                                <p className={styles.docLabel}>{t('licenseId')}</p>
+                                <p className={styles.docValue}>{branch.branchLicense}</p>
+                              </div>
                             </div>
-                          </div>
-                        </Tooltip>
-                      </Col>
-                      <Col span={24}>
-                        <Tooltip title={t('tradingId')}>
-                          <div className={styles.documentItem}>
-                            <BankOutlined className={styles.docIcon} />
-                            <div>
-                              <p className={styles.docLabel}>{t('tradingId')}</p>
-                              <p className={styles.docValue}>{branch.tradingId}</p>
+                          </Tooltip>
+                        </Col>
+                      )}
+                      {branch.commercialRegistrationNumber && (
+                        <Col span={24}>
+                          <Tooltip title={t('tradingId')}>
+                            <div className={styles.documentItem}>
+                              <BankOutlined className={styles.docIcon} />
+                              <div>
+                                <p className={styles.docLabel}>{t('tradingId')}</p>
+                                <p className={styles.docValue}>
+                                  {branch.commercialRegistrationNumber}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        </Tooltip>
-                      </Col>
-                      <Col span={24}>
-                        <Tooltip title={t('taxNumber')}>
-                          <div className={styles.documentItem}>
-                            <FileProtectOutlined className={styles.docIcon} />
-                            <div>
-                              <p className={styles.docLabel}>{t('taxNumber')}</p>
-                              <p className={styles.docValue}>{branch.taxNumber}</p>
+                          </Tooltip>
+                        </Col>
+                      )}
+                      {branch.taxNumber && (
+                        <Col span={24}>
+                          <Tooltip title={t('taxNumber')}>
+                            <div className={styles.documentItem}>
+                              <FileProtectOutlined className={styles.docIcon} />
+                              <div>
+                                <p className={styles.docLabel}>{t('taxNumber')}</p>
+                                <p className={styles.docValue}>{branch.taxNumber}</p>
+                              </div>
                             </div>
-                          </div>
-                        </Tooltip>
-                      </Col>
+                          </Tooltip>
+                        </Col>
+                      )}
                     </Row>
                   </div>
                 </div>
 
                 {/* Card Footer Actions */}
                 <div className={styles.cardFooter}>
-                  <Button
-                    type="link"
-                    icon={<EyeOutlined />}
-                    onClick={() => console.log('View', branch.id)}
-                  >
-                    {t('view')}
-                  </Button>
+                 
                   <Button
                     type="link"
                     icon={<EditOutlined />}
-                    onClick={() => console.log('Edit', branch.id)}
+                    onClick={() => handleEditBranch(branch)}
                   >
                     {t('edit')}
                   </Button>
@@ -365,7 +419,8 @@ export default function BranchPage() {
                     type="link"
                     danger
                     icon={<DeleteOutlined />}
-                    onClick={() => console.log('Delete', branch.id)}
+                    onClick={() => handleDeleteBranch(branch)}
+                    loading={isDeleting}
                   >
                     {t('delete')}
                   </Button>
@@ -379,6 +434,90 @@ export default function BranchPage() {
           <Empty description={t('noBranches')} />
         </Card>
       )}
+
+      {/* Add/Edit Branch Modal */}
+      <Modal
+        title={editingBranch ? t('edit') : t('addBranch')}
+        open={isModalVisible}
+        onOk={handleModalSubmit}
+        onCancel={handleModalCancel}
+        confirmLoading={isCreating || isUpdating}
+        okText={t('save')}
+        cancelText={t('cancel')}
+        width={700}
+      >
+        <Form form={form} layout="vertical" autoComplete="off">
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="nameAr"
+                label={t('branchNameAr')}
+                rules={[{ required: true, message: 'مطلوب' }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="nameEn"
+                label={t('branchNameEn')}
+                rules={[{ required: true, message: 'Required' }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="addressAr" label={t('addressAr')}>
+                <Input.TextArea rows={2} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="addressEn" label={t('addressEn')}>
+                <Input.TextArea rows={2} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item name="phone" label={t('phone')}>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="mobile" label={t('mobile')}>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="email" label={t('email')}>
+                <Input type="email" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item name="branchLicense" label={t('licenseId')}>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="commercialRegistrationNumber" label={t('tradingId')}>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="taxNumber" label={t('taxNumber')}>
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
     </div>
   );
 }

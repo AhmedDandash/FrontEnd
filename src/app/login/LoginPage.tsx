@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Form, Input, Button, Checkbox, message } from 'antd';
+import { Form, Input, Button, Checkbox } from 'antd';
 import {
   EyeInvisibleOutlined,
   EyeTwoTone,
@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { getTranslation } from '@/i18n/translations';
 import type { Language } from '@/i18n/translations';
 import styles from './LoginPage.module.css';
@@ -19,13 +20,10 @@ import styles from './LoginPage.module.css';
 export default function LoginPage() {
   const [form] = Form.useForm();
   const [rememberMe, setRememberMe] = useState(false);
-  // const [showPassword, setShowPassword] = useState(false); // Not used for EyeTwoTone field
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const { login, isLoggingIn } = useAuth();
   const language = useAuthStore((state) => state.language);
   const setLanguage = useAuthStore((state) => state.setLanguage);
-  const setIsLoading = useAuthStore((state) => state.setIsLoading);
 
   const t = (key: string) => getTranslation(language, key);
 
@@ -52,43 +50,18 @@ export default function LoginPage() {
   };
 
   const handleSubmit = async (values: any) => {
-    try {
-      setIsSubmitting(true);
-      setIsLoading(true);
-      setErrors({});
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Mock validation
-      if (values.username === 'a' && values.password === 'a') {
-        message.success(t('login.loginSuccess'));
-
-        if (rememberMe) {
-          localStorage.setItem('rememberedUsername', values.username);
-        } else {
-          localStorage.removeItem('rememberedUsername');
-        }
-
-        // Store auth token (mock)
-        localStorage.setItem('authToken', 'mock-token-' + Date.now());
-
-        // Redirect to dashboard
-        setTimeout(() => {
-          window.location.href = '/dashboard';
-        }, 500);
-      } else {
-        setErrors({
-          submit: t('login.loginError'),
-        });
-        message.error(t('login.loginError'));
-      }
-    } catch (error) {
-      message.error(t('common.error'));
-    } finally {
-      setIsSubmitting(false);
-      setIsLoading(false);
+    // Save remember me preference
+    if (rememberMe) {
+      localStorage.setItem('rememberedUsername', values.username);
+    } else {
+      localStorage.removeItem('rememberedUsername');
     }
+
+    // Call the real API login
+    login({
+      username: values.username,
+      password: values.password,
+    });
   };
 
   // Validation helper - for potential future use
@@ -174,14 +147,6 @@ export default function LoginPage() {
               English
             </button>
           </div>
-
-          {/* Error Alert */}
-          {errors.submit && (
-            <div className={styles.errorAlert} role="alert">
-              <div className={styles.errorIcon}>!</div>
-              <div className={styles.errorMessage}>{errors.submit}</div>
-            </div>
-          )}
 
           {/* Login Form */}
           <Form
@@ -276,12 +241,12 @@ export default function LoginPage() {
                 type="primary"
                 htmlType="submit"
                 size="large"
-                loading={isSubmitting}
-                disabled={isSubmitting}
+                loading={isLoggingIn}
+                disabled={isLoggingIn}
                 className={styles.submitBtn}
-                aria-busy={isSubmitting}
+                aria-busy={isLoggingIn}
               >
-                {isSubmitting ? (
+                {isLoggingIn ? (
                   <>
                     <LoadingOutlined /> {t('common.loading')}
                   </>
@@ -294,7 +259,11 @@ export default function LoginPage() {
 
           {/* Footer */}
           <div className={styles.formFooter}>
-            <p className={styles.footerText}>Demo Credentials: admin / password</p>
+            <p className={styles.footerText}>
+              {language === 'ar'
+                ? 'بيانات التجربة: admin / password'
+                : 'Demo Credentials: admin / password'}
+            </p>
           </div>
         </div>
       </div>
