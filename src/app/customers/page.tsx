@@ -273,7 +273,7 @@ export default function CustomersPage() {
       <Row gutter={[24, 24]} className={styles.statsRow}>
         <Col xs={24} sm={12} md={12}>
           <Card className={styles.statCard}>
-            <div className={styles.statContent} style={{ direction: 'ltr' }}>
+            <div className={styles.statContent}>
               <div className={styles.statIcon} style={{ background: '#E3F2FD' }}>
                 <TeamOutlined style={{ color: '#00478C', fontSize: '24px' }} />
               </div>
@@ -289,7 +289,7 @@ export default function CustomersPage() {
         </Col>
         <Col xs={24} sm={12} md={12}>
           <Card className={styles.statCard}>
-            <div className={styles.statContent} style={{ direction: 'ltr' }}>
+            <div className={styles.statContent}>
               <div className={styles.statIcon} style={{ background: '#FFF3E0' }}>
                 <EnvironmentOutlined style={{ color: '#F59E0B', fontSize: '24px' }} />
               </div>
@@ -382,6 +382,19 @@ export default function CustomersPage() {
                       <div className={styles.infoContent}>
                         <p className={styles.infoLabel}>{t('housingType')}</p>
                         <p className={styles.infoValue}>{getHousingType(customer.housingType)}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Nationality */}
+                  {customer.nationality && (
+                    <div className={styles.infoRow}>
+                      <div className={styles.infoIcon}>
+                        <IdcardOutlined />
+                      </div>
+                      <div className={styles.infoContent}>
+                        <p className={styles.infoLabel}>{t('nationality')}</p>
+                        <p className={styles.infoValue}>{customer.nationality}</p>
                       </div>
                     </div>
                   )}
