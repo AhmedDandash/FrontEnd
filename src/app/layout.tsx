@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { AntdProvider } from '@/components/AntdProvider';
 import { ReactQueryProvider } from '@/lib/providers/ReactQueryProvider';
+import { TokenDebugger } from '@/components/TokenDebugger';
 import MainLayout from '@/components/layout/MainLayout';
 import './globals.css';
 
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ReactQueryProvider>
           <AntdProvider>
+            <TokenDebugger />
             <MainLayout>{children}</MainLayout>
           </AntdProvider>
         </ReactQueryProvider>

@@ -14,13 +14,30 @@ export class AuthService {
   static async login(credentials: LoginDto): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials);
 
+    console.log('🔑 Login Response:', response.data);
+
     // Store token if present
-    if (response.data?.token) {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('authToken', response.data.token);
-        if (response.data.user) {
-          localStorage.setItem('user', JSON.stringify(response.data.user));
+    if (typeof window !== 'undefined') {
+      const tokenValue = response.data?.token;
+
+      if (tokenValue) {
+        console.log('💾 Storing token:', tokenValue.substring(0, 30) + '...');
+        console.log('📍 Token length:', tokenValue.length);
+        localStorage.setItem('authToken', tokenValue);
+        console.log('✅ Token stored successfully');
+        
+        // Verify storage immediately
+        const storedToken = localStorage.getItem('authToken');
+        console.log('🔍 Verification - Token retrieved:', storedToken === tokenValue ? 'MATCH ✓' : 'MISMATCH ✗');
+
+        const userData = response.data?.user;
+        if (userData) {
+          localStorage.setItem('user', JSON.stringify(userData));
+          console.log('👤 User data stored');
         }
+      } else {
+        console.error('❌ No token found in response:', response.data);
+        throw new Error('No token in login response');
       }
     }
 

@@ -17,6 +17,7 @@ import {
   Modal,
   Form,
   Spin,
+  message,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -114,6 +115,9 @@ export default function BranchPage() {
   };
 
   const handleEditBranch = (branch: Branch) => {
+    console.log('📝 Editing branch:', branch);
+    console.log('🆔 Branch ID:', branch.id);
+    
     setEditingBranch(branch);
     form.setFieldsValue({
       nameAr: branch.nameAr,
@@ -147,7 +151,18 @@ export default function BranchPage() {
       const values = await form.validateFields();
       const branchData: BranchDto = values;
 
+      console.log('💾 Submitting branch data:', {
+        isEditing: !!editingBranch,
+        branchId: editingBranch?.id,
+        data: branchData
+      });
+
       if (editingBranch) {
+        if (!editingBranch.id) {
+          console.error('❌ Branch ID is missing!', editingBranch);
+          message.error('Branch ID is missing. Cannot update.');
+          return;
+        }
         updateBranch({ id: editingBranch.id, data: branchData });
       } else {
         createBranch(branchData);

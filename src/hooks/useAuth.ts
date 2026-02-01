@@ -9,18 +9,26 @@ import { message } from 'antd';
 import { AuthService } from '@/services';
 import type { LoginDto, RegisterDto } from '@/types/api.types';
 
-
 export function useAuth() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
   const loginMutation = useMutation({
     mutationFn: (credentials: LoginDto) => AuthService.login(credentials),
-    onSuccess: () => {
+    onSuccess: async () => {
       message.success('تم تسجيل الدخول بنجاح / Login successful');
+
+      // Small delay to ensure localStorage write completes
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify token before redirect
+      const token = AuthService.getToken();
+      console.log('🎯 Pre-redirect token check:', token ? 'Token exists ✓' : 'No token ✗');
+
       router.push('/home/dashboard');
     },
     onError: (error: any) => {
+      console.error('🚨 Login error:', error);
       message.error(error.response?.data?.message || 'فشل تسجيل الدخول / Login failed');
     },
   });

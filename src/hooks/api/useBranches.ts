@@ -21,7 +21,21 @@ export function useBranches() {
     refetch,
   } = useQuery({
     queryKey: [QUERY_KEY],
-    queryFn: () => BranchService.getAll(),
+    queryFn: async () => {
+      const result = await BranchService.getAll();
+      console.log('🏢 Branches fetched from API:', result);
+      console.log('📊 First branch sample:', result?.[0]);
+      console.log('🔍 First branch keys:', result?.[0] ? Object.keys(result[0]) : 'No branches');
+      console.log('🆔 Does first branch have id?', result?.[0]?.id !== undefined);
+
+      // Check if branches have id field, if not, log a warning
+      if (result && result.length > 0 && !result[0].hasOwnProperty('id')) {
+        console.error('❌ WARNING: Branches from API are missing the "id" field!');
+        console.log('Available fields:', Object.keys(result[0]));
+      }
+
+      return result;
+    },
   });
 
   // Get branch by ID

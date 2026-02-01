@@ -45,6 +45,13 @@ class ApiClient {
           const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            console.log('🔐 Adding token to request:', {
+              url: config.url,
+              token: token.substring(0, 20) + '...',
+              hasAuth: !!config.headers.Authorization
+            });
+          } else {
+            console.warn('⚠️ No token found for request:', config.url);
           }
         }
 
@@ -54,6 +61,7 @@ class ApiClient {
             method: config.method?.toUpperCase(),
             url: config.url,
             data: config.data,
+            hasAuth: !!config.headers?.Authorization
           });
         }
 
