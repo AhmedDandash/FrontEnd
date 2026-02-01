@@ -14,6 +14,7 @@ import {
 import type { MenuProps } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import Image from 'next/image';
 import styles from './Header.module.css';
 
@@ -29,6 +30,7 @@ export default function Header({ collapsed, onToggleSidebar, onToggleMobileDrawe
   const router = useRouter();
   const language = useAuthStore((state) => state.language);
   const setLanguage = useAuthStore((state) => state.setLanguage);
+  const { logout } = useAuth();
 
   const handleLanguageChange = (lang: 'ar' | 'en') => {
     setLanguage(lang);
@@ -38,8 +40,7 @@ export default function Header({ collapsed, onToggleSidebar, onToggleMobileDrawe
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    router.push('/login');
+    logout();
   };
 
   const userMenuItems: MenuProps['items'] = [

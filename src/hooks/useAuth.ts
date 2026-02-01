@@ -25,7 +25,7 @@ export function useAuth() {
       const token = AuthService.getToken();
       console.log('🎯 Pre-redirect token check:', token ? 'Token exists ✓' : 'No token ✗');
 
-      router.push('/home/dashboard');
+      router.push('/dashboard');
     },
     onError: (error: any) => {
       console.error('🚨 Login error:', error);
