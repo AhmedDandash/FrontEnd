@@ -29,7 +29,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       }
 
       if (token && pathname === '/login') {
-        // Has token but on login page
+        // Has token but on login page - use replace so back button doesn't return to login
         router.replace('/dashboard');
         return;
       }

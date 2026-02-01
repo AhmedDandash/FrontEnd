@@ -48,7 +48,10 @@ export function middleware(request: NextRequest) {
   if (isProtectedRoute && !authToken) {
     console.log(`[Middleware] Redirecting to login - no auth token`);
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+
+    // Append the original path as a redirect parameter
+    loginUrl.searchParams.set('redirect', encodeURIComponent(pathname));
+
     return NextResponse.redirect(loginUrl);
   }
 
