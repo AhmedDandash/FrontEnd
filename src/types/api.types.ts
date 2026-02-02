@@ -17,6 +17,7 @@ export interface RegisterDto {
 
 export interface AuthResponse {
   token?: string;
+  accessToken?: string;
   user?: User;
   message?: string;
 }

@@ -3,11 +3,24 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   i18n: {
-    locales: ["ar", "en"],
-    defaultLocale: "ar",
+    locales: ['ar', 'en'],
+    defaultLocale: 'ar',
   },
   experimental: {
-    optimizePackageImports: ["antd", "@ant-design/icons"],
+    optimizePackageImports: ['antd', '@ant-design/icons'],
+  },
+  async rewrites() {
+    // Only use proxy in development to bypass CORS
+    // In production, use direct API calls (requires proper CORS configuration on server)
+    if (process.env.NODE_ENV === 'development') {
+      return [
+        {
+          source: '/api/:path*',
+          destination: 'https://sigma26.runasp.net/api/:path*',
+        },
+      ];
+    }
+    return [];
   },
 };
 

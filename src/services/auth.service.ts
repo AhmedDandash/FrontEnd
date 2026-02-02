@@ -14,11 +14,24 @@ export class AuthService {
   static async login(credentials: LoginDto): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials);
 
-    console.log('🔑 Login Response:', response.data);
+    console.log('🔑 Full Response Object:', response);
+    console.log('🔑 Response Data:', response.data);
+    console.log('🔑 Response Data Type:', typeof response.data);
+    console.log('🔑 Response Data Keys:', Object.keys(response.data || {}));
 
     // Store token if present
     if (typeof window !== 'undefined') {
-      const tokenValue = response.data?.token;
+      // Handle both 'token' and 'accessToken' field names
+      const responseData: any = response.data;
+      const tokenValue = responseData?.accessToken || responseData?.token;
+
+      console.log('🔍 Checking for token...');
+      console.log('🔍 accessToken:', responseData?.accessToken ? 'EXISTS' : 'MISSING');
+      console.log('🔍 token:', responseData?.token ? 'EXISTS' : 'MISSING');
+      console.log(
+        '🔍 Final tokenValue:',
+        tokenValue ? tokenValue.substring(0, 30) + '...' : 'NULL'
+      );
 
       if (tokenValue) {
         console.log('💾 Storing token:', tokenValue.substring(0, 30) + '...');
@@ -36,13 +49,14 @@ export class AuthService {
           storedToken === tokenValue ? 'MATCH ✓' : 'MISMATCH ✗'
         );
 
-        const userData = response.data?.user;
+        const userData = responseData?.user;
         if (userData) {
           localStorage.setItem('user', JSON.stringify(userData));
           console.log('👤 User data stored');
         }
       } else {
-        console.error('❌ No token found in response:', response.data);
+        console.error('❌ No token found in response data');
+        console.error('❌ Response data structure:', JSON.stringify(response.data, null, 2));
         throw new Error('No token in login response');
       }
     }
