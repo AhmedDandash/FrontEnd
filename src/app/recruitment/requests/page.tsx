@@ -39,8 +39,6 @@ import {
 import { useAuthStore } from '@/store/authStore';
 import styles from './RecruitmentRequests.module.css';
 
-
-
 interface RecruitmentRequest {
   id: number;
   code: string;
@@ -61,7 +59,6 @@ interface RecruitmentRequest {
   requestType: 'automatic' | 'manual';
   status: 'pending' | 'assigned' | 'completed' | 'cancelled';
   createdDate: string;
- 
 }
 
 export default function RecruitmentRequestsPage() {
@@ -292,7 +289,7 @@ export default function RecruitmentRequestsPage() {
 
       {/* Search and Filters */}
       <Card className={styles.filterCard}>
-        <Space direction="vertical" style={{ width: '100%' }} size={16}>
+        <Space vertical style={{ width: '100%' }} size={16}>
           <div className={styles.filterHeader}>
             <Space wrap>
               <Input
@@ -426,8 +423,8 @@ export default function RecruitmentRequestsPage() {
                           ? 'أوتوماتيك'
                           : 'Automatic'
                         : language === 'ar'
-                        ? 'يدوي'
-                        : 'Manual'}
+                          ? 'يدوي'
+                          : 'Manual'}
                     </Tag>
                   </Space>
                 </div>
@@ -435,8 +432,6 @@ export default function RecruitmentRequestsPage() {
                   <Button type="text" icon={<MoreOutlined />} />
                 </Dropdown>
               </div>
-
-              
 
               {/* Job Info */}
               <div className={styles.jobSection}>
@@ -455,8 +450,8 @@ export default function RecruitmentRequestsPage() {
                         ? 'مسلم'
                         : 'Muslim'
                       : language === 'ar'
-                      ? 'غير مسلم'
-                      : 'Non-Muslim'}
+                        ? 'غير مسلم'
+                        : 'Non-Muslim'}
                   </Tag>
                   <Tag>{language === 'ar' ? `${request.age} سنة` : `${request.age} years`}</Tag>
                 </div>

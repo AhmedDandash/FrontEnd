@@ -352,7 +352,7 @@ export default function SendEmailPage() {
           </h3>
         </div>
 
-        <Space direction="vertical" style={{ width: '100%' }} size="large">
+        <Space vertical style={{ width: '100%' }} size="large">
           {/* Radio Selection */}
           <div className={styles.radioGroup}>
             <Button
@@ -525,7 +525,7 @@ export default function SendEmailPage() {
           </h3>
         </div>
 
-        <Space direction="vertical" style={{ width: '100%' }} size="large">
+        <Space vertical style={{ width: '100%' }} size="large">
           {/* Template Selector */}
           <div>
             <label className={styles.label}>
@@ -651,7 +651,7 @@ export default function SendEmailPage() {
   // History Tab Content
   const HistoryTab = (
     <div className={styles.historyContainer}>
-      <Space direction="vertical" style={{ width: '100%' }} size="middle">
+      <Space vertical style={{ width: '100%' }} size="middle">
         {sentEmails.map((email) => (
           <Card key={email.id} className={styles.historyCard}>
             <Row gutter={16} align="middle">

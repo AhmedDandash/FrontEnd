@@ -351,7 +351,7 @@ export default function BranchPage() {
                       </div>
                       <div className={styles.infoContent}>
                         <p className={styles.infoLabel}>{t('contactInfo')}</p>
-                        <Space direction="vertical" size={4}>
+                        <Space vertical size={4}>
                           {branch.phone && (
                             <p className={styles.infoValue}>
                               {t('phone')}: {branch.phone}

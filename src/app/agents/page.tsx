@@ -276,7 +276,7 @@ export default function AgentsPage() {
 
       {/* Search and Filters */}
       <Card className={styles.filterCard}>
-        <Space direction="vertical" style={{ width: '100%' }} size={16}>
+        <Space vertical style={{ width: '100%' }} size={16}>
           <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
             <Input
               size="large"

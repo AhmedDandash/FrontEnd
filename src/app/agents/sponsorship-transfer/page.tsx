@@ -387,9 +387,7 @@ export default function SponsorshipTransferPage() {
                         <div className={styles.contractNumber}>
                           <div className={styles.numberBadge}>
                             <span className={styles.sequenceNumber}>{contract.contractNumber}</span>
-                            <h2 className={styles.mainNumber}>
-                              {contract.id}
-                            </h2>
+                            <h2 className={styles.mainNumber}>{contract.id}</h2>
                             <span className={styles.dateText}>{contract.creationDate}</span>
                           </div>
                         </div>
@@ -473,7 +471,7 @@ export default function SponsorshipTransferPage() {
                             }
                           />
                           <Divider style={{ margin: '12px 0' }} />
-                          <Space direction="vertical" style={{ width: '100%' }}>
+                          <Space vertical style={{ width: '100%' }}>
                             <Button
                               type="link"
                               icon={<FileTextOutlined />}
