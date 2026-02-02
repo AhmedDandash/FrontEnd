@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import dayjs from 'dayjs';
 import {
   Card,
   Row,
@@ -18,13 +19,15 @@ import {
   Form,
   message,
   Progress,
+  Spin,
+  Empty,
+  Upload,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
   PlusOutlined,
   SearchOutlined,
   FilterOutlined,
-  EyeOutlined,
   EditOutlined,
   DeleteOutlined,
   FileTextOutlined,
@@ -35,13 +38,13 @@ import {
   ClockCircleOutlined,
   WarningOutlined,
   FileProtectOutlined,
-  DownloadOutlined,
   FolderOpenOutlined,
-  HomeOutlined,
+  InboxOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
+import { useDocuments } from '@/hooks/api/useDocuments';
+import type { Document as ApiDocument } from '@/types/api.types';
 import styles from './Documents.module.css';
-
 
 interface Document {
   id: number;
@@ -49,31 +52,94 @@ interface Document {
   nameAr: string;
   type: string;
   typeAr: string;
-  branch: string;
-  branchAr: string;
+  documentTypeId?: number | null;
+  dateType?: number | null;
+  issueDate?: string | null;
   expiryDate: string;
+  reminderPeriodMonths?: number | null;
   uploadDate: string;
   status: 'valid' | 'expiring-soon' | 'expired';
   fileSize: string;
   fileType: 'pdf' | 'doc' | 'image' | 'excel';
+  fileNameAr?: string | null;
+  fileNameEn?: string | null;
+  filePath?: string | null;
   description?: string;
   descriptionAr?: string;
 }
 
 export default function DocumentsPage() {
   const language = useAuthStore((state) => state.language);
+  const {
+    documents: apiDocuments,
+    isLoading,
+    isError,
+    createDocument,
+    updateDocument,
+    deleteDocument,
+    isCreating,
+    isUpdating,
+  } = useDocuments();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [selectedBranches, setSelectedBranches] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
   const [isRenewModalVisible, setIsRenewModalVisible] = useState(false);
+  const [isDocumentModalVisible, setIsDocumentModalVisible] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [form] = Form.useForm();
+  const [documentForm] = Form.useForm();
 
-  // Mock data
+  // Transform API documents to component format
+  const transformedDocuments: Document[] = useMemo(() => {
+    return apiDocuments.map((doc: ApiDocument) => {
+      const today = new Date();
+      const expiryDate = doc.expiryDate ? new Date(doc.expiryDate) : null;
+
+      let status: 'valid' | 'expiring-soon' | 'expired' = 'valid';
+      if (expiryDate) {
+        const daysUntilExpiry = Math.floor(
+          (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        if (daysUntilExpiry < 0) status = 'expired';
+        else if (daysUntilExpiry < 30) status = 'expiring-soon';
+      }
+
+      // Determine file type from file path
+      const filePath = doc.filePath || '';
+      let fileType: 'pdf' | 'doc' | 'image' | 'excel' = 'pdf';
+      if (filePath.endsWith('.pdf')) fileType = 'pdf';
+      else if (filePath.endsWith('.doc') || filePath.endsWith('.docx')) fileType = 'doc';
+      else if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg') || filePath.endsWith('.png'))
+        fileType = 'image';
+      else if (filePath.endsWith('.xls') || filePath.endsWith('.xlsx')) fileType = 'excel';
+
+      return {
+        id: doc.id,
+        name: doc.documentNameEn || doc.documentNameAr || `Document ${doc.id}`,
+        nameAr: doc.documentNameAr || doc.documentNameEn || `وثيقة ${doc.id}`,
+        type: doc.documentNameEn || 'Unknown',
+        typeAr: doc.documentNameAr || 'غير معروف',
+        documentTypeId: doc.documentTypeId,
+        dateType: doc.dateType,
+        issueDate: doc.issueDate,
+        expiryDate: doc.expiryDate || '',
+        reminderPeriodMonths: doc.reminderPeriodMonths,
+        uploadDate: doc.issueDate || new Date().toISOString().split('T')[0],
+        status,
+        fileSize: '0 MB', // Size not provided by API
+        fileType,
+        fileNameAr: doc.fileNameAr,
+        fileNameEn: doc.fileNameEn,
+        filePath: doc.filePath,
+      };
+    });
+  }, [apiDocuments]);
+
+  // Document types for filtering
   const documentTypes = [
     { value: '1', label: 'Contract', labelAr: 'عقد' },
     { value: '2', label: 'License', labelAr: 'رخصة' },
@@ -85,70 +151,21 @@ export default function DocumentsPage() {
     { value: '8', label: 'Visa Document', labelAr: 'وثيقة تأشيرة' },
   ];
 
-  const branches = [
-    { value: '1', label: 'Main Branch', labelAr: 'الفرع الرئيسي' },
-    { value: '2', label: 'North Branch', labelAr: 'الفرع الشمالي' },
-    { value: '3', label: 'South Branch', labelAr: 'الفرع الجنوبي' },
-    { value: '4', label: 'East Branch', labelAr: 'الفرع الشرقي' },
-    { value: '5', label: 'West Branch', labelAr: 'الفرع الغربي' },
-  ];
-
-  const mockDocuments: Document[] = Array.from({ length: 48 }, (_, i) => {
-    const uploadDate = new Date(2025, Math.floor(i / 4), (i % 28) + 1);
-    const expiryDate = new Date(uploadDate);
-    expiryDate.setMonth(expiryDate.getMonth() + (6 + (i % 18)));
-
-    const today = new Date();
-    const daysUntilExpiry = Math.floor(
-      (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    let status: 'valid' | 'expiring-soon' | 'expired';
-    if (daysUntilExpiry < 0) status = 'expired';
-    else if (daysUntilExpiry < 30) status = 'expiring-soon';
-    else status = 'valid';
-
-    const fileTypes: ('pdf' | 'doc' | 'image' | 'excel')[] = ['pdf', 'doc', 'image', 'excel'];
-
-    return {
-      id: 1000 + i,
-      name: `Document ${i + 1}`,
-      nameAr: `وثيقة ${i + 1}`,
-      type: documentTypes[i % documentTypes.length].label,
-      typeAr: documentTypes[i % documentTypes.length].labelAr,
-      branch: branches[i % branches.length].label,
-      branchAr: branches[i % branches.length].labelAr,
-      expiryDate: expiryDate.toISOString().split('T')[0],
-      uploadDate: uploadDate.toISOString().split('T')[0],
-      status,
-      fileSize: `${(Math.random() * 5 + 0.5).toFixed(2)} MB`,
-      fileType: fileTypes[i % fileTypes.length],
-      description: i % 3 === 0 ? `Description for document ${i + 1}` : undefined,
-      descriptionAr: i % 3 === 0 ? `وصف الوثيقة ${i + 1}` : undefined,
-    };
-  });
-
   const filteredDocuments = useMemo(() => {
-    return mockDocuments.filter((doc) => {
+    return transformedDocuments.filter((doc) => {
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch =
         (language === 'ar' ? doc.nameAr : doc.name).toLowerCase().includes(searchLower) ||
-        (language === 'ar' ? doc.typeAr : doc.type).toLowerCase().includes(searchLower) ||
-        (language === 'ar' ? doc.branchAr : doc.branch).toLowerCase().includes(searchLower);
+        (language === 'ar' ? doc.typeAr : doc.type).toLowerCase().includes(searchLower);
 
       const matchesType =
-        selectedTypes.length === 0 ||
-        selectedTypes.includes(documentTypes.find((t) => t.label === doc.type)?.value || '');
-
-      const matchesBranch =
-        selectedBranches.length === 0 ||
-        selectedBranches.includes(branches.find((b) => b.label === doc.branch)?.value || '');
+        selectedTypes.length === 0 || selectedTypes.includes(doc.documentTypeId?.toString() || '');
 
       const matchesStatus = selectedStatus === 'all' || doc.status === selectedStatus;
 
-      return matchesSearch && matchesType && matchesBranch && matchesStatus;
+      return matchesSearch && matchesType && matchesStatus;
     });
-  }, [searchTerm, selectedTypes, selectedBranches, selectedStatus, language]);
+  }, [searchTerm, selectedTypes, selectedStatus, language, transformedDocuments]);
 
   const paginatedDocuments = filteredDocuments.slice(
     (currentPage - 1) * pageSize,
@@ -156,10 +173,10 @@ export default function DocumentsPage() {
   );
 
   const statistics = {
-    total: mockDocuments.length,
-    valid: mockDocuments.filter((d) => d.status === 'valid').length,
-    expiringSoon: mockDocuments.filter((d) => d.status === 'expiring-soon').length,
-    expired: mockDocuments.filter((d) => d.status === 'expired').length,
+    total: transformedDocuments.length,
+    valid: transformedDocuments.filter((d) => d.status === 'valid').length,
+    expiringSoon: transformedDocuments.filter((d) => d.status === 'expiring-soon').length,
+    expired: transformedDocuments.filter((d) => d.status === 'expired').length,
   };
 
   const getStatusColor = (status: string) => {
@@ -212,20 +229,90 @@ export default function DocumentsPage() {
     });
   };
 
+  const handleCreateDocument = () => {
+    setModalMode('create');
+    setSelectedDocument(null);
+    documentForm.resetFields();
+    setIsDocumentModalVisible(true);
+  };
+
+  const handleEditDocument = (doc: Document) => {
+    setModalMode('edit');
+    setSelectedDocument(doc);
+
+    // Prepare file list for existing file
+    const fileList = doc.filePath
+      ? [
+          {
+            uid: '-1',
+            name: doc.fileNameEn || doc.fileNameAr || 'document',
+            status: 'done' as const,
+            url: doc.filePath,
+          },
+        ]
+      : [];
+
+    documentForm.setFieldsValue({
+      documentNameAr: doc.nameAr,
+      documentNameEn: doc.name,
+      documentTypeId: doc.documentTypeId,
+      issueDate: doc.issueDate ? dayjs(doc.issueDate) : undefined,
+      expiryDate: doc.expiryDate ? dayjs(doc.expiryDate) : undefined,
+      reminderPeriodMonths: doc.reminderPeriodMonths,
+      file: fileList,
+    });
+    setIsDocumentModalVisible(true);
+  };
+
+  const handleDeleteDocument = (id: number) => {
+    Modal.confirm({
+      title: language === 'ar' ? 'تأكيد الحذف' : 'Confirm Delete',
+      icon: <ExclamationCircleOutlined />,
+      content:
+        language === 'ar'
+          ? 'هل أنت متأكد من حذف هذه الوثيقة؟'
+          : 'Are you sure you want to delete this document?',
+      okText: language === 'ar' ? 'حذف' : 'Delete',
+      okType: 'danger',
+      cancelText: language === 'ar' ? 'إلغاء' : 'Cancel',
+      onOk: () => {
+        deleteDocument(id);
+      },
+    });
+  };
+
+  const handleDocumentSubmit = () => {
+    documentForm.validateFields().then((values) => {
+      // Get file information from upload
+      const uploadedFile = values.file?.[0];
+      const fileName = uploadedFile?.name || '';
+      const fileNameWithoutExt = fileName.replace(/\.[^/.]+$/, '');
+
+      const documentData = {
+        documentNameAr: values.documentNameAr,
+        documentNameEn: values.documentNameEn,
+        documentTypeId: values.documentTypeId,
+        issueDate: values.issueDate?.format('YYYY-MM-DD'),
+        expiryDate: values.expiryDate?.format('YYYY-MM-DD'),
+        reminderPeriodMonths: values.reminderPeriodMonths,
+        fileNameAr: fileNameWithoutExt,
+        fileNameEn: fileNameWithoutExt,
+        filePath: `/uploads/documents/${fileName}`,
+      };
+
+      if (modalMode === 'create') {
+        createDocument(documentData);
+      } else if (selectedDocument) {
+        updateDocument({ id: selectedDocument.id, data: documentData });
+      }
+
+      setIsDocumentModalVisible(false);
+      documentForm.resetFields();
+    });
+  };
+
   const getActionMenu = (doc: Document): MenuProps => ({
     items: [
-      {
-        key: 'view',
-        label: language === 'ar' ? 'عرض' : 'View',
-        icon: <EyeOutlined />,
-        onClick: () => console.log('View', doc.id),
-      },
-      {
-        key: 'download',
-        label: language === 'ar' ? 'تحميل' : 'Download',
-        icon: <DownloadOutlined />,
-        onClick: () => console.log('Download', doc.id),
-      },
       {
         key: 'renew',
         label: language === 'ar' ? 'تجديد تاريخ الانتهاء' : 'Renew Expiry Date',
@@ -236,7 +323,7 @@ export default function DocumentsPage() {
         key: 'edit',
         label: language === 'ar' ? 'تعديل' : 'Edit',
         icon: <EditOutlined />,
-        onClick: () => console.log('Edit', doc.id),
+        onClick: () => handleEditDocument(doc),
       },
       {
         type: 'divider',
@@ -246,24 +333,7 @@ export default function DocumentsPage() {
         label: language === 'ar' ? 'حذف' : 'Delete',
         icon: <DeleteOutlined />,
         danger: true,
-        onClick: () => {
-          Modal.confirm({
-            title: language === 'ar' ? 'تأكيد الحذف' : 'Confirm Delete',
-            icon: <ExclamationCircleOutlined />,
-            content:
-              language === 'ar'
-                ? 'هل أنت متأكد من حذف هذه الوثيقة؟'
-                : 'Are you sure you want to delete this document?',
-            okText: language === 'ar' ? 'حذف' : 'Delete',
-            okType: 'danger',
-            cancelText: language === 'ar' ? 'إلغاء' : 'Cancel',
-            onOk: () => {
-              message.success(
-                language === 'ar' ? 'تم حذف الوثيقة بنجاح' : 'Document deleted successfully'
-              );
-            },
-          });
-        },
+        onClick: () => handleDeleteDocument(doc.id),
       },
     ],
   });
@@ -273,6 +343,50 @@ export default function DocumentsPage() {
     const expiry = new Date(expiryDate);
     return Math.floor((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className={styles.pageContainer}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '400px',
+          }}
+        >
+          <Spin size="large" tip={language === 'ar' ? 'جاري التحميل...' : 'Loading...'} />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <div className={styles.pageContainer}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '400px',
+          }}
+        >
+          <Empty
+            description={
+              language === 'ar' ? 'حدث خطأ أثناء تحميل المستندات' : 'Error loading documents'
+            }
+          >
+            <Button type="primary" onClick={() => window.location.reload()}>
+              {language === 'ar' ? 'إعادة المحاولة' : 'Retry'}
+            </Button>
+          </Empty>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.pageContainer}>
@@ -351,7 +465,12 @@ export default function DocumentsPage() {
                 {language === 'ar' ? 'الفلاتر' : 'Filters'}
               </Button>
             </Space>
-            <Button type="primary" size="large" icon={<PlusOutlined />}>
+            <Button
+              type="primary"
+              size="large"
+              icon={<PlusOutlined />}
+              onClick={handleCreateDocument}
+            >
               {language === 'ar' ? 'إضافة مستند' : 'Add Document'}
             </Button>
           </div>
@@ -376,25 +495,8 @@ export default function DocumentsPage() {
                   allowClear
                 />
               </Col>
-              <Col xs={24} md={8}>
-                <label className={styles.filterLabel}>
-                  {language === 'ar' ? 'الفرع' : 'Branch'}
-                </label>
-                <Select
-                  mode="multiple"
-                  size="large"
-                  placeholder={language === 'ar' ? 'اختر الفرع' : 'Select Branch'}
-                  value={selectedBranches}
-                  onChange={setSelectedBranches}
-                  style={{ width: '100%' }}
-                  options={branches.map((b) => ({
-                    value: b.value,
-                    label: language === 'ar' ? b.labelAr : b.label,
-                  }))}
-                  allowClear
-                />
-              </Col>
-              <Col xs={24} md={8}>
+
+              <Col xs={24} md={12}>
                 <label className={styles.filterLabel}>
                   {language === 'ar' ? 'الحالة' : 'Status'}
                 </label>
@@ -453,10 +555,14 @@ export default function DocumentsPage() {
                   </Space>
                 </div>
 
-                {/* Branch Info */}
+                {/* File Info */}
                 <div className={styles.branchInfo}>
-                  <HomeOutlined />
-                  <span>{language === 'ar' ? doc.branchAr : doc.branch}</span>
+                  <FileTextOutlined />
+                  <span>
+                    {language === 'ar'
+                      ? doc.fileNameAr || doc.fileNameEn || 'ملف المستند'
+                      : doc.fileNameEn || doc.fileNameAr || 'Document File'}
+                  </span>
                 </div>
 
                 {/* Expiry Info */}
@@ -473,8 +579,8 @@ export default function DocumentsPage() {
                           doc.status === 'expired'
                             ? '#ff4d4f'
                             : doc.status === 'expiring-soon'
-                            ? '#faad14'
-                            : '#00AA64',
+                              ? '#faad14'
+                              : '#00AA64',
                       }}
                     >
                       {doc.expiryDate}
@@ -494,8 +600,8 @@ export default function DocumentsPage() {
                           daysUntilExpiry < 30
                             ? '#ff4d4f'
                             : daysUntilExpiry < 90
-                            ? '#faad14'
-                            : '#00AA64'
+                              ? '#faad14'
+                              : '#00AA64'
                         }
                         size="small"
                       />
@@ -604,6 +710,166 @@ export default function DocumentsPage() {
               placeholder={language === 'ar' ? 'اختر التاريخ' : 'Select Date'}
               format="YYYY-MM-DD"
             />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Create/Edit Document Modal */}
+      <Modal
+        title={
+          modalMode === 'create'
+            ? language === 'ar'
+              ? 'إضافة مستند جديد'
+              : 'Add New Document'
+            : language === 'ar'
+              ? 'تعديل المستند'
+              : 'Edit Document'
+        }
+        open={isDocumentModalVisible}
+        onOk={handleDocumentSubmit}
+        onCancel={() => {
+          setIsDocumentModalVisible(false);
+          documentForm.resetFields();
+        }}
+        okText={
+          modalMode === 'create'
+            ? language === 'ar'
+              ? 'إضافة'
+              : 'Create'
+            : language === 'ar'
+              ? 'تحديث'
+              : 'Update'
+        }
+        cancelText={language === 'ar' ? 'إلغاء' : 'Cancel'}
+        confirmLoading={isCreating || isUpdating}
+        width={700}
+      >
+        <Form form={documentForm} layout="vertical">
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="documentNameAr"
+                label={language === 'ar' ? 'اسم المستند (عربي)' : 'Document Name (Arabic)'}
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      language === 'ar'
+                        ? 'الرجاء إدخال اسم المستند بالعربي'
+                        : 'Please enter document name in Arabic',
+                  },
+                ]}
+              >
+                <Input placeholder={language === 'ar' ? 'اسم المستند' : 'Document Name'} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="documentNameEn"
+                label={language === 'ar' ? 'اسم المستند (إنجليزي)' : 'Document Name (English)'}
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      language === 'ar'
+                        ? 'الرجاء إدخال اسم المستند بالإنجليزي'
+                        : 'Please enter document name in English',
+                  },
+                ]}
+              >
+                <Input placeholder="Document Name" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item
+            name="documentTypeId"
+            label={language === 'ar' ? 'نوع المستند' : 'Document Type'}
+            rules={[
+              {
+                required: true,
+                message:
+                  language === 'ar' ? 'الرجاء اختيار نوع المستند' : 'Please select document type',
+              },
+            ]}
+          >
+            <Select
+              placeholder={language === 'ar' ? 'اختر النوع' : 'Select Type'}
+              options={documentTypes.map((t) => ({
+                value: parseInt(t.value),
+                label: language === 'ar' ? t.labelAr : t.label,
+              }))}
+            />
+          </Form.Item>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="issueDate"
+                label={language === 'ar' ? 'تاريخ الإصدار' : 'Issue Date'}
+              >
+                <DatePicker
+                  style={{ width: '100%' }}
+                  placeholder={language === 'ar' ? 'اختر التاريخ' : 'Select Date'}
+                  format="YYYY-MM-DD"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="expiryDate"
+                label={language === 'ar' ? 'تاريخ الانتهاء' : 'Expiry Date'}
+              >
+                <DatePicker
+                  style={{ width: '100%' }}
+                  placeholder={language === 'ar' ? 'اختر التاريخ' : 'Select Date'}
+                  format="YYYY-MM-DD"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item
+            name="reminderPeriodMonths"
+            label={language === 'ar' ? 'فترة التذكير (شهور)' : 'Reminder Period (Months)'}
+          >
+            <Input
+              type="number"
+              placeholder={language === 'ar' ? 'عدد الشهور' : 'Number of Months'}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="file"
+            label={language === 'ar' ? 'رفع الملف' : 'Upload File'}
+            valuePropName="fileList"
+            getValueFromEvent={(e) => {
+              if (Array.isArray(e)) {
+                return e;
+              }
+              return e?.fileList;
+            }}
+          >
+            <Upload.Dragger
+              name="file"
+              maxCount={1}
+              beforeUpload={() => false}
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx"
+            >
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">
+                {language === 'ar'
+                  ? 'انقر أو اسحب الملف إلى هذه المنطقة'
+                  : 'Click or drag file to this area to upload'}
+              </p>
+              <p className="ant-upload-hint">
+                {language === 'ar'
+                  ? 'يدعم PDF, Word, Excel, والصور'
+                  : 'Supports PDF, Word, Excel, and Images'}
+              </p>
+            </Upload.Dragger>
           </Form.Item>
         </Form>
       </Modal>
