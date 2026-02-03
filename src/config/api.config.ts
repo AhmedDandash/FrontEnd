@@ -35,7 +35,7 @@ export const API_ENDPOINTS = {
     CREATE: '/api/Customers/CreateCustomer',
     UPDATE: (id: number) => `/api/Customers/UpdateCustomer/${id}`,
     DELETE: (id: number) => `/api/Customers/DeleteCustomer/${id}`,
-    GET_ALL_PHONES: '/api/Customers/GetAllCustomerPhone',
+    // GET_ALL_PHONES: '/api/Customers/GetAllCustomerPhone',
     CREATE_PHONE: '/api/Customers/CreateCustomerPhone',
   },
 

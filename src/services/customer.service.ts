@@ -9,7 +9,7 @@ import type {
   Customer,
   CreateCustomerDto,
   UpdateCustomerDto,
-  CustomerPhoneDto,
+  // CustomerPhoneDto,
 } from '@/types/api.types';
 
 export class CustomerService {
@@ -52,19 +52,19 @@ export class CustomerService {
     await api.delete(API_ENDPOINTS.CUSTOMERS.DELETE(id));
   }
 
-  /**
-   * Get all customer phones
-   */
-  static async getAllPhones(): Promise<CustomerPhoneDto[]> {
-    const response = await api.get<CustomerPhoneDto[]>(API_ENDPOINTS.CUSTOMERS.GET_ALL_PHONES);
-    return response.data;
-  }
+//   /**
+//    * Get all customer phones
+//    */
+//   static async getAllPhones(): Promise<CustomerPhoneDto[]> {
+//     const response = await api.get<CustomerPhoneDto[]>(API_ENDPOINTS.CUSTOMERS.GET_ALL_PHONES);
+//     return response.data;
+//   }
 
-  /**
-   * Create customer phone
-   */
-  static async createPhone(data: CustomerPhoneDto): Promise<CustomerPhoneDto> {
-    const response = await api.post<CustomerPhoneDto>(API_ENDPOINTS.CUSTOMERS.CREATE_PHONE, data);
-    return response.data;
-  }
+//   /**
+//    * Create customer phone
+//    */
+//   static async createPhone(data: CustomerPhoneDto): Promise<CustomerPhoneDto> {
+//     const response = await api.post<CustomerPhoneDto>(API_ENDPOINTS.CUSTOMERS.CREATE_PHONE, data);
+//     return response.data;
+//   }
 }
