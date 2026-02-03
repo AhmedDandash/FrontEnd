@@ -37,16 +37,16 @@ export function middleware(request: NextRequest) {
   // Check if the current path is a public route
   const isPublicRoute = publicRoutes.some((route) => pathname === route);
 
-  // Get the auth token from cookies
-  const authToken = request.cookies.get('authToken')?.value;
+  // Get the refresh token from cookies (HttpOnly cookie set by backend)
+  const refreshToken = request.cookies.get('refreshToken')?.value;
 
   console.log(
-    `[Middleware] Path: ${pathname}, Token: ${authToken ? 'EXISTS' : 'NONE'}, Protected: ${isProtectedRoute}`
+    `[Middleware] Path: ${pathname}, RefreshToken: ${refreshToken ? 'EXISTS' : 'NONE'}, Protected: ${isProtectedRoute}`
   );
 
   // Redirect unauthenticated users trying to access protected routes
-  if (isProtectedRoute && !authToken) {
-    console.log(`[Middleware] Redirecting to login - no auth token`);
+  if (isProtectedRoute && !refreshToken) {
+    console.log(`[Middleware] Redirecting to login - no refresh token`);
     const loginUrl = new URL('/login', request.url);
 
     // Append the original path as a redirect parameter
@@ -56,7 +56,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Redirect authenticated users away from public routes (like login page)
-  if (isPublicRoute && authToken && pathname === '/login') {
+  if (isPublicRoute && refreshToken && pathname === '/login') {
     console.log(`[Middleware] Redirecting to dashboard - already authenticated`);
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }

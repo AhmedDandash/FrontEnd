@@ -4,17 +4,23 @@
  */
 
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { API_CONFIG } from '@/config/api.config';
+import { API_CONFIG, API_ENDPOINTS } from '@/config/api.config';
 import type { ApiError } from '@/types/api.types';
+
+interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
+  _retry?: boolean;
+}
 
 class ApiClient {
   private client: AxiosInstance;
   private static instance: ApiClient;
+  private refreshPromise: Promise<string | null> | null = null;
 
   private constructor() {
     this.client = axios.create({
       baseURL: API_CONFIG.BASE_URL,
       timeout: API_CONFIG.TIMEOUT,
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -91,9 +97,38 @@ class ApiClient {
         // Handle errors
         if (error.response) {
           const { status, data } = error.response;
+          const originalRequest = error.config as AxiosRequestConfigWithRetry | undefined;
+          const requestUrl = originalRequest?.url || '';
+          const isAuthRoute =
+            requestUrl.includes(API_ENDPOINTS.AUTH.LOGIN) ||
+            requestUrl.includes(API_ENDPOINTS.AUTH.LOGOUT) ||
+            requestUrl.includes(API_ENDPOINTS.AUTH.REFRESH);
 
           // Handle 401 Unauthorized
           if (status === 401) {
+            if (!isAuthRoute && originalRequest && !originalRequest._retry) {
+              originalRequest._retry = true;
+
+              if (!this.refreshPromise) {
+                this.refreshPromise = this.refreshAccessToken().finally(() => {
+                  this.refreshPromise = null;
+                });
+              }
+
+              const newToken = await this.refreshPromise;
+              if (newToken) {
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('authToken', newToken);
+                }
+                originalRequest.headers = {
+                  ...originalRequest.headers,
+                  Authorization: `Bearer ${newToken}`,
+                };
+
+                return this.client(originalRequest);
+              }
+            }
+
             if (typeof window !== 'undefined') {
               localStorage.removeItem('authToken');
               sessionStorage.removeItem('authToken');
@@ -139,6 +174,20 @@ class ApiClient {
         return Promise.reject(error);
       }
     );
+  }
+
+  private async refreshAccessToken(): Promise<string | null> {
+    try {
+      const response = await this.client.post<{ accessToken?: string; token?: string }>(
+        API_ENDPOINTS.AUTH.REFRESH
+      );
+      return response.data?.accessToken || response.data?.token || null;
+    } catch (refreshError) {
+      if (process.env.NEXT_PUBLIC_ENV === 'development') {
+        console.error('Refresh token failed:', refreshError);
+      }
+      return null;
+    }
   }
 
   /**

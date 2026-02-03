@@ -16,6 +16,7 @@ export const API_ENDPOINTS = {
     LOGIN: '/api/Auth/login',
     REGISTER: '/api/Auth/register',
     LOGOUT: '/api/Auth/logout',
+    REFRESH: '/api/Auth/refresh',
   },
 
   // Branch
