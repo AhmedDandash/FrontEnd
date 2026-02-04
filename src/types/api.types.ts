@@ -43,9 +43,8 @@ export interface Branch {
   poBox?: string | null;
   postalCode?: string | null;
   managerNameAr?: string | null;
-  philippineEmbassyBranch?: string | null;
+  EmbassyBranch?: string | null;
   whatsAppWelcomeTemplate?: string | null;
-  openingConversation?: string | null;
   mainBranch?: number | null;
   taxNumber?: string | null;
   domain?: string | null;
@@ -80,9 +79,8 @@ export interface BranchDto {
   poBox?: string | null;
   postalCode?: string | null;
   managerNameAr?: string | null;
-  philippineEmbassyBranch?: string | null;
+  EmbassyBranch?: string | null;
   whatsAppWelcomeTemplate?: string | null;
-  openingConversation?: string | null;
   mainBranch?: number | null;
   taxNumber?: string | null;
   domain?: string | null;

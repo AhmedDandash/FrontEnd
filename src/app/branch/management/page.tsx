@@ -18,6 +18,7 @@ import {
   Form,
   Spin,
   message,
+  Select,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -83,6 +84,7 @@ export default function BranchPage() {
       active: { ar: 'نشط', en: 'Active' },
       mainBranch: { ar: 'الفرع الرئيسي', en: 'Main Branch' },
       subBranch: { ar: 'فرع', en: 'Branch' },
+      branchType: { ar: 'نوع الفرع', en: 'Branch Type' },
       noBranches: { ar: 'لا توجد فروع', en: 'No Branches Found' },
       totalBranches: { ar: 'إجمالي الفروع', en: 'Total Branches' },
       save: { ar: 'حفظ', en: 'Save' },
@@ -117,7 +119,7 @@ export default function BranchPage() {
   const handleEditBranch = (branch: Branch) => {
     console.log('📝 Editing branch:', branch);
     console.log('🆔 Branch ID:', branch.id);
-    
+
     setEditingBranch(branch);
     form.setFieldsValue({
       nameAr: branch.nameAr,
@@ -130,6 +132,7 @@ export default function BranchPage() {
       branchLicense: branch.branchLicense,
       commercialRegistrationNumber: branch.commercialRegistrationNumber,
       taxNumber: branch.taxNumber,
+      mainBranch: branch.mainBranch === null ? 1 : 0,
     });
     setIsModalVisible(true);
   };
@@ -154,7 +157,7 @@ export default function BranchPage() {
       console.log('💾 Submitting branch data:', {
         isEditing: !!editingBranch,
         branchId: editingBranch?.id,
-        data: branchData
+        data: branchData,
       });
 
       if (editingBranch) {
@@ -183,7 +186,6 @@ export default function BranchPage() {
 
   const getActionMenu = (branch: Branch): MenuProps => ({
     items: [
-      
       {
         key: 'edit',
         label: t('edit'),
@@ -422,7 +424,6 @@ export default function BranchPage() {
 
                 {/* Card Footer Actions */}
                 <div className={styles.cardFooter}>
-                 
                   <Button
                     type="link"
                     icon={<EditOutlined />}
@@ -482,6 +483,18 @@ export default function BranchPage() {
               </Form.Item>
             </Col>
           </Row>
+
+          <Form.Item
+            name="mainBranch"
+            label={t('branchType')}
+            rules={[{ required: true, message: language === 'ar' ? 'مطلوب' : 'Required' }]}
+            initialValue={0}
+          >
+            <Select placeholder={t('branchType')}>
+              <Select.Option value={1}>{t('mainBranch')}</Select.Option>
+              <Select.Option value={0}>{t('subBranch')}</Select.Option>
+            </Select>
+          </Form.Item>
 
           <Row gutter={16}>
             <Col span={12}>
