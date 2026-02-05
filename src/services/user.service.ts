@@ -5,7 +5,7 @@
 
 import { api } from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/config/api.config';
-import type { User, UpdateUserDto } from '@/types/api.types';
+import type { User, RegisterDto, UpdateUserDto } from '@/types/api.types';
 
 export class UserService {
   /**
@@ -21,6 +21,14 @@ export class UserService {
    */
   static async getById(id: number): Promise<User> {
     const response = await api.get<User>(API_ENDPOINTS.USERS.GET_BY_ID(id));
+    return response.data;
+  }
+
+  /**
+   * Create new user
+   */
+  static async create(data: RegisterDto): Promise<User> {
+    const response = await api.post<User>(API_ENDPOINTS.USERS.CREATE, data);
     return response.data;
   }
 

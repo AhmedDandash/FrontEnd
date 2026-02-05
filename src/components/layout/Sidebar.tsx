@@ -256,7 +256,11 @@ export default function Sidebar({
       icon: <SettingOutlined />,
       label: language === 'ar' ? 'الإعدادات' : 'Settings',
       children: [
-        { key: '/settings/rules', label: language === 'ar' ? 'إدارة القواعد' : 'Rules Management' },
+        { key: '/settings/users', label: language === 'ar' ? 'المستخدمين' : 'Users' },
+        {
+          key: '/settings/privileges',
+          label: language === 'ar' ? 'صلاحيات المستخدمين' : 'User Privileges',
+        },
         { key: '/settings/themes', label: language === 'ar' ? 'المظهر' : 'Themes' },
         {
           key: '/settings/webpage',
@@ -301,8 +305,6 @@ export default function Sidebar({
       ],
     },
   ];
-
-  
 
   const handleMenuClick = (e: { key: string }) => {
     router.push(e.key);

@@ -61,6 +61,7 @@ export const API_ENDPOINTS = {
   USERS: {
     GET_BY_ID: (id: number) => `/api/Users/GetUserById/${id}`,
     GET_ALL: '/api/Users/GetAllUsers',
+    CREATE: '/api/Auth/register',
     UPDATE: (id: number) => `/api/Users/UpdateUserById/${id}`,
     DELETE: (id: number) => `/api/Users/DeleteUserById/${id}`,
   },

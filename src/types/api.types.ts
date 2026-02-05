@@ -95,6 +95,27 @@ export interface BranchDto {
   zaka_StreetAr?: string | null;
 }
 
+// ==================== Privilege/Role Types ====================
+export interface Privilege {
+  id: number;
+  name?: string | null;
+  nameAr?: string | null;
+  nameEn?: string | null;
+  type?: number | null; // 0 = Employee, 1 = Agent
+  typeName?: string | null;
+  permissions?: string[] | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface UpdateRoleDto {
+  name?: string | null;
+  relatedTp?: number | null;
+  nameEn?: string | null;
+  type?: number | null;
+  permissions?: string[] | null;
+}
+
 // ==================== Customer Types ====================
 export interface Customer {
   id: number;
@@ -256,8 +277,8 @@ export interface UpdateRoleDto {
 export interface User {
   id: number;
   username?: string | null;
-  isActive: boolean;
-  roles?: Role[];
+  isActive?: boolean;
+  roles?: string[] | null;
 }
 
 export interface UpdateUserDto {
