@@ -481,14 +481,7 @@ export default function DocumentsPage() {
                 {language === 'ar' ? 'الفلاتر' : 'Filters'}
               </Button>
             </Space>
-            <Button
-              type="primary"
-              size="large"
-              icon={<PlusOutlined />}
-              onClick={handleCreateDocument}
-            >
-              {language === 'ar' ? 'إضافة مستند' : 'Add Document'}
-            </Button>
+      
           </div>
 
           {showFilters && (
