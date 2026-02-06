@@ -214,9 +214,6 @@ export default function BranchPage() {
             <ShopOutlined className={styles.headerIcon} />
             <div>
               <h1 className={styles.pageTitle}>{t('pageTitle')}</h1>
-              <p className={styles.pageSubtitle}>
-                {t('totalBranches')}: <strong>{branches?.length || 0}</strong>
-              </p>
             </div>
           </div>
           <Button

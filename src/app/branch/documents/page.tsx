@@ -392,10 +392,26 @@ export default function DocumentsPage() {
     <div className={styles.pageContainer}>
       {/* Page Header */}
       <div className={styles.pageHeader}>
-        <h1>
-          <FileProtectOutlined />
-          <span>{language === 'ar' ? 'إدارة المستندات' : 'Document Management'}</span>
-        </h1>
+        <div className={styles.headerContent}>
+          <div className={styles.headerLeft}>
+            <FileProtectOutlined className={styles.headerIcon} />
+            <div>
+              <h1 className={styles.pageTitle}>
+                {language === 'ar' ? 'إدارة المستندات' : 'Document Management'}
+              </h1>
+            </div>
+          </div>
+          <Button
+            type="primary"
+            size="large"
+            icon={<PlusOutlined />}
+            className={styles.addButton}
+            onClick={handleCreateDocument}
+            loading={isCreating}
+          >
+            {language === 'ar' ? 'إضافة مستند' : 'Add Document'}
+          </Button>
+        </div>
       </div>
 
       {/* Statistics */}
