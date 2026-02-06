@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   Table,
@@ -14,10 +14,7 @@ import {
   Popconfirm,
   Row,
   Col,
-  Statistic,
   Typography,
-  Badge,
-  Drawer,
   Empty,
   Tooltip,
 } from 'antd';
@@ -31,11 +28,97 @@ import {
   SafetyOutlined,
   EyeOutlined,
   ClearOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import { usePrivileges } from '@/hooks/api/usePrivileges';
 import { CreateRoleDto, UpdateRoleDto } from '@/types/api.types';
+import styles from './Privileges.module.css';
 
 const { Title, Text } = Typography;
+
+// Translations
+const translations = {
+  en: {
+    pageTitle: 'Privileges & Roles',
+    pageSubtitle: 'Manage user roles and permissions across the system',
+    addNewRole: 'Add New Role',
+    totalRoles: 'Total Roles',
+    employeeRoles: 'Employee Roles',
+    agentRoles: 'Agent Roles',
+    searchPlaceholder: 'Search roles...',
+    filters: 'Filters',
+    relatedTo: 'Related To',
+    employees: 'Employees',
+    agent: 'Agent',
+    activeFilters: 'Active Filters:',
+    nameFilter: 'Name',
+    clearAll: 'Clear All',
+    total: 'Total',
+    roles: 'roles',
+    noPrivileges: 'No privileges found',
+    editRole: 'Edit Role',
+    createNewRole: 'Create New Role',
+    roleName: 'Role Name',
+    enterRoleName: 'Enter role name',
+    selectType: 'Select type',
+    cancel: 'Cancel',
+    updateRole: 'Update Role',
+    createRole: 'Create Role',
+    pleaseEnterRoleName: 'Please enter role name',
+    pleaseSelectType: 'Please select related type',
+    deletePrivilege: 'Delete Privilege',
+    deleteConfirm: 'Are you sure you want to delete this privilege?',
+    yes: 'Yes',
+    no: 'No',
+    viewPermissions: 'View Permissions',
+    edit: 'Edit',
+    delete: 'Delete',
+    roleNameColumn: 'Role Name',
+    relatedToColumn: 'Related To',
+    actionsColumn: 'Actions',
+    unknown: 'Unknown',
+  },
+  ar: {
+    pageTitle: 'الصلاحيات والأدوار',
+    pageSubtitle: 'إدارة أدوار المستخدمين وصلاحياتهم في النظام',
+    addNewRole: 'إضافة دور جديد',
+    totalRoles: 'إجمالي الأدوار',
+    employeeRoles: 'أدوار الموظفين',
+    agentRoles: 'أدوار الوكلاء',
+    searchPlaceholder: 'البحث في الأدوار...',
+    filters: 'Filters',
+    relatedTo: 'متعلق بـ',
+    employees: 'الموظفون',
+    agent: 'وكيل',
+    activeFilters: 'التصفيات النشطة:',
+    nameFilter: 'الاسم',
+    clearAll: 'مسح الكل',
+    total: 'إجمالي',
+    roles: 'دور',
+    noPrivileges: 'لا توجد صلاحيات',
+    editRole: ' تعديل الدور',
+    createNewRole: 'إنشاء دور جديد',
+    roleName: 'اسم الدور',
+    enterRoleName: 'أدخل اسم الدور',
+    selectType: 'اختر النوع',
+    cancel: 'إلغاء',
+    updateRole: 'تحديث الدور',
+    createRole: 'إنشاء الدور',
+    pleaseEnterRoleName: 'الرجاء إدخال اسم الدور',
+    pleaseSelectType: 'الرجاء اختيار النوع المتعلق',
+    deletePrivilege: 'حذف الصلاحية',
+    deleteConfirm: 'هل أنت متأكد من حذف هذه الصلاحية؟',
+    yes: 'نعم',
+    no: 'لا',
+    viewPermissions: 'عرض الصلاحيات',
+    edit: ' تعديل',
+    delete: 'حذف',
+    roleNameColumn: 'اسم الدور',
+    relatedToColumn: 'متعلق بـ',
+    actionsColumn: 'الإجراءات',
+    unknown: 'غير معروف',
+  },
+};
 
 /**
  * Modern Privileges Management Page
@@ -43,10 +126,34 @@ const { Title, Text } = Typography;
  */
 export default function PrivilegesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [filters, setFilters] = useState<{ name?: string; relatedTo?: number }>({});
+  const [isRtl, setIsRtl] = useState(false);
   const [form] = Form.useForm();
+
+  // Detect RTL direction
+  useEffect(() => {
+    const dir = document.documentElement.getAttribute('dir') || document.body.getAttribute('dir');
+    setIsRtl(dir === 'rtl');
+
+    // Observer to detect direction changes
+    const observer = new MutationObserver(() => {
+      const newDir =
+        document.documentElement.getAttribute('dir') || document.body.getAttribute('dir');
+      setIsRtl(newDir === 'rtl');
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['dir'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Get translations based on direction
+  const t = isRtl ? translations.ar : translations.en;
 
   const {
     privileges,
@@ -67,11 +174,11 @@ export default function PrivilegesPage() {
     return matchesName && matchesRelatedTo;
   });
 
-  // Calculate statistics
+  // Adjust the statistics calculation to map integers correctly for display in status cards
   const stats = {
     total: filteredPrivileges.length,
-    employees: filteredPrivileges.filter((p) => p.relatedTo === 0).length,
-    agents: filteredPrivileges.filter((p) => p.relatedTo === 1).length,
+    employees: filteredPrivileges.filter((p) => p.relatedTo === 2).length, // Map 2 to employees
+    agents: filteredPrivileges.filter((p) => p.relatedTo === 1).length, // Map 1 to agent
   };
 
   // Handle modal open for create/edit
@@ -98,16 +205,18 @@ export default function PrivilegesPage() {
 
   // Handle form submit
   const handleSubmit = async (values: any) => {
+    const relatedToValue = values.relatedTo === 0 ? 2 : 1; // Map 0 to 2 (employees) and 1 to 1 (agent)
+
     if (editingId) {
       const updateData: UpdateRoleDto = {
         name: values.name,
-        relatedTo: values.relatedTo,
+        relatedTo: relatedToValue,
       };
       updatePrivilege({ id: editingId, data: updateData });
     } else {
       const createData: CreateRoleDto = {
         name: values.name,
-        relatedTo: values.relatedTo,
+        relatedTo: relatedToValue,
       };
       createPrivilege(createData);
     }
@@ -120,63 +229,64 @@ export default function PrivilegesPage() {
   };
 
   // Handle filter apply
-  const handleApplyFilters = (values: any) => {
+  const handleApplyFilters = (name?: string, relatedTo?: number) => {
     setFilters({
-      name: values.name || undefined,
-      relatedTo: values.relatedTo !== undefined ? values.relatedTo : undefined,
+      name: name || undefined,
+      relatedTo: relatedTo !== undefined ? relatedTo : undefined,
     });
-    setIsFilterDrawerOpen(false);
   };
 
   // Clear filters
   const handleClearFilters = () => {
     setFilters({});
-    form.resetFields();
   };
 
   // Get type display
   const getTypeTag = (relatedTo?: number) => {
-    if (relatedTo === 0) {
+    if (relatedTo === 2) {
+      // Map 2 to employees
       return (
         <Tag color="blue" icon={<TeamOutlined />}>
-          Employees
+          {t.employees}
         </Tag>
       );
     } else if (relatedTo === 1) {
+      // Map 1 to agent
       return (
         <Tag color="green" icon={<UserOutlined />}>
-          Agent
+          {t.agent}
         </Tag>
       );
     }
-    return <Tag>Unknown</Tag>;
+    return <Tag>{t.unknown}</Tag>;
   };
 
   // Table columns
   const columns = [
     {
-      title: 'Role Name',
+      title: t.roleNameColumn,
       dataIndex: 'name',
       key: 'name',
       render: (text: string) => <Text strong>{text}</Text>,
     },
     {
-      title: 'Related To',
+      title: t.relatedToColumn,
       dataIndex: 'relatedTo',
       key: 'relatedTo',
       width: 150,
       render: (relatedTo: number) => getTypeTag(relatedTo),
     },
     {
-      title: 'Actions',
+      title: t.actionsColumn,
       key: 'actions',
       width: 180,
       align: 'center' as const,
       render: (_: any, record: any) => (
-        <Space size="small">
-          <Tooltip title="View Permissions">
+        <div className={styles.actionButtons}>
+          <Tooltip title={t.viewPermissions}>
             <Button
               type="text"
+              className={`${styles.actionButton} ${styles.viewButton}`}
               icon={<EyeOutlined />}
               size="small"
               onClick={() => {
@@ -185,112 +295,181 @@ export default function PrivilegesPage() {
               }}
             />
           </Tooltip>
-          <Tooltip title="Edit">
+          <Tooltip title={t.edit}>
             <Button
               type="text"
+              className={`${styles.actionButton} ${styles.editButton}`}
               icon={<EditOutlined />}
               size="small"
               onClick={() => handleOpenModal(record)}
             />
           </Tooltip>
           <Popconfirm
-            title="Delete Privilege"
-            description="Are you sure you want to delete this privilege?"
+            title={t.deletePrivilege}
+            description={t.deleteConfirm}
             onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
+            okText={t.yes}
+            cancelText={t.no}
           >
-            <Tooltip title="Delete">
-              <Button type="text" danger icon={<DeleteOutlined />} size="small" />
+            <Tooltip title={t.delete}>
+              <Button
+                type="text"
+                danger
+                className={`${styles.actionButton} ${styles.deleteButton}`}
+                icon={<DeleteOutlined />}
+                size="small"
+              />
             </Tooltip>
           </Popconfirm>
-        </Space>
+        </div>
       ),
     },
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className={styles.privilegesPage}>
       {/* Header Section */}
-      <div style={{ marginBottom: 24 }}>
-        <Row align="middle" justify="space-between" style={{ marginBottom: 16 }}>
-          <Col>
-            <Space align="center">
-              <SafetyOutlined style={{ fontSize: 32, color: '#1890ff' }} />
-              <div>
-                <Title level={2} style={{ margin: 0 }}>
-                  Privileges & Roles
-                </Title>
-                <Text type="secondary">Manage user roles and permissions</Text>
-              </div>
-            </Space>
-          </Col>
-          <Col>
-            <Space>
-              <Badge
-                count={
-                  Object.keys(filters).filter((k) => filters[k as keyof typeof filters]).length
-                }
-              >
-                <Button icon={<FilterOutlined />} onClick={() => setIsFilterDrawerOpen(true)}>
-                  Filters
-                </Button>
-              </Badge>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => handleOpenModal()}
-                size="large"
-              >
-                Add New Role
-              </Button>
-            </Space>
-          </Col>
-        </Row>
-
-        {/* Statistics Cards */}
-        <Row gutter={16}>
-          <Col xs={24} sm={8}>
-            <Card>
-              <Statistic
-                title="Total Roles"
-                value={stats.total}
-                prefix={<SafetyOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={8}>
-            <Card>
-              <Statistic
-                title="Employee Roles"
-                value={stats.employees}
-                prefix={<TeamOutlined />}
-                valueStyle={{ color: '#52c41a' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={8}>
-            <Card>
-              <Statistic
-                title="Agent Roles"
-                value={stats.agents}
-                prefix={<UserOutlined />}
-                valueStyle={{ color: '#faad14' }}
-              />
-            </Card>
-          </Col>
-        </Row>
+      <div className={styles.pageHeader}>
+        <div className={styles.headerContent}>
+          <div className={styles.headerLeft}>
+            <SafetyOutlined className={styles.headerIcon} />
+            <div className={styles.titleSection}>
+              <Title level={2} className={styles.pageTitle}>
+                {t.pageTitle}
+              </Title>
+              <p className={styles.pageSubtitle}>{t.pageSubtitle}</p>
+            </div>
+          </div>
+          <div className={styles.headerActions}>
+            <Button
+              type="primary"
+              className={styles.addButton}
+              icon={<PlusOutlined />}
+              onClick={() => handleOpenModal()}
+            >
+              {t.addNewRole}
+            </Button>
+          </div>
+        </div>
       </div>
+
+      {/* Statistics Cards */}
+      <Row gutter={16} className={styles.statsRow}>
+        <Col xs={24} sm={8}>
+          <Card className={styles.statCard}>
+            <div className={styles.statContent}>
+              <div
+                className={styles.statIcon}
+                style={{ background: 'linear-gradient(135deg, #e6f4ff 0%, #bae0ff 100%)' }}
+              >
+                <SafetyOutlined style={{ color: '#1890ff' }} />
+              </div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>{t.totalRoles}</p>
+                <p className={styles.statValue}>{stats.total}</p>
+              </div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <Card className={styles.statCard}>
+            <div className={styles.statContent}>
+              <div
+                className={styles.statIcon}
+                style={{ background: 'linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%)' }}
+              >
+                <TeamOutlined style={{ color: '#52c41a' }} />
+              </div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>{t.employeeRoles}</p>
+                <p className={styles.statValue}>{stats.employees}</p>
+              </div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <Card className={styles.statCard}>
+            <div className={styles.statContent}>
+              <div
+                className={styles.statIcon}
+                style={{ background: 'linear-gradient(135deg, #fffbe6 0%, #fff1b8 100%)' }}
+              >
+                <UserOutlined style={{ color: '#faad14' }} />
+              </div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>{t.agentRoles}</p>
+                <p className={styles.statValue}>{stats.agents}</p>
+              </div>
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Search and Filters */}
+      <Card className={styles.filterCard}>
+        <div className={styles.filterHeader}>
+          <Space wrap>
+            <Input
+              size="large"
+              placeholder={t.searchPlaceholder}
+              prefix={<SearchOutlined />}
+              value={filters.name || ''}
+              onChange={(e) => handleApplyFilters(e.target.value, filters.relatedTo)}
+              style={{ width: 300 }}
+              allowClear
+            />
+            <Button
+              icon={<FilterOutlined />}
+              onClick={() => setShowFilters(!showFilters)}
+              type={showFilters ? 'primary' : 'default'}
+              size="large"
+            >
+              {t.filters}
+            </Button>
+          </Space>
+        </div>
+
+        {showFilters && (
+          <div className={styles.filterContent}>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12}>
+                <label className={styles.filterLabel}>{t.relatedTo}</label>
+                <Select
+                  size="large"
+                  placeholder={t.selectType}
+                  value={filters.relatedTo}
+                  onChange={(value) => handleApplyFilters(filters.name, value)}
+                  style={{ width: '100%' }}
+                  allowClear
+                  onClear={() => handleApplyFilters(filters.name, undefined)}
+                >
+                  <Select.Option value={0}>
+                    <Space>
+                      <TeamOutlined />
+                      {t.employees}
+                    </Space>
+                  </Select.Option>
+                  <Select.Option value={1}>
+                    <Space>
+                      <UserOutlined />
+                      {t.agent}
+                    </Space>
+                  </Select.Option>
+                </Select>
+              </Col>
+            </Row>
+          </div>
+        )}
+      </Card>
 
       {/* Active Filters Display */}
       {Object.keys(filters).filter((k) => filters[k as keyof typeof filters]).length > 0 && (
-        <Card size="small" style={{ marginBottom: 16, background: '#f0f5ff' }}>
-          <Space wrap>
-            <Text strong>Active Filters:</Text>
+        <div className={styles.activeFilters}>
+          <div className={styles.filterTags}>
+            <Text strong>{t.activeFilters}</Text>
             {filters.name && (
               <Tag closable onClose={() => setFilters((prev) => ({ ...prev, name: undefined }))}>
-                Name: {filters.name}
+                {t.nameFilter}: {filters.name}
               </Tag>
             )}
             {filters.relatedTo !== undefined && (
@@ -298,18 +477,24 @@ export default function PrivilegesPage() {
                 closable
                 onClose={() => setFilters((prev) => ({ ...prev, relatedTo: undefined }))}
               >
-                Related To: {filters.relatedTo === 0 ? 'Employees' : 'Agent'}
+                {t.relatedTo}: {filters.relatedTo === 0 ? t.employees : t.agent}
               </Tag>
             )}
-            <Button type="link" size="small" icon={<ClearOutlined />} onClick={handleClearFilters}>
-              Clear All
+            <Button
+              type="link"
+              size="small"
+              className={styles.clearFiltersButton}
+              icon={<ClearOutlined />}
+              onClick={handleClearFilters}
+            >
+              {t.clearAll}
             </Button>
-          </Space>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Main Table */}
-      <Card>
+      <Card className={styles.tableCard}>
         <Table
           columns={columns}
           dataSource={filteredPrivileges}
@@ -318,11 +503,13 @@ export default function PrivilegesPage() {
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
-            showTotal: (total) => `Total ${total} roles`,
+            showTotal: (total) => `${t.total} ${total} ${t.roles}`,
           }}
           locale={{
             emptyText: (
-              <Empty description="No privileges found" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <div className={styles.emptyState}>
+                <Empty description={t.noPrivileges} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              </div>
             ),
           }}
         />
@@ -333,106 +520,62 @@ export default function PrivilegesPage() {
         title={
           <Space>
             <SafetyOutlined />
-            <span>{editingId ? 'Edit Role' : 'Create New Role'}</span>
+            <span>{editingId ? t.editRole : t.createNewRole}</span>
           </Space>
         }
         open={isModalOpen}
         onCancel={handleCloseModal}
         footer={null}
         width={600}
+        className={styles.modal}
       >
-        <Form form={form} layout="vertical" onFinish={handleSubmit} style={{ marginTop: 24 }}>
+        <Form form={form} layout="vertical" onFinish={handleSubmit} className={styles.modalForm}>
           <Form.Item
-            label="Role Name"
+            label={t.roleName}
             name="name"
-            rules={[{ required: true, message: 'Please enter role name' }]}
+            rules={[{ required: true, message: t.pleaseEnterRoleName }]}
           >
-            <Input size="large" placeholder="Enter role name" />
+            <Input size="large" placeholder={t.enterRoleName} />
           </Form.Item>
 
           <Form.Item
-            label="Related To"
+            label={t.relatedTo}
             name="relatedTo"
-            rules={[{ required: true, message: 'Please select related type' }]}
+            rules={[{ required: true, message: t.pleaseSelectType }]}
             initialValue={0}
           >
-            <Select size="large" placeholder="Select type">
+            <Select size="large" placeholder={t.selectType}>
               <Select.Option value={0}>
                 <Space>
                   <TeamOutlined />
-                  Employees
+                  {t.employees}
                 </Space>
               </Select.Option>
               <Select.Option value={1}>
                 <Space>
                   <UserOutlined />
-                  Agent
+                  {t.agent}
                 </Space>
               </Select.Option>
             </Select>
           </Form.Item>
 
-          <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
-            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-              <Button onClick={handleCloseModal}>Cancel</Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={isCreating || isUpdating}
-                icon={editingId ? <EditOutlined /> : <PlusOutlined />}
-              >
-                {editingId ? 'Update Role' : 'Create Role'}
-              </Button>
-            </Space>
-          </Form.Item>
+          <div className={styles.modalActions}>
+            <Button className={styles.cancelButton} onClick={handleCloseModal}>
+              {t.cancel}
+            </Button>
+            <Button
+              type="primary"
+              className={styles.submitButton}
+              htmlType="submit"
+              loading={isCreating || isUpdating}
+              icon={editingId ? <EditOutlined /> : <PlusOutlined />}
+            >
+              {editingId ? t.updateRole : t.createRole}
+            </Button>
+          </div>
         </Form>
       </Modal>
-
-      {/* Filter Drawer */}
-      <Drawer
-        title={
-          <Space>
-            <FilterOutlined />
-            <span>Filter Roles</span>
-          </Space>
-        }
-        placement="right"
-        onClose={() => setIsFilterDrawerOpen(false)}
-        open={isFilterDrawerOpen}
-        width={400}
-      >
-        <Form layout="vertical" onFinish={handleApplyFilters}>
-          <Form.Item label="Role Name" name="name">
-            <Input placeholder="Search by name" allowClear />
-          </Form.Item>
-
-          <Form.Item label="Related To" name="relatedTo">
-            <Select placeholder="Select type" allowClear>
-              <Select.Option value={0}>
-                <Space>
-                  <TeamOutlined />
-                  Employees
-                </Space>
-              </Select.Option>
-              <Select.Option value={1}>
-                <Space>
-                  <UserOutlined />
-                  Agent
-                </Space>
-              </Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item>
-            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-              <Button onClick={() => setIsFilterDrawerOpen(false)}>Cancel</Button>
-              <Button type="primary" htmlType="submit" icon={<FilterOutlined />}>
-                Apply Filters
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Drawer>
     </div>
   );
 }

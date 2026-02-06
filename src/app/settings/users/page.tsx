@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   Table,
@@ -14,7 +14,6 @@ import {
   Popconfirm,
   Row,
   Col,
-  Statistic,
   Typography,
   Switch,
   Empty,
@@ -34,9 +33,100 @@ import {
 import { useUsers } from '@/hooks/api/useUsers';
 import { usePrivileges } from '@/hooks/api/usePrivileges';
 import { RegisterDto, UpdateUserDto } from '@/types/api.types';
+import styles from './Users.module.css';
 
 const { Title, Text } = Typography;
 const { Password } = Input;
+
+// Translations
+const translations = {
+  en: {
+    pageTitle: 'Users Management',
+    pageSubtitle: 'Manage system users and their roles',
+    addNewUser: 'Add New User',
+    totalUsers: 'Total Users',
+    activeUsers: 'Active Users',
+    inactiveUsers: 'Inactive Users',
+    withRoles: 'With Roles',
+    total: 'Total',
+    users: 'users',
+    noUsers: 'No users found',
+    editUser: 'Edit User',
+    createNewUser: 'Create New User',
+    username: 'Username',
+    password: 'Password',
+    role: 'Role',
+    status: 'Status',
+    cancel: 'Cancel',
+    updateUser: 'Update User',
+    createUser: 'Create User',
+    pleaseEnterUsername: 'Please enter username',
+    usernameTooShort: 'Username must be at least 3 characters',
+    pleaseEnterPassword: 'Please enter password',
+    passwordTooShort: 'Password must be at least 6 characters',
+    enterUsername: 'Enter username',
+    enterPassword: 'Enter password',
+    selectRoles: 'Select roles',
+    loadingRoles: 'Loading roles...',
+    active: 'Active',
+    inactive: 'Inactive',
+    deleteUser: 'Delete User',
+    deleteConfirm: 'Are you sure you want to delete this user?',
+    yes: 'Yes',
+    no: 'No',
+    edit: 'Edit',
+    delete: 'Delete',
+    userIdColumn: 'User ID',
+    usernameColumn: 'Username',
+    statusColumn: 'Status',
+    rolesColumn: 'Roles',
+    actionsColumn: 'Actions',
+    noRoles: 'No roles',
+  },
+  ar: {
+    pageTitle: 'إدارة المستخدمين',
+    pageSubtitle: 'إدارة مستخدمي النظام وأدوارهم',
+    addNewUser: 'إضافة مستخدم جديد',
+    totalUsers: 'إجمالي المستخدمين',
+    activeUsers: 'المستخدمون النشطون',
+    inactiveUsers: 'المستخدمون غير النشطين',
+    withRoles: 'لديهم أدوار',
+    total: 'إجمالي',
+    users: 'مستخدم',
+    noUsers: 'لا يوجد مستخدمون',
+    editUser: 'تعديل المستخدم',
+    createNewUser: 'إنشاء مستخدم جديد',
+    username: 'اسم المستخدم',
+    password: 'كلمة المرور',
+    role: 'الدور',
+    status: 'الحالة',
+    cancel: 'إلغاء',
+    updateUser: 'تحديث المستخدم',
+    createUser: 'إنشاء المستخدم',
+    pleaseEnterUsername: 'الرجاء إدخال اسم المستخدم',
+    usernameTooShort: 'يجب أن يكون اسم المستخدم 3 أحرف على الأقل',
+    pleaseEnterPassword: 'الرجاء إدخال كلمة المرور',
+    passwordTooShort: 'يجب أن تكون كلمة المرور 6 أحرف على الأقل',
+    enterUsername: 'أدخل اسم المستخدم',
+    enterPassword: 'أدخل كلمة المرور',
+    selectRoles: 'اختر الأدوار',
+    loadingRoles: 'جاري تحميل الأدوار...',
+    active: 'نشط',
+    inactive: 'غير نشط',
+    deleteUser: 'حذف المستخدم',
+    deleteConfirm: 'هل أنت متأكد من حذف هذا المستخدم؟',
+    yes: 'نعم',
+    no: 'لا',
+    edit: 'تعديل',
+    delete: 'حذف',
+    userIdColumn: 'معرف المستخدم',
+    usernameColumn: 'اسم المستخدم',
+    statusColumn: 'الحالة',
+    rolesColumn: 'الأدوار',
+    actionsColumn: 'الإجراءات',
+    noRoles: 'لا توجد أدوار',
+  },
+};
 
 /**
  * Modern Users Management Page
@@ -45,7 +135,31 @@ const { Password } = Input;
 export default function UsersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [isRtl, setIsRtl] = useState(false);
   const [form] = Form.useForm();
+
+  // Detect RTL direction
+  useEffect(() => {
+    const dir = document.documentElement.getAttribute('dir') || document.body.getAttribute('dir');
+    setIsRtl(dir === 'rtl');
+
+    // Observer to detect direction changes
+    const observer = new MutationObserver(() => {
+      const newDir =
+        document.documentElement.getAttribute('dir') || document.body.getAttribute('dir');
+      setIsRtl(newDir === 'rtl');
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['dir'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Get translations based on direction
+  const t = isRtl ? translations.ar : translations.en;
 
   const { users, isLoading, createUser, updateUser, deleteUser, isCreating, isUpdating } =
     useUsers();
@@ -127,13 +241,13 @@ export default function UsersPage() {
     if (isActive) {
       return (
         <Tag color="success" icon={<CheckCircleOutlined />}>
-          Active
+          {t.active}
         </Tag>
       );
     }
     return (
       <Tag color="error" icon={<CloseCircleOutlined />}>
-        Inactive
+        {t.inactive}
       </Tag>
     );
   };
@@ -141,7 +255,7 @@ export default function UsersPage() {
   // Get roles display
   const getRolesDisplay = (roles?: any) => {
     if (!roles || roles.length === 0) {
-      return <Text type="secondary">No roles</Text>;
+      return <Text type="secondary">{t.noRoles}</Text>;
     }
     return (
       <Space size={4} wrap>
@@ -157,14 +271,14 @@ export default function UsersPage() {
   // Table columns
   const columns = [
     {
-      title: 'User ID',
+      title: t.userIdColumn,
       dataIndex: 'id',
       key: 'id',
       width: 80,
       render: (id: number) => <Text strong>#{id}</Text>,
     },
     {
-      title: 'Username',
+      title: t.usernameColumn,
       dataIndex: 'username',
       key: 'username',
       render: (text: string) => (
@@ -175,124 +289,153 @@ export default function UsersPage() {
       ),
     },
     {
-      title: 'Status',
+      title: t.statusColumn,
       dataIndex: 'isActive',
       key: 'isActive',
       width: 120,
       render: (isActive: boolean) => getStatusTag(isActive),
     },
     {
-      title: 'Roles',
+      title: t.rolesColumn,
       dataIndex: 'roles',
       key: 'roles',
       render: (roles: string[]) => getRolesDisplay(roles),
     },
     {
-      title: 'Actions',
+      title: t.actionsColumn,
       key: 'actions',
       width: 150,
       align: 'center' as const,
       render: (_: any, record: any) => (
-        <Space size="small">
-          <Tooltip title="Edit">
+        <div className={styles.actionButtons}>
+          <Tooltip title={t.edit}>
             <Button
               type="text"
+              className={`${styles.actionButton} ${styles.editButton}`}
               icon={<EditOutlined />}
               size="small"
               onClick={() => handleOpenModal(record)}
             />
           </Tooltip>
           <Popconfirm
-            title="Delete User"
-            description="Are you sure you want to delete this user?"
+            title={t.deleteUser}
+            description={t.deleteConfirm}
             onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
+            okText={t.yes}
+            cancelText={t.no}
           >
-            <Tooltip title="Delete">
-              <Button type="text" danger icon={<DeleteOutlined />} size="small" />
+            <Tooltip title={t.delete}>
+              <Button
+                type="text"
+                danger
+                className={`${styles.actionButton} ${styles.deleteButton}`}
+                icon={<DeleteOutlined />}
+                size="small"
+              />
             </Tooltip>
           </Popconfirm>
-        </Space>
+        </div>
       ),
     },
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className={styles.usersPage}>
       {/* Header Section */}
-      <div style={{ marginBottom: 24 }}>
-        <Row align="middle" justify="space-between" style={{ marginBottom: 16 }}>
-          <Col>
-            <Space align="center">
-              <TeamOutlined style={{ fontSize: 32, color: '#1890ff' }} />
-              <div>
-                <Title level={2} style={{ margin: 0 }}>
-                  Users Management
-                </Title>
-                <Text type="secondary">Manage system users and their roles</Text>
-              </div>
-            </Space>
-          </Col>
-          <Col>
+      <div className={styles.pageHeader}>
+        <div className={styles.headerContent}>
+          <div className={styles.headerLeft}>
+            <TeamOutlined className={styles.headerIcon} />
+            <div className={styles.titleSection}>
+              <Title level={2} className={styles.pageTitle}>
+                {t.pageTitle}
+              </Title>
+              <p className={styles.pageSubtitle}>{t.pageSubtitle}</p>
+            </div>
+          </div>
+          <div className={styles.headerActions}>
             <Button
               type="primary"
+              className={styles.addButton}
               icon={<PlusOutlined />}
               onClick={() => handleOpenModal()}
-              size="large"
             >
-              Add New User
+              {t.addNewUser}
             </Button>
-          </Col>
-        </Row>
-
-        {/* Statistics Cards */}
-        <Row gutter={16}>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Total Users"
-                value={stats.total}
-                prefix={<TeamOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Active Users"
-                value={stats.active}
-                prefix={<CheckCircleOutlined />}
-                valueStyle={{ color: '#52c41a' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Inactive Users"
-                value={stats.inactive}
-                prefix={<CloseCircleOutlined />}
-                valueStyle={{ color: '#ff4d4f' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="With Roles"
-                value={stats.withRoles}
-                prefix={<SafetyOutlined />}
-                valueStyle={{ color: '#faad14' }}
-              />
-            </Card>
-          </Col>
-        </Row>
+          </div>
+        </div>
       </div>
 
+      {/* Statistics Cards */}
+      <Row gutter={16} className={styles.statsRow}>
+        <Col xs={24} sm={12} md={6}>
+          <Card className={styles.statCard}>
+            <div className={styles.statContent}>
+              <div
+                className={styles.statIcon}
+                style={{ background: 'linear-gradient(135deg, #e6f4ff 0%, #bae0ff 100%)' }}
+              >
+                <TeamOutlined style={{ color: '#1890ff' }} />
+              </div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>{t.totalUsers}</p>
+                <p className={styles.statValue}>{stats.total}</p>
+              </div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card className={styles.statCard}>
+            <div className={styles.statContent}>
+              <div
+                className={styles.statIcon}
+                style={{ background: 'linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%)' }}
+              >
+                <CheckCircleOutlined style={{ color: '#52c41a' }} />
+              </div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>{t.activeUsers}</p>
+                <p className={styles.statValue}>{stats.active}</p>
+              </div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card className={styles.statCard}>
+            <div className={styles.statContent}>
+              <div
+                className={styles.statIcon}
+                style={{ background: 'linear-gradient(135deg, #fff1f0 0%, #ffccc7 100%)' }}
+              >
+                <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+              </div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>{t.inactiveUsers}</p>
+                <p className={styles.statValue}>{stats.inactive}</p>
+              </div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card className={styles.statCard}>
+            <div className={styles.statContent}>
+              <div
+                className={styles.statIcon}
+                style={{ background: 'linear-gradient(135deg, #fffbe6 0%, #fff1b8 100%)' }}
+              >
+                <SafetyOutlined style={{ color: '#faad14' }} />
+              </div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>{t.withRoles}</p>
+                <p className={styles.statValue}>{stats.withRoles}</p>
+              </div>
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
       {/* Main Table */}
-      <Card>
+      <Card className={styles.tableCard}>
         <Table
           columns={columns}
           dataSource={users}
@@ -301,10 +444,14 @@ export default function UsersPage() {
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
-            showTotal: (total) => `Total ${total} users`,
+            showTotal: (total) => `${t.total} ${total} ${t.users}`,
           }}
           locale={{
-            emptyText: <Empty description="No users found" image={Empty.PRESENTED_IMAGE_SIMPLE} />,
+            emptyText: (
+              <div className={styles.emptyState}>
+                <Empty description={t.noUsers} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              </div>
+            ),
           }}
         />
       </Card>
@@ -314,44 +461,45 @@ export default function UsersPage() {
         title={
           <Space>
             <UserOutlined />
-            <span>{editingId ? 'Edit User' : 'Create New User'}</span>
+            <span>{editingId ? t.editUser : t.createNewUser}</span>
           </Space>
         }
         open={isModalOpen}
         onCancel={handleCloseModal}
         footer={null}
         width={600}
+        className={styles.modal}
       >
-        <Form form={form} layout="vertical" onFinish={handleSubmit} style={{ marginTop: 24 }}>
+        <Form form={form} layout="vertical" onFinish={handleSubmit} className={styles.modalForm}>
           <Form.Item
-            label="Username"
+            label={t.username}
             name="username"
             rules={[
-              { required: true, message: 'Please enter username' },
-              { min: 3, message: 'Username must be at least 3 characters' },
+              { required: true, message: t.pleaseEnterUsername },
+              { min: 3, message: t.usernameTooShort },
             ]}
           >
-            <Input size="large" prefix={<UserOutlined />} placeholder="Enter username" />
+            <Input size="large" prefix={<UserOutlined />} placeholder={t.enterUsername} />
           </Form.Item>
 
           {!editingId && (
             <Form.Item
-              label="Password"
+              label={t.password}
               name="password"
               rules={[
-                { required: true, message: 'Please enter password' },
-                { min: 6, message: 'Password must be at least 6 characters' },
+                { required: true, message: t.pleaseEnterPassword },
+                { min: 6, message: t.passwordTooShort },
               ]}
             >
-              <Password size="large" prefix={<LockOutlined />} placeholder="Enter password" />
+              <Password size="large" prefix={<LockOutlined />} placeholder={t.enterPassword} />
             </Form.Item>
           )}
 
-          <Form.Item label="Role" name="roleIds">
+          <Form.Item label={t.role} name="roleIds">
             <Select
               mode="multiple"
               size="large"
-              placeholder={isLoadingRoles ? 'Loading roles...' : 'Select roles'}
+              placeholder={isLoadingRoles ? t.loadingRoles : t.selectRoles}
               loading={isLoadingRoles}
               style={{ width: '100%' }}
               optionFilterProp="label"
@@ -365,23 +513,24 @@ export default function UsersPage() {
             </Select>
           </Form.Item>
 
-          <Form.Item label="Status" name="isActive" valuePropName="checked" initialValue={true}>
-            <Switch checkedChildren="Active" unCheckedChildren="Inactive" defaultChecked />
+          <Form.Item label={t.status} name="isActive" valuePropName="checked" initialValue={true}>
+            <Switch checkedChildren={t.active} unCheckedChildren={t.inactive} defaultChecked />
           </Form.Item>
 
-          <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
-            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-              <Button onClick={handleCloseModal}>Cancel</Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={isCreating || isUpdating}
-                icon={editingId ? <EditOutlined /> : <PlusOutlined />}
-              >
-                {editingId ? 'Update User' : 'Create User'}
-              </Button>
-            </Space>
-          </Form.Item>
+          <div className={styles.modalActions}>
+            <Button className={styles.cancelButton} onClick={handleCloseModal}>
+              {t.cancel}
+            </Button>
+            <Button
+              type="primary"
+              className={styles.submitButton}
+              htmlType="submit"
+              loading={isCreating || isUpdating}
+              icon={editingId ? <EditOutlined /> : <PlusOutlined />}
+            >
+              {editingId ? t.updateUser : t.createUser}
+            </Button>
+          </div>
         </Form>
       </Modal>
     </div>
