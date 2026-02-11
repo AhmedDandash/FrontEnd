@@ -311,7 +311,7 @@ export interface ApiError {
 
 // ==================== Worker/Applicant Types ====================
 export interface WorkerActionDto {
-  id: string;
+  id: number;
   date: string;
 }
 
@@ -319,21 +319,21 @@ export interface WorkerDto {
   referenceNo?: string | null;
   fullNameAr?: string | null;
   fullNameEn?: string | null;
-  workerStatus?: string | null;
-  religion?: string | null;
-  jobname?: string | null;
-  gender?: string | null;
-  nationalityId?: string | null;
+  workerSatus?: number | null;
+  religion?: number | null;
+  jobId?: number | null;
+  gender?: number | null; // 0 = Male, 1 = Female
+  nationalityId?: number | null;
   basicSalary?: number | null;
-  agentId?: string | null;
-  responsibleUserId?: string | null;
+  agentId?: number | null;
+  responsibleUserId?: number | null;
   boxNumber?: string | null;
   borderNumber?: string | null;
   birthDate?: string | null;
   age?: number | null;
   addressAr?: string | null;
   addressEn?: string | null;
-  maritalStatus?: string | null;
+  maritalStatus?: number | null; // 0 = Single, 1 = Married
   childrenCount?: number | null;
   weight?: number | null;
   height?: number | null;
@@ -349,10 +349,21 @@ export interface WorkerDto {
   passportIssuePlaceEn?: string | null;
   hasExperience?: boolean;
   skills?: string[] | null;
+  workerType?: number | null;
+  uploadimage?: string | null;
 }
 
 export interface Worker extends WorkerDto {
-  id: string;
-  createdAt?: string;
-  updatedAt?: string;
+  id: number;
+  // Read-only fields from GET response
+  agentName?: string | null;
+  userName?: string | null;
+  jobname?: string | null;
+  isActive?: boolean;
+  workerEscape?: boolean;
+  workerRefusedWork?: boolean;
+  workerOut?: boolean;
+  workerSick?: boolean;
+  createdAt?: string | null;
+  updatedAt?: string | null;
 }

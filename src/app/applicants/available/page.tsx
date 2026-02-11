@@ -160,14 +160,22 @@ export default function AvailableWorkersPage() {
         worker.passportNo?.toLowerCase().includes(searchLower);
 
       const matchesNationality =
-        !filters.nationality || worker.nationalityId === filters.nationality;
+        !filters.nationality || worker.nationalityId === Number(filters.nationality);
       const matchesJob = !filters.job || worker.jobname === filters.job;
-      const matchesReligion = !filters.religion || worker.religion === filters.religion;
+      const matchesReligion = !filters.religion || worker.religion === Number(filters.religion);
       const matchesExperience =
         !filters.experience ||
         (filters.experience === '1' && worker.hasExperience) ||
         (filters.experience === '2' && !worker.hasExperience);
-      const matchesAgent = !filters.agent || worker.agentId === filters.agent;
+      const matchesAgent = !filters.agent || worker.agentId === Number(filters.agent);
+      const matchesGender = !filters.gender || worker.gender === Number(filters.gender);
+
+      // Tab filtering based on workerType
+      const matchesTab =
+        activeTab === 'all' ||
+        (activeTab === 'mediation' && worker.workerType === 1) ||
+        (activeTab === 'rent' && worker.workerType === 2) ||
+        (activeTab === 'sponsorship' && worker.workerType === 5);
 
       return (
         matchesSearch &&
@@ -175,18 +183,20 @@ export default function AvailableWorkersPage() {
         matchesJob &&
         matchesReligion &&
         matchesExperience &&
-        matchesAgent
+        matchesAgent &&
+        matchesGender &&
+        matchesTab
       );
     });
-  }, [workers, filters]);
+  }, [workers, filters, activeTab]);
 
   // Stats
   const stats = useMemo(() => {
     return {
       total: filteredWorkers.length,
-      mediation: filteredWorkers.filter((w) => w.workerStatus === 'mediation').length,
-      rent: filteredWorkers.filter((w) => w.workerStatus === 'rent').length,
-      sponsorship: filteredWorkers.filter((w) => w.workerStatus === 'sponsorship').length,
+      mediation: filteredWorkers.filter((w) => w.workerType === 1).length,
+      rent: filteredWorkers.filter((w) => w.workerType === 2).length,
+      sponsorship: filteredWorkers.filter((w) => w.workerType === 5).length,
     };
   }, [filteredWorkers]);
 
@@ -425,8 +435,8 @@ export default function AvailableWorkersPage() {
                   style={{ width: '100%' }}
                   allowClear
                 >
-                  <Select.Option value="male">{t('male')}</Select.Option>
-                  <Select.Option value="female">{t('female')}</Select.Option>
+                  <Select.Option value="0">{t('male')}</Select.Option>
+                  <Select.Option value="1">{t('female')}</Select.Option>
                 </Select>
               </Col>
             </Row>
@@ -451,7 +461,7 @@ export default function AvailableWorkersPage() {
                     icon={<UserOutlined />}
                     className={styles.workerAvatar}
                     style={{
-                      backgroundColor: worker.gender === 'female' ? '#f472b6' : '#003366',
+                      backgroundColor: worker.gender === 1 ? '#f472b6' : '#003366',
                     }}
                   />
                 </div>
@@ -494,11 +504,11 @@ export default function AvailableWorkersPage() {
                       <div className={styles.detailItem}>
                         <span className={styles.detailItemLabel}>{t('gender')}</span>
                         <span className={styles.detailItemValue}>
-                          {worker.gender === 'male' ? (
+                          {worker.gender === 0 ? (
                             <Tag icon={<ManOutlined />} color="blue">
                               {t('male')}
                             </Tag>
-                          ) : worker.gender === 'female' ? (
+                          ) : worker.gender === 1 ? (
                             <Tag icon={<WomanOutlined />} color="pink">
                               {t('female')}
                             </Tag>
@@ -520,7 +530,7 @@ export default function AvailableWorkersPage() {
                       <div className={styles.detailItem}>
                         <span className={styles.detailItemLabel}>{t('maritalStatus')}</span>
                         <span className={styles.detailItemValue}>
-                          {worker.maritalStatus === '1' ? t('married') : t('single')}
+                          {worker.maritalStatus === 1 ? t('married') : t('single')}
                         </span>
                       </div>
                     </div>
@@ -539,7 +549,9 @@ export default function AvailableWorkersPage() {
                       </div>
                       <div className={styles.detailItem}>
                         <span className={styles.detailItemLabel}>{t('agentName')}</span>
-                        <span className={styles.detailItemValue}>{worker.agentId || 'N/A'}</span>
+                        <span className={styles.detailItemValue}>
+                          {worker.agentName || worker.agentId || 'N/A'}
+                        </span>
                       </div>
                     </div>
                   </div>

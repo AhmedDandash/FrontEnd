@@ -7,6 +7,7 @@ import {
   Col,
   Button,
   Input,
+  InputNumber,
   Select,
   Space,
   Tag,
@@ -17,6 +18,11 @@ import {
   Tooltip,
   Dropdown,
   DatePicker,
+  Image,
+  Descriptions,
+  Divider,
+  Switch,
+  Avatar,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -44,6 +50,8 @@ import {
   FileTextOutlined,
   DownOutlined,
   StopOutlined,
+  ManOutlined,
+  WomanOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
 import {
@@ -174,12 +182,32 @@ const translations = {
     passportIssueDate: 'Issue Date',
     passportExpiryDate: 'Expiry Date',
     passportIssuePlace: 'Issue Place',
+    passportIssuePlaceAr: 'Issue Place (Arabic)',
+    passportIssuePlaceEn: 'Issue Place (English)',
     educationLevel: 'Education Level',
+    educationLevelAr: 'Education (Arabic)',
+    educationLevelEn: 'Education (English)',
     maritalStatus: 'Marital Status',
     childrenCount: 'Children',
-    weight: 'Weight',
-    height: 'Height',
+    weight: 'Weight (kg)',
+    height: 'Height (cm)',
     referenceNo: 'Reference No.',
+    basicSalary: 'Basic Salary',
+    boxNumber: 'Box Number',
+    borderNumber: 'Border Number',
+    responsibleUser: 'Responsible User',
+    uploadImage: 'Worker Image',
+    noImage: 'No Image',
+    viewWorker: 'Worker Details',
+    personalDetails: 'Personal Details',
+    passportDetails: 'Passport Details',
+    workDetails: 'Work Details',
+    contactDetails: 'Contact Details',
+    addressDetails: 'Address Details',
+    close: 'Close',
+    agentName: 'Agent Name',
+    createdBy: 'Created By',
+    workerImage: 'Worker Photo',
   },
   ar: {
     pageTitle: 'ادارة العمالة',
@@ -297,12 +325,32 @@ const translations = {
     passportIssueDate: 'تاريخ الإصدار',
     passportExpiryDate: 'تاريخ الانتهاء',
     passportIssuePlace: 'مكان الإصدار',
+    passportIssuePlaceAr: 'مكان الإصدار (عربي)',
+    passportIssuePlaceEn: 'مكان الإصدار (إنجليزي)',
     educationLevel: 'المستوى التعليمي',
+    educationLevelAr: 'التعليم (عربي)',
+    educationLevelEn: 'التعليم (إنجليزي)',
     maritalStatus: 'الحالة الاجتماعية',
     childrenCount: 'الأطفال',
-    weight: 'الوزن',
-    height: 'الطول',
+    weight: 'الوزن (كجم)',
+    height: 'الطول (سم)',
     referenceNo: 'رقم المرجع',
+    basicSalary: 'الراتب الأساسي',
+    boxNumber: 'رقم الصندوق',
+    borderNumber: 'رقم الحدود',
+    responsibleUser: 'المسؤول',
+    uploadImage: 'صورة العامل',
+    noImage: 'لا توجد صورة',
+    viewWorker: 'تفاصيل العامل',
+    personalDetails: 'البيانات الشخصية',
+    passportDetails: 'بيانات الجواز',
+    workDetails: 'بيانات العمل',
+    contactDetails: 'بيانات التواصل',
+    addressDetails: 'بيانات العنوان',
+    close: 'إغلاق',
+    agentName: 'اسم الوكيل',
+    createdBy: 'تم الانشاء بواسطة',
+    workerImage: 'صورة العامل',
   },
 };
 
@@ -311,6 +359,7 @@ export default function WorkersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [editingWorker, setEditingWorker] = useState<Worker | null>(null);
+  const [viewingWorker, setViewingWorker] = useState<Worker | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [filters, setFilters] = useState<{
     search?: string;
@@ -359,15 +408,18 @@ export default function WorkersPage() {
         worker.passportNo?.toLowerCase().includes(searchLower) ||
         worker.referenceNo?.toLowerCase().includes(searchLower);
 
-      const matchesGender = !filters.gender || worker.gender === filters.gender;
+      const matchesGender = !filters.gender || worker.gender === Number(filters.gender);
       const matchesNationality =
-        !filters.nationality || worker.nationalityId === filters.nationality;
-      const matchesReligion = !filters.religion || worker.religion === filters.religion;
-      const matchesJob = !filters.job || worker.jobname === filters.job;
-      const matchesAgent = !filters.agent || worker.agentId === filters.agent;
+        !filters.nationality || worker.nationalityId === Number(filters.nationality);
+      const matchesReligion = !filters.religion || worker.religion === Number(filters.religion);
+      const matchesJob = !filters.job || worker.jobId === Number(filters.job);
+      const matchesAgent = !filters.agent || worker.agentId === Number(filters.agent);
       const matchesExperience =
         filters.hasExperience === undefined || worker.hasExperience === filters.hasExperience;
-      const matchesStatus = !filters.status || worker.workerStatus === filters.status;
+      const matchesStatus = !filters.status || worker.workerSatus === Number(filters.status);
+
+      // Tab-based workerSatus filtering: 0=All, 1=Trial, 2=Available, 3=Under Procedure, 4=Back Out, 5=Inside Kingdom, 6=Deported
+      const matchesTab = activeTab === 0 || worker.workerSatus === activeTab;
 
       return (
         matchesSearch &&
@@ -377,17 +429,18 @@ export default function WorkersPage() {
         matchesJob &&
         matchesAgent &&
         matchesExperience &&
-        matchesStatus
+        matchesStatus &&
+        matchesTab
       );
     });
-  }, [workers, filters]);
+  }, [workers, filters, activeTab]);
 
   // Stats
   const stats = useMemo(() => {
     return {
       total: filteredWorkers.length,
-      male: filteredWorkers.filter((w) => w.gender === 'male').length,
-      female: filteredWorkers.filter((w) => w.gender === 'female').length,
+      male: filteredWorkers.filter((w) => w.gender === 0).length,
+      female: filteredWorkers.filter((w) => w.gender === 1).length,
       experienced: filteredWorkers.filter((w) => w.hasExperience).length,
     };
   }, [filteredWorkers]);
@@ -435,6 +488,12 @@ export default function WorkersPage() {
       birthDate: values.birthDate?.format('YYYY-MM-DD'),
       passportIssueDate: values.passportIssueDate?.format('YYYY-MM-DD'),
       passportExpiryDate: values.passportExpiryDate?.format('YYYY-MM-DD'),
+      gender: values.gender !== undefined ? Number(values.gender) : undefined,
+      maritalStatus: values.maritalStatus !== undefined ? Number(values.maritalStatus) : undefined,
+      nationalityId: values.nationalityId ? Number(values.nationalityId) : undefined,
+      jobId: values.jobId ? Number(values.jobId) : undefined,
+      agentId: values.agentId ? Number(values.agentId) : undefined,
+      workerType: values.workerType ? Number(values.workerType) : undefined,
     };
 
     if (editingWorker) {
@@ -445,7 +504,7 @@ export default function WorkersPage() {
     handleCloseModal();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     Modal.confirm({
       title: t('deleteTitle'),
       icon: <ExclamationCircleOutlined />,
@@ -462,21 +521,32 @@ export default function WorkersPage() {
   };
 
   // Status tag
-  const getStatusTag = (status?: string) => {
-    const statusConfig: Record<string, { color: string; icon: React.ReactNode }> = {
-      active: { color: 'success', icon: <CheckCircleOutlined /> },
-      pending: { color: 'warning', icon: <ClockCircleOutlined /> },
-      refused: { color: 'error', icon: <ExclamationCircleOutlined /> },
+  const getStatusTag = (status?: number | null) => {
+    const statusConfig: Record<number, { color: string; icon: React.ReactNode; label: string }> = {
+      1: { color: 'processing', icon: <ClockCircleOutlined />, label: t('tabTrial') },
+      2: { color: 'success', icon: <CheckCircleOutlined />, label: t('tabAvailable') },
+      3: { color: 'warning', icon: <FileTextOutlined />, label: t('tabUnderProcedure') },
+      4: { color: 'error', icon: <ExclamationCircleOutlined />, label: t('tabBackOut') },
+      5: { color: 'cyan', icon: <EnvironmentOutlined />, label: t('tabInsideKingdom') },
+      6: { color: 'default', icon: <StopOutlined />, label: t('tabDeported') },
     };
 
-    const config = statusConfig[status || ''] || { color: 'default', icon: null };
+    const config = statusConfig[status || 0] || {
+      color: 'default',
+      icon: null,
+      label: t('pending'),
+    };
 
     return (
       <Tag color={config.color} icon={config.icon}>
-        {t((status as any) || 'pending') || status}
+        {config.label}
       </Tag>
     );
   };
+
+  // Gender helper
+  const getGenderLabel = (g?: number | null) => (g === 1 ? t('female') : t('male'));
+  const getMaritalLabel = (m?: number | null) => (m === 1 ? t('married') : t('single'));
 
   // Action menu
   const getActionMenu = (worker: Worker): MenuProps => ({
@@ -893,10 +963,34 @@ export default function WorkersPage() {
                 <p className={styles.workerReference}>
                   {t('reference')}: {worker.referenceNo || 'N/A'}
                 </p>
-                {getStatusTag(worker.workerStatus || undefined)}
+                {getStatusTag(worker.workerSatus)}
               </div>
 
               <div className={styles.workerCardBody}>
+                {/* Worker Image */}
+                <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                  {worker.uploadimage ? (
+                    <Image
+                      src={worker.uploadimage}
+                      alt={worker.fullNameAr || 'Worker'}
+                      width={100}
+                      height={100}
+                      style={{
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        border: '3px solid #003366',
+                      }}
+                      preview={{ mask: <EyeOutlined style={{ fontSize: 18 }} /> }}
+                    />
+                  ) : (
+                    <Avatar
+                      size={100}
+                      icon={<UserOutlined />}
+                      style={{ backgroundColor: worker.gender === 1 ? '#f472b6' : '#003366' }}
+                    />
+                  )}
+                </div>
+
                 <h3 className={styles.workerName}>
                   <UserOutlined />
                   {language === 'ar' ? worker.fullNameAr : worker.fullNameEn || worker.fullNameAr}
@@ -925,7 +1019,7 @@ export default function WorkersPage() {
                     <CalendarOutlined className={styles.detailIcon} />
                     <span className={styles.detailLabel}>{t('maritalStatus')}:</span>
                     <span className={styles.detailValue}>
-                      {worker.maritalStatus === '1' ? t('married') : t('single')}
+                      {getMaritalLabel(worker.maritalStatus)}
                     </span>
                   </div>
 
@@ -946,9 +1040,12 @@ export default function WorkersPage() {
 
                 {/* Badges */}
                 <div className={styles.workerBadges}>
-                  {worker.gender && (
-                    <Tag color={worker.gender === 'male' ? 'blue' : 'pink'}>
-                      {worker.gender === 'male' ? t('male') : t('female')}
+                  {worker.gender !== undefined && worker.gender !== null && (
+                    <Tag
+                      color={worker.gender === 0 ? 'blue' : 'pink'}
+                      icon={worker.gender === 0 ? <ManOutlined /> : <WomanOutlined />}
+                    >
+                      {getGenderLabel(worker.gender)}
                     </Tag>
                   )}
                   {worker.hasExperience && (
@@ -956,7 +1053,15 @@ export default function WorkersPage() {
                       {t('hasExperience')}
                     </Tag>
                   )}
-                  {worker.religion && <Tag color="cyan">{worker.religion}</Tag>}
+                  {worker.religion !== undefined && worker.religion !== null && (
+                    <Tag color="cyan">
+                      {worker.religion === 1
+                        ? t('muslim')
+                        : worker.religion === 2
+                          ? t('nonMuslim')
+                          : worker.religion}
+                    </Tag>
+                  )}
                 </div>
 
                 {worker.skills && worker.skills.length > 0 && (
@@ -975,7 +1080,12 @@ export default function WorkersPage() {
 
               <div className={styles.workerCardActions}>
                 <Tooltip title={t('view')}>
-                  <Button type="text" icon={<EyeOutlined />} className={styles.actionButton} />
+                  <Button
+                    type="text"
+                    icon={<EyeOutlined />}
+                    className={styles.actionButton}
+                    onClick={() => setViewingWorker(worker)}
+                  />
                 </Tooltip>
                 <Tooltip title={t('edit')}>
                   <Button
@@ -994,6 +1104,238 @@ export default function WorkersPage() {
         </div>
       )}
 
+      {/* View Worker Details Modal */}
+      <Modal
+        title={
+          <Space>
+            <EyeOutlined />
+            <span>{t('viewWorker')}</span>
+          </Space>
+        }
+        open={!!viewingWorker}
+        onCancel={() => setViewingWorker(null)}
+        footer={
+          <Button
+            type="primary"
+            onClick={() => setViewingWorker(null)}
+            style={{ background: '#003366' }}
+          >
+            {t('close')}
+          </Button>
+        }
+        width={900}
+        className={styles.modal}
+      >
+        {viewingWorker && (
+          <div>
+            {/* Worker Image */}
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              {viewingWorker.uploadimage ? (
+                <Image
+                  src={viewingWorker.uploadimage}
+                  alt={viewingWorker.fullNameAr || 'Worker'}
+                  width={150}
+                  height={150}
+                  style={{ borderRadius: '50%', objectFit: 'cover', border: '4px solid #003366' }}
+                  preview={{ mask: <EyeOutlined style={{ fontSize: 20 }} /> }}
+                />
+              ) : (
+                <Avatar
+                  size={150}
+                  icon={<UserOutlined />}
+                  style={{ backgroundColor: viewingWorker.gender === 1 ? '#f472b6' : '#003366' }}
+                />
+              )}
+              <h2 style={{ margin: '12px 0 4px', color: '#003366' }}>
+                {language === 'ar'
+                  ? viewingWorker.fullNameAr
+                  : viewingWorker.fullNameEn || viewingWorker.fullNameAr}
+              </h2>
+              <p style={{ color: '#6b7280', margin: 0 }}>
+                {language === 'ar' ? viewingWorker.fullNameEn : viewingWorker.fullNameAr}
+              </p>
+              <div style={{ marginTop: 8 }}>{getStatusTag(viewingWorker.workerSatus)}</div>
+            </div>
+
+            <Divider />
+
+            {/* Personal Details */}
+            <Descriptions
+              title={t('personalDetails')}
+              bordered
+              column={{ xs: 1, sm: 2 }}
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label={t('referenceNo')}>
+                {viewingWorker.referenceNo || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('gender')}>
+                {getGenderLabel(viewingWorker.gender)}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('age')}>
+                {viewingWorker.age ? `${viewingWorker.age} ${t('years')}` : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('birthDate')}>
+                {viewingWorker.birthDate
+                  ? dayjs(viewingWorker.birthDate).format('YYYY-MM-DD')
+                  : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('maritalStatus')}>
+                {getMaritalLabel(viewingWorker.maritalStatus)}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('childrenCount')}>
+                {viewingWorker.childrenCount ?? '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('religion')}>
+                {viewingWorker.religion === 1
+                  ? t('muslim')
+                  : viewingWorker.religion === 2
+                    ? t('nonMuslim')
+                    : viewingWorker.religion || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('nationality')}>
+                {viewingWorker.nationalityId || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('nationalId')}>
+                {viewingWorker.nationalId || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('educationLevelAr')}>
+                {viewingWorker.educationLevelAr || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('educationLevelEn')}>
+                {viewingWorker.educationLevelEn || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('weight')}>
+                {viewingWorker.weight || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('height')}>
+                {viewingWorker.height || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('experience')}>
+                {viewingWorker.hasExperience ? t('hasExperience') : t('noExperience')}
+              </Descriptions.Item>
+            </Descriptions>
+
+            {/* Passport Details */}
+            <Descriptions
+              title={t('passportDetails')}
+              bordered
+              column={{ xs: 1, sm: 2 }}
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label={t('passportNo')}>
+                {viewingWorker.passportNo || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('passportIssueDate')}>
+                {viewingWorker.passportIssueDate
+                  ? dayjs(viewingWorker.passportIssueDate).format('YYYY-MM-DD')
+                  : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('passportExpiryDate')}>
+                {viewingWorker.passportExpiryDate
+                  ? dayjs(viewingWorker.passportExpiryDate).format('YYYY-MM-DD')
+                  : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('passportIssuePlaceAr')}>
+                {viewingWorker.passportIssuePlaceAr || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('passportIssuePlaceEn')}>
+                {viewingWorker.passportIssuePlaceEn || '-'}
+              </Descriptions.Item>
+            </Descriptions>
+
+            {/* Work Details */}
+            <Descriptions
+              title={t('workDetails')}
+              bordered
+              column={{ xs: 1, sm: 2 }}
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label={t('jobname')}>
+                {viewingWorker.jobname || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('basicSalary')}>
+                {viewingWorker.basicSalary || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('agentName')}>
+                {viewingWorker.agentName || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('createdBy')}>
+                {viewingWorker.userName || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('workerType')}>
+                {viewingWorker.workerType === 1
+                  ? language === 'ar'
+                    ? 'التوسط'
+                    : t('typeMediation')
+                  : viewingWorker.workerType === 2
+                    ? language === 'ar'
+                      ? 'التشغيل'
+                      : 'Rent/Operation'
+                    : viewingWorker.workerType === 3
+                      ? language === 'ar'
+                        ? 'نقل الكفالة'
+                        : 'Sponsorship Transfer'
+                      : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('boxNumber')}>
+                {viewingWorker.boxNumber || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('borderNumber')}>
+                {viewingWorker.borderNumber || '-'}
+              </Descriptions.Item>
+            </Descriptions>
+
+            {/* Contact Details */}
+            <Descriptions
+              title={t('contactDetails')}
+              bordered
+              column={{ xs: 1, sm: 2 }}
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label={t('mobile')}>
+                {viewingWorker.mobile || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('phone')}>{viewingWorker.phone || '-'}</Descriptions.Item>
+            </Descriptions>
+
+            {/* Address Details */}
+            <Descriptions
+              title={t('addressDetails')}
+              bordered
+              column={{ xs: 1, sm: 2 }}
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label={t('addressAr')}>
+                {viewingWorker.addressAr || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('addressEn')}>
+                {viewingWorker.addressEn || '-'}
+              </Descriptions.Item>
+            </Descriptions>
+
+            {/* Skills */}
+            {viewingWorker.skills && viewingWorker.skills.length > 0 && (
+              <div style={{ marginTop: 16 }}>
+                <h4 style={{ color: '#003366', marginBottom: 8 }}>{t('skills')}</h4>
+                <Space wrap>
+                  {viewingWorker.skills.map((skill, i) => (
+                    <Tag key={i} color="blue">
+                      {skill}
+                    </Tag>
+                  ))}
+                </Space>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
+
       {/* Create/Edit Modal */}
       <Modal
         title={
@@ -1005,45 +1347,67 @@ export default function WorkersPage() {
         open={isModalOpen}
         onCancel={handleCloseModal}
         footer={null}
-        width={800}
+        width={900}
         className={styles.modal}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit} className={styles.modalForm}>
+          <Divider titlePlacement="left">{t('personalDetails')}</Divider>
           <Row gutter={16}>
-            <Col xs={24} md={12}>
+            <Col xs={24} md={8}>
               <Form.Item label={t('fullNameAr')} name="fullNameAr" rules={[{ required: true }]}>
                 <Input size="large" placeholder={t('fullNameAr')} />
               </Form.Item>
             </Col>
-            <Col xs={24} md={12}>
+            <Col xs={24} md={8}>
               <Form.Item label={t('fullNameEn')} name="fullNameEn">
                 <Input size="large" placeholder={t('fullNameEn')} />
               </Form.Item>
             </Col>
-            <Col xs={24} md={12}>
-              <Form.Item label={t('passportNo')} name="passportNo" rules={[{ required: true }]}>
-                <Input size="large" placeholder={t('passportNo')} />
+            <Col xs={24} md={8}>
+              <Form.Item label={t('referenceNo')} name="referenceNo">
+                <Input size="large" placeholder={t('referenceNo')} />
               </Form.Item>
             </Col>
-            <Col xs={24} md={12}>
+            <Col xs={24} md={6}>
               <Form.Item label={t('gender')} name="gender" rules={[{ required: true }]}>
                 <Select size="large" placeholder={t('gender')}>
-                  <Select.Option value="male">{t('male')}</Select.Option>
-                  <Select.Option value="female">{t('female')}</Select.Option>
+                  <Select.Option value={0}>{t('male')}</Select.Option>
+                  <Select.Option value={1}>{t('female')}</Select.Option>
                 </Select>
               </Form.Item>
             </Col>
-            <Col xs={24} md={12}>
-              <Form.Item label={t('mobile')} name="mobile">
-                <Input size="large" placeholder={t('mobile')} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
+            <Col xs={24} md={6}>
               <Form.Item label={t('birthDate')} name="birthDate">
                 <DatePicker size="large" style={{ width: '100%' }} />
               </Form.Item>
             </Col>
-            <Col xs={24} md={12}>
+            <Col xs={24} md={6}>
+              <Form.Item label={t('age')} name="age">
+                <InputNumber size="large" style={{ width: '100%' }} min={0} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Form.Item label={t('maritalStatus')} name="maritalStatus">
+                <Select size="large" placeholder={t('maritalStatus')}>
+                  <Select.Option value={0}>{t('single')}</Select.Option>
+                  <Select.Option value={1}>{t('married')}</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Form.Item label={t('childrenCount')} name="childrenCount">
+                <InputNumber size="large" style={{ width: '100%' }} min={0} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Form.Item label={t('religion')} name="religion">
+                <Select size="large" placeholder={t('religion')}>
+                  <Select.Option value={1}>{t('muslim')}</Select.Option>
+                  <Select.Option value={2}>{t('nonMuslim')}</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
               <Form.Item label={t('nationality')} name="nationalityId">
                 <Select
                   size="large"
@@ -1051,22 +1415,178 @@ export default function WorkersPage() {
                   showSearch
                   optionFilterProp="label"
                   options={[
-                    { value: '359', label: language === 'ar' ? 'الفلبين' : 'Philippines' },
-                    { value: '360', label: language === 'ar' ? 'كينيا' : 'Kenya' },
-                    { value: '361', label: language === 'ar' ? 'أوغندا' : 'Uganda' },
-                    { value: '362', label: language === 'ar' ? 'الهند' : 'India' },
-                    { value: '367', label: language === 'ar' ? 'باكستان' : 'Pakistan' },
-                    { value: '731', label: language === 'ar' ? 'أثيوبيا' : 'Ethiopia' },
+                    { value: 359, label: language === 'ar' ? 'الفلبين' : 'Philippines' },
+                    { value: 360, label: language === 'ar' ? 'كينيا' : 'Kenya' },
+                    { value: 361, label: language === 'ar' ? 'أوغندا' : 'Uganda' },
+                    { value: 362, label: language === 'ar' ? 'الهند' : 'India' },
+                    { value: 367, label: language === 'ar' ? 'باكستان' : 'Pakistan' },
+                    { value: 731, label: language === 'ar' ? 'أثيوبيا' : 'Ethiopia' },
+                    { value: 771, label: language === 'ar' ? 'أندونيسيا' : 'Indonesia' },
                   ]}
                 />
               </Form.Item>
             </Col>
+            <Col xs={24} md={6}>
+              <Form.Item label={t('nationalId')} name="nationalId">
+                <Input size="large" placeholder={t('nationalId')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Form.Item label={t('weight')} name="weight">
+                <InputNumber size="large" style={{ width: '100%' }} min={0} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Form.Item label={t('height')} name="height">
+                <InputNumber size="large" style={{ width: '100%' }} min={0} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Form.Item label={t('educationLevelAr')} name="educationLevelAr">
+                <Input size="large" placeholder={t('educationLevelAr')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Form.Item
+                label={t('educationLevelEn')}
+                name="educationLevelEn"
+                rules={[{ required: true }]}
+              >
+                <Input size="large" placeholder={t('educationLevelEn')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Form.Item label={t('experience')} name="hasExperience" valuePropName="checked">
+                <Switch />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Divider titlePlacement="left">{t('passportDetails')}</Divider>
+          <Row gutter={16}>
+            <Col xs={24} md={8}>
+              <Form.Item label={t('passportNo')} name="passportNo" rules={[{ required: true }]}>
+                <Input size="large" placeholder={t('passportNo')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item label={t('passportIssueDate')} name="passportIssueDate">
+                <DatePicker size="large" style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item label={t('passportExpiryDate')} name="passportExpiryDate">
+                <DatePicker size="large" style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
             <Col xs={24} md={12}>
-              <Form.Item label={t('religion')} name="religion">
-                <Select size="large" placeholder={t('religion')}>
-                  <Select.Option value="muslim">{t('muslim')}</Select.Option>
-                  <Select.Option value="non-muslim">{t('nonMuslim')}</Select.Option>
+              <Form.Item label={t('passportIssuePlaceAr')} name="passportIssuePlaceAr">
+                <Input size="large" placeholder={t('passportIssuePlaceAr')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={t('passportIssuePlaceEn')}
+                name="passportIssuePlaceEn"
+                rules={[{ required: true }]}
+              >
+                <Input size="large" placeholder={t('passportIssuePlaceEn')} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Divider titlePlacement="left">{t('workDetails')}</Divider>
+          <Row gutter={16}>
+            <Col xs={24} md={8}>
+              <Form.Item label={t('jobname')} name="jobId">
+                <Select
+                  size="large"
+                  placeholder={t('jobname')}
+                  showSearch
+                  optionFilterProp="label"
+                  options={[
+                    { value: 1, label: language === 'ar' ? 'عاملة منزلية' : 'Housemaid' },
+                    { value: 2, label: language === 'ar' ? 'سائق خاص' : 'Private Driver' },
+                    { value: 3, label: language === 'ar' ? 'عامل منزلي' : 'Houseworker' },
+                    { value: 4, label: language === 'ar' ? 'طباخ' : 'Cook' },
+                    { value: 5, label: language === 'ar' ? 'حارس منزلي' : 'Home Guard' },
+                    { value: 6, label: language === 'ar' ? 'مزارع منزلي' : 'Home Farmer' },
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item label={t('basicSalary')} name="basicSalary">
+                <InputNumber size="large" style={{ width: '100%' }} min={0} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item label={t('workerType')} name="workerType">
+                <Select size="large" placeholder={t('workerType')}>
+                  <Select.Option value={1}>
+                    {language === 'ar' ? 'التوسط' : t('typeMediation')}
+                  </Select.Option>
+                  <Select.Option value={2}>
+                    {language === 'ar' ? 'التشغيل' : 'Rent/Operation'}
+                  </Select.Option>
+                  <Select.Option value={3}>
+                    {language === 'ar' ? 'نقل الكفالة' : 'Sponsorship Transfer'}
+                  </Select.Option>
                 </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item label={t('agent')} name="agentId">
+                <InputNumber
+                  size="large"
+                  style={{ width: '100%' }}
+                  min={1}
+                  placeholder={t('agent')}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item label={t('responsibleUser')} name="responsibleUserId">
+                <InputNumber
+                  size="large"
+                  style={{ width: '100%' }}
+                  min={1}
+                  placeholder={t('responsibleUser')}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item label={t('boxNumber')} name="boxNumber">
+                <Input size="large" placeholder={t('boxNumber')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item label={t('borderNumber')} name="borderNumber">
+                <Input size="large" placeholder={t('borderNumber')} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Divider titlePlacement="left">{t('contactDetails')}</Divider>
+          <Row gutter={16}>
+            <Col xs={24} md={12}>
+              <Form.Item label={t('mobile')} name="mobile">
+                <Input size="large" placeholder={t('mobile')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item label={t('phone')} name="phone">
+                <Input size="large" placeholder={t('phone')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item label={t('addressAr')} name="addressAr">
+                <Input size="large" placeholder={t('addressAr')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item label={t('addressEn')} name="addressEn">
+                <Input size="large" placeholder={t('addressEn')} />
               </Form.Item>
             </Col>
           </Row>

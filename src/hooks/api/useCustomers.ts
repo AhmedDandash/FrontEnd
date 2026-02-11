@@ -6,7 +6,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { CustomerService } from '@/services';
-import type { CreateCustomerDto, UpdateCustomerDto, CustomerPhoneDto } from '@/types/api.types';
+import type { CreateCustomerDto, UpdateCustomerDto } from '@/types/api.types';
 
 const QUERY_KEY = 'customers';
 
@@ -74,23 +74,23 @@ export function useCustomers() {
     },
   });
 
-  // Get all customer phones
-  const { data: customerPhones, isLoading: isPhonesLoading } = useQuery({
-    queryKey: [QUERY_KEY, 'phones'],
-    queryFn: () => CustomerService.getAllPhones(),
-  });
+  // // Get all customer phones
+  // const { data: customerPhones, isLoading: isPhonesLoading } = useQuery({
+  //   queryKey: [QUERY_KEY, 'phones'],
+  //   queryFn: () => CustomerService.getAllPhones(),
+  // });
 
-  // Create customer phone
-  const createPhoneMutation = useMutation({
-    mutationFn: (data: CustomerPhoneDto) => CustomerService.createPhone(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'phones'] });
-      message.success('تمت إضافة الهاتف بنجاح / Phone created successfully');
-    },
-    onError: (error: any) => {
-      message.error(error.response?.data?.message || 'فشل إضافة الهاتف / Failed to create phone');
-    },
-  });
+  // // Create customer phone
+  // const createPhoneMutation = useMutation({
+  //   mutationFn: (data: CustomerPhoneDto) => CustomerService.createPhone(data),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'phones'] });
+  //     message.success('تمت إضافة الهاتف بنجاح / Phone created successfully');
+  //   },
+  //   onError: (error: any) => {
+  //     message.error(error.response?.data?.message || 'فشل إضافة الهاتف / Failed to create phone');
+  //   },
+  // });
 
   return {
     customers,
@@ -104,9 +104,9 @@ export function useCustomers() {
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
-    customerPhones,
-    isPhonesLoading,
-    createPhone: createPhoneMutation.mutate,
-    isCreatingPhone: createPhoneMutation.isPending,
+    // customerPhones,
+    // isPhonesLoading,
+    // createPhone: createPhoneMutation.mutate,
+    // isCreatingPhone: createPhoneMutation.isPending,
   };
 }

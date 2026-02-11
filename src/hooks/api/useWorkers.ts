@@ -68,7 +68,7 @@ export function useUpdateWorker() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: WorkerDto }) => {
+    mutationFn: async ({ id, data }: { id: number; data: WorkerDto }) => {
       const response = await api.put<Worker>(`/api/Worker/${id}`, data);
       return response.data;
     },
@@ -89,7 +89,7 @@ export function useDeleteWorker() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (id: number) => {
       await api.delete(`/api/Worker/${id}`);
     },
     onSuccess: () => {

@@ -254,9 +254,9 @@ export default function WorkersFollowupPage() {
         worker.passportNo?.toLowerCase().includes(searchLower) ||
         worker.referenceNo?.toLowerCase().includes(searchLower);
 
-      const matchesStatus = !filters.status || worker.workerStatus === filters.status;
+      const matchesStatus = !filters.status || worker.workerSatus === Number(filters.status);
       const matchesNationality =
-        !filters.nationality || worker.nationalityId === filters.nationality;
+        !filters.nationality || worker.nationalityId === Number(filters.nationality);
       const matchesJob = !filters.job || worker.jobname === filters.job;
 
       return matchesSearch && matchesStatus && matchesNationality && matchesJob;
@@ -267,11 +267,9 @@ export default function WorkersFollowupPage() {
   const stats = useMemo(() => {
     return {
       total: filteredWorkers.length,
-      active: filteredWorkers.filter((w) => w.workerStatus === 'active').length,
-      pending: filteredWorkers.filter((w) => w.workerStatus === 'pending').length,
-      issues: filteredWorkers.filter((w) =>
-        ['escaped', 'refused', 'sick'].includes(w.workerStatus || '')
-      ).length,
+      active: filteredWorkers.filter((w) => w.workerSatus === 2).length,
+      pending: filteredWorkers.filter((w) => w.workerSatus === 1).length,
+      issues: filteredWorkers.filter((w) => [2, 3, 4].includes(w.workerSatus || 0)).length,
     };
   }, [filteredWorkers]);
 
@@ -335,21 +333,23 @@ export default function WorkersFollowupPage() {
   };
 
   // Status tag
-  const getStatusTag = (status?: string) => {
-    const statusConfig: Record<string, { color: string; icon: React.ReactNode }> = {
-      active: { color: 'success', icon: <CheckCircleOutlined /> },
-      pending: { color: 'warning', icon: <ClockCircleOutlined /> },
-      escaped: { color: 'error', icon: <ExclamationCircleOutlined /> },
-      refused: { color: 'error', icon: <CloseCircleOutlined /> },
-      sick: { color: 'processing', icon: <MedicineBoxOutlined /> },
-      out: { color: 'default', icon: <LogoutOutlined /> },
+  const getStatusTag = (status?: number | null) => {
+    const statusConfig: Record<number, { color: string; icon: React.ReactNode; label: string }> = {
+      1: { color: 'warning', icon: <ClockCircleOutlined />, label: t('statusReceived') },
+      2: { color: 'error', icon: <ExclamationCircleOutlined />, label: t('statusEscaped') },
+      3: { color: 'processing', icon: <MedicineBoxOutlined />, label: t('statusSick') },
+      4: { color: 'error', icon: <CloseCircleOutlined />, label: t('statusRefused') },
+      5: { color: 'default', icon: <LogoutOutlined />, label: t('statusReturnTravel') },
+      6: { color: 'volcano', icon: <StopOutlined />, label: t('statusSuspended') },
+      7: { color: 'red', icon: <LogoutOutlined />, label: t('statusFinalExit') },
+      8: { color: 'success', icon: <CheckCircleOutlined />, label: t('statusReturnWork') },
     };
 
-    const config = statusConfig[status || ''] || { color: 'default', icon: null };
+    const config = statusConfig[status || 0] || { color: 'default', icon: null, label: '-' };
 
     return (
       <Tag color={config.color} icon={config.icon}>
-        {t(status as any) || status}
+        {config.label}
       </Tag>
     );
   };
@@ -470,7 +470,7 @@ export default function WorkersFollowupPage() {
       title: t('status'),
       key: 'status',
       width: 140,
-      render: (_, worker) => getStatusTag(worker.workerStatus || undefined),
+      render: (_, worker) => getStatusTag(worker.workerSatus),
     },
     {
       title: t('branch'),
