@@ -55,6 +55,7 @@ const translations = {
     nationality: 'Nationality',
     agent: 'Agent',
     job: 'Job',
+    jobname: 'Job',
     gender: 'Gender',
     male: 'Male',
     female: 'Female',
@@ -67,6 +68,8 @@ const translations = {
     noExperience: 'No Experience',
     vip: 'VIP',
     maritalStatus: 'Marital Status',
+    single: 'Single',
+    married: 'Married',
     view: 'View Details',
     print: 'Print',
     noWorkers: 'No workers found',
@@ -96,6 +99,7 @@ const translations = {
     nationality: 'الجنسية',
     agent: 'الوكيل',
     job: 'الوظيفة',
+    jobname: 'الوظيفة',
     gender: 'الجنس',
     male: 'ذكر',
     female: 'أنثى',
@@ -108,6 +112,8 @@ const translations = {
     noExperience: 'لم يسبق له العمل',
     vip: 'VIP',
     maritalStatus: 'الحالة الاجتماعية',
+    single: 'أعزب',
+    married: 'متزوج',
     view: 'عرض التفاصيل',
     print: 'طباعة',
     noWorkers: 'لا يوجد عمال',
@@ -155,7 +161,7 @@ export default function AvailableWorkersPage() {
 
       const matchesNationality =
         !filters.nationality || worker.nationalityId === filters.nationality;
-      const matchesJob = !filters.job || worker.jobId === filters.job;
+      const matchesJob = !filters.job || worker.jobname === filters.job;
       const matchesReligion = !filters.religion || worker.religion === filters.religion;
       const matchesExperience =
         !filters.experience ||
@@ -514,7 +520,7 @@ export default function AvailableWorkersPage() {
                       <div className={styles.detailItem}>
                         <span className={styles.detailItemLabel}>{t('maritalStatus')}</span>
                         <span className={styles.detailItemValue}>
-                          {worker.maritalStatus || 'N/A'}
+                          {worker.maritalStatus === '1' ? t('married') : t('single')}
                         </span>
                       </div>
                     </div>
@@ -522,8 +528,8 @@ export default function AvailableWorkersPage() {
                     <div className={styles.detailGroup}>
                       <p className={styles.detailGroupTitle}>{t('workInfo')}</p>
                       <div className={styles.detailItem}>
-                        <span className={styles.detailItemLabel}>{t('job')}</span>
-                        <span className={styles.detailItemValue}>{worker.jobId || 'N/A'}</span>
+                        <span className={styles.detailItemLabel}>{t('jobname')}</span>
+                        <span className={styles.detailItemValue}>{worker.jobname || 'N/A'}</span>
                       </div>
                       <div className={styles.detailItem}>
                         <span className={styles.detailItemLabel}>{t('experience')}</span>

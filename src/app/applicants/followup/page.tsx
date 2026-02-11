@@ -257,7 +257,7 @@ export default function WorkersFollowupPage() {
       const matchesStatus = !filters.status || worker.workerStatus === filters.status;
       const matchesNationality =
         !filters.nationality || worker.nationalityId === filters.nationality;
-      const matchesJob = !filters.job || worker.jobId === filters.job;
+      const matchesJob = !filters.job || worker.jobname === filters.job;
 
       return matchesSearch && matchesStatus && matchesNationality && matchesJob;
     });

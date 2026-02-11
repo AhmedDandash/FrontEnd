@@ -321,7 +321,7 @@ export interface WorkerDto {
   fullNameEn?: string | null;
   workerStatus?: string | null;
   religion?: string | null;
-  jobId?: string | null;
+  jobname?: string | null;
   gender?: string | null;
   nationalityId?: string | null;
   basicSalary?: number | null;

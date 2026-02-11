@@ -91,7 +91,7 @@ const translations = {
     passportNo: 'Passport No.',
     nationality: 'Nationality',
     nationalId: 'National ID',
-    job: 'Job',
+    jobname: 'Job Name',
     agent: 'Agent',
     employee: 'Employee',
     workerType: 'Worker Type',
@@ -165,6 +165,8 @@ const translations = {
     active: 'Active',
     pending: 'Pending',
     refused: 'Refused',
+    single: 'Single',
+    married: 'Married',
     // Form
     basicInfo: 'Basic Information',
     addressAr: 'Address (Arabic)',
@@ -212,7 +214,7 @@ const translations = {
     passportNo: 'رقم الجواز',
     nationality: 'الجنسية',
     nationalId: 'رقم الهوية',
-    job: 'الوظيفة',
+    jobname: 'الوظيفة',
     agent: 'الوكيل',
     employee: 'الموظف',
     workerType: 'نوع العامل',
@@ -286,6 +288,8 @@ const translations = {
     active: 'نشط',
     pending: 'قيد الانتظار',
     refused: 'مرفوض',
+    single: 'أعزب',
+    married: 'متزوج',
     // Form
     basicInfo: 'المعلومات الأساسية',
     addressAr: 'العنوان (عربي)',
@@ -324,7 +328,8 @@ export default function WorkersPage() {
   const [form] = Form.useForm();
 
   const t = (key: keyof typeof translations.en) => {
-    return translations[language][key] || key;
+    const lang = translations[language];
+    return lang[key] || key;
   };
 
   const { data: workers = [], isLoading } = useWorkers();
@@ -358,7 +363,7 @@ export default function WorkersPage() {
       const matchesNationality =
         !filters.nationality || worker.nationalityId === filters.nationality;
       const matchesReligion = !filters.religion || worker.religion === filters.religion;
-      const matchesJob = !filters.job || worker.jobId === filters.job;
+      const matchesJob = !filters.job || worker.jobname === filters.job;
       const matchesAgent = !filters.agent || worker.agentId === filters.agent;
       const matchesExperience =
         filters.hasExperience === undefined || worker.hasExperience === filters.hasExperience;
@@ -697,10 +702,10 @@ export default function WorkersPage() {
               </Col>
 
               <Col xs={24} md={6}>
-                <label className={styles.filterLabel}>{t('job')}</label>
+                <label className={styles.filterLabel}>{t('jobname')}</label>
                 <Select
                   size="large"
-                  placeholder={t('job')}
+                  placeholder={t('jobname')}
                   value={filters.job}
                   onChange={(value) => setFilters({ ...filters, job: value })}
                   style={{ width: '100%' }}
@@ -908,6 +913,20 @@ export default function WorkersPage() {
                     <EnvironmentOutlined className={styles.detailIcon} />
                     <span className={styles.detailLabel}>{t('nationality')}:</span>
                     <span className={styles.detailValue}>{worker.nationalityId || 'N/A'}</span>
+                  </div>
+
+                  <div className={styles.detailRow}>
+                    <TrophyOutlined className={styles.detailIcon} />
+                    <span className={styles.detailLabel}>{t('jobname')}:</span>
+                    <span className={styles.detailValue}>{worker.jobname || 'N/A'}</span>
+                  </div>
+
+                  <div className={styles.detailRow}>
+                    <CalendarOutlined className={styles.detailIcon} />
+                    <span className={styles.detailLabel}>{t('maritalStatus')}:</span>
+                    <span className={styles.detailValue}>
+                      {worker.maritalStatus === '1' ? t('married') : t('single')}
+                    </span>
                   </div>
 
                   <div className={styles.detailRow}>
