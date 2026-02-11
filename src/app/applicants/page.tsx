@@ -195,7 +195,6 @@ const translations = {
     basicSalary: 'Basic Salary',
     boxNumber: 'Box Number',
     borderNumber: 'Border Number',
-    responsibleUser: 'Responsible User',
     uploadImage: 'Worker Image',
     noImage: 'No Image',
     viewWorker: 'Worker Details',
@@ -338,7 +337,6 @@ const translations = {
     basicSalary: 'الراتب الأساسي',
     boxNumber: 'رقم الصندوق',
     borderNumber: 'رقم الحدود',
-    responsibleUser: 'المسؤول',
     uploadImage: 'صورة العامل',
     noImage: 'لا توجد صورة',
     viewWorker: 'تفاصيل العامل',
@@ -1545,16 +1543,7 @@ export default function WorkersPage() {
                 />
               </Form.Item>
             </Col>
-            <Col xs={24} md={8}>
-              <Form.Item label={t('responsibleUser')} name="responsibleUserId">
-                <InputNumber
-                  size="large"
-                  style={{ width: '100%' }}
-                  min={1}
-                  placeholder={t('responsibleUser')}
-                />
-              </Form.Item>
-            </Col>
+            
             <Col xs={24} md={8}>
               <Form.Item label={t('boxNumber')} name="boxNumber">
                 <Input size="large" placeholder={t('boxNumber')} />
