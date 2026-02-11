@@ -131,89 +131,492 @@ interface ComplaintService extends BaseEntity {
 
 // Mock Data
 const mockJobs: Job[] = [
-  { id: '1', nameAr: 'مدير منزل', nameEn: 'House Manager', isActive: true, createdAt: '2024-01-15' },
-  { id: '2', nameAr: 'عاملة منزلية', nameEn: 'House Maid', isActive: true, createdAt: '2024-01-10' },
-  { id: '3', nameAr: 'سائق خاص', nameEn: 'Private Driver', isActive: true, createdAt: '2024-01-08' },
+  {
+    id: '1',
+    nameAr: 'مدير منزل',
+    nameEn: 'House Manager',
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    nameAr: 'عاملة منزلية',
+    nameEn: 'House Maid',
+    isActive: true,
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    nameAr: 'سائق خاص',
+    nameEn: 'Private Driver',
+    isActive: true,
+    createdAt: '2024-01-08',
+  },
   { id: '4', nameAr: 'طباخ منزلي', nameEn: 'Home Cook', isActive: true, createdAt: '2024-01-05' },
-  { id: '5', nameAr: 'ممرضة منزلية', nameEn: 'Home Nurse', isActive: true, createdAt: '2024-01-03' },
-  { id: '6', nameAr: 'حارس منزلي', nameEn: 'House Guard', isActive: false, createdAt: '2024-01-01' },
+  {
+    id: '5',
+    nameAr: 'ممرضة منزلية',
+    nameEn: 'Home Nurse',
+    isActive: true,
+    createdAt: '2024-01-03',
+  },
+  {
+    id: '6',
+    nameAr: 'حارس منزلي',
+    nameEn: 'House Guard',
+    isActive: false,
+    createdAt: '2024-01-01',
+  },
   { id: '7', nameAr: 'مربية أطفال', nameEn: 'Nanny', isActive: true, createdAt: '2023-12-28' },
   { id: '8', nameAr: 'بستاني', nameEn: 'Gardener', isActive: true, createdAt: '2023-12-25' },
 ];
 
 const mockNationalities: Nationality[] = [
-  { id: '1', nameAr: 'الفلبين', nameEn: 'Philippines', authorizationSystem: 'Musaned', authorizationSystemAr: 'مساند', flagEmoji: '🇵🇭', isActive: true, createdAt: '2024-01-15' },
-  { id: '2', nameAr: 'إندونيسيا', nameEn: 'Indonesia', authorizationSystem: 'Enjaz', authorizationSystemAr: 'إنجاز', flagEmoji: '🇮🇩', isActive: true, createdAt: '2024-01-10' },
-  { id: '3', nameAr: 'بنغلاديش', nameEn: 'Bangladesh', authorizationSystem: 'Musaned', authorizationSystemAr: 'مساند', flagEmoji: '🇧🇩', isActive: true, createdAt: '2024-01-08' },
-  { id: '4', nameAr: 'الهند', nameEn: 'India', authorizationSystem: 'Musaned', authorizationSystemAr: 'مساند', flagEmoji: '🇮🇳', isActive: true, createdAt: '2024-01-05' },
-  { id: '5', nameAr: 'سريلانكا', nameEn: 'Sri Lanka', authorizationSystem: 'Musaned', authorizationSystemAr: 'مساند', flagEmoji: '🇱🇰', isActive: true, createdAt: '2024-01-03' },
-  { id: '6', nameAr: 'إثيوبيا', nameEn: 'Ethiopia', authorizationSystem: 'Musaned', authorizationSystemAr: 'مساند', flagEmoji: '🇪🇹', isActive: true, createdAt: '2024-01-01' },
-  { id: '7', nameAr: 'كينيا', nameEn: 'Kenya', authorizationSystem: 'Musaned', authorizationSystemAr: 'مساند', flagEmoji: '🇰🇪', isActive: true, createdAt: '2023-12-28' },
-  { id: '8', nameAr: 'أوغندا', nameEn: 'Uganda', authorizationSystem: 'Musaned', authorizationSystemAr: 'مساند', flagEmoji: '🇺🇬', isActive: true, createdAt: '2023-12-25' },
+  {
+    id: '1',
+    nameAr: 'الفلبين',
+    nameEn: 'Philippines',
+    authorizationSystem: 'Musaned',
+    authorizationSystemAr: 'مساند',
+    flagEmoji: '🇵🇭',
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    nameAr: 'إندونيسيا',
+    nameEn: 'Indonesia',
+    authorizationSystem: 'Enjaz',
+    authorizationSystemAr: 'إنجاز',
+    flagEmoji: '🇮🇩',
+    isActive: true,
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    nameAr: 'بنغلاديش',
+    nameEn: 'Bangladesh',
+    authorizationSystem: 'Musaned',
+    authorizationSystemAr: 'مساند',
+    flagEmoji: '🇧🇩',
+    isActive: true,
+    createdAt: '2024-01-08',
+  },
+  {
+    id: '4',
+    nameAr: 'الهند',
+    nameEn: 'India',
+    authorizationSystem: 'Musaned',
+    authorizationSystemAr: 'مساند',
+    flagEmoji: '🇮🇳',
+    isActive: true,
+    createdAt: '2024-01-05',
+  },
+  {
+    id: '5',
+    nameAr: 'سريلانكا',
+    nameEn: 'Sri Lanka',
+    authorizationSystem: 'Musaned',
+    authorizationSystemAr: 'مساند',
+    flagEmoji: '🇱🇰',
+    isActive: true,
+    createdAt: '2024-01-03',
+  },
+  {
+    id: '6',
+    nameAr: 'إثيوبيا',
+    nameEn: 'Ethiopia',
+    authorizationSystem: 'Musaned',
+    authorizationSystemAr: 'مساند',
+    flagEmoji: '🇪🇹',
+    isActive: true,
+    createdAt: '2024-01-01',
+  },
+  {
+    id: '7',
+    nameAr: 'كينيا',
+    nameEn: 'Kenya',
+    authorizationSystem: 'Musaned',
+    authorizationSystemAr: 'مساند',
+    flagEmoji: '🇰🇪',
+    isActive: true,
+    createdAt: '2023-12-28',
+  },
+  {
+    id: '8',
+    nameAr: 'أوغندا',
+    nameEn: 'Uganda',
+    authorizationSystem: 'Musaned',
+    authorizationSystemAr: 'مساند',
+    flagEmoji: '🇺🇬',
+    isActive: true,
+    createdAt: '2023-12-25',
+  },
 ];
 
 const mockCities: City[] = [
-  { id: '1', nameAr: 'الرياض', nameEn: 'Riyadh', region: 'Central', regionAr: 'الوسطى', isActive: true, createdAt: '2024-01-15' },
-  { id: '2', nameAr: 'جدة', nameEn: 'Jeddah', region: 'Western', regionAr: 'الغربية', isActive: true, createdAt: '2024-01-10' },
-  { id: '3', nameAr: 'الدمام', nameEn: 'Dammam', region: 'Eastern', regionAr: 'الشرقية', isActive: true, createdAt: '2024-01-08' },
-  { id: '4', nameAr: 'مكة المكرمة', nameEn: 'Makkah', region: 'Western', regionAr: 'الغربية', isActive: true, createdAt: '2024-01-05' },
-  { id: '5', nameAr: 'المدينة المنورة', nameEn: 'Madinah', region: 'Western', regionAr: 'الغربية', isActive: true, createdAt: '2024-01-03' },
+  {
+    id: '1',
+    nameAr: 'الرياض',
+    nameEn: 'Riyadh',
+    region: 'Central',
+    regionAr: 'الوسطى',
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    nameAr: 'جدة',
+    nameEn: 'Jeddah',
+    region: 'Western',
+    regionAr: 'الغربية',
+    isActive: true,
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    nameAr: 'الدمام',
+    nameEn: 'Dammam',
+    region: 'Eastern',
+    regionAr: 'الشرقية',
+    isActive: true,
+    createdAt: '2024-01-08',
+  },
+  {
+    id: '4',
+    nameAr: 'مكة المكرمة',
+    nameEn: 'Makkah',
+    region: 'Western',
+    regionAr: 'الغربية',
+    isActive: true,
+    createdAt: '2024-01-05',
+  },
+  {
+    id: '5',
+    nameAr: 'المدينة المنورة',
+    nameEn: 'Madinah',
+    region: 'Western',
+    regionAr: 'الغربية',
+    isActive: true,
+    createdAt: '2024-01-03',
+  },
 ];
 
 const mockDestinations: Destination[] = [
-  { id: '1', nameAr: 'مطار الملك خالد الدولي', nameEn: 'King Khalid International Airport', code: 'RUH', isActive: true, createdAt: '2024-01-15' },
-  { id: '2', nameAr: 'مطار الملك عبدالعزيز الدولي', nameEn: 'King Abdulaziz International Airport', code: 'JED', isActive: true, createdAt: '2024-01-10' },
-  { id: '3', nameAr: 'مطار الملك فهد الدولي', nameEn: 'King Fahd International Airport', code: 'DMM', isActive: true, createdAt: '2024-01-08' },
+  {
+    id: '1',
+    nameAr: 'مطار الملك خالد الدولي',
+    nameEn: 'King Khalid International Airport',
+    code: 'RUH',
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    nameAr: 'مطار الملك عبدالعزيز الدولي',
+    nameEn: 'King Abdulaziz International Airport',
+    code: 'JED',
+    isActive: true,
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    nameAr: 'مطار الملك فهد الدولي',
+    nameEn: 'King Fahd International Airport',
+    code: 'DMM',
+    isActive: true,
+    createdAt: '2024-01-08',
+  },
 ];
 
 const mockMarketers: Marketer[] = [
-  { id: '1', nameAr: 'أحمد محمد', nameEn: 'Ahmed Mohammed', phone: '0501234567', commission: 5, isActive: true, createdAt: '2024-01-15' },
-  { id: '2', nameAr: 'سارة علي', nameEn: 'Sara Ali', phone: '0559876543', commission: 7, isActive: true, createdAt: '2024-01-10' },
-  { id: '3', nameAr: 'خالد عبدالله', nameEn: 'Khaled Abdullah', phone: '0541112233', commission: 6, isActive: false, createdAt: '2024-01-08' },
+  {
+    id: '1',
+    nameAr: 'أحمد محمد',
+    nameEn: 'Ahmed Mohammed',
+    phone: '0501234567',
+    commission: 5,
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    nameAr: 'سارة علي',
+    nameEn: 'Sara Ali',
+    phone: '0559876543',
+    commission: 7,
+    isActive: true,
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    nameAr: 'خالد عبدالله',
+    nameEn: 'Khaled Abdullah',
+    phone: '0541112233',
+    commission: 6,
+    isActive: false,
+    createdAt: '2024-01-08',
+  },
 ];
 
 const mockDocumentTypes: DocumentType[] = [
-  { id: '1', nameAr: 'جواز السفر', nameEn: 'Passport', category: 'Identity', categoryAr: 'هوية', isRequired: true, isActive: true, createdAt: '2024-01-15' },
-  { id: '2', nameAr: 'تأشيرة العمل', nameEn: 'Work Visa', category: 'Visa', categoryAr: 'تأشيرة', isRequired: true, isActive: true, createdAt: '2024-01-10' },
-  { id: '3', nameAr: 'شهادة صحية', nameEn: 'Health Certificate', category: 'Medical', categoryAr: 'طبي', isRequired: true, isActive: true, createdAt: '2024-01-08' },
-  { id: '4', nameAr: 'عقد العمل', nameEn: 'Employment Contract', category: 'Contract', categoryAr: 'عقد', isRequired: true, isActive: true, createdAt: '2024-01-05' },
+  {
+    id: '1',
+    nameAr: 'جواز السفر',
+    nameEn: 'Passport',
+    category: 'Identity',
+    categoryAr: 'هوية',
+    isRequired: true,
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    nameAr: 'تأشيرة العمل',
+    nameEn: 'Work Visa',
+    category: 'Visa',
+    categoryAr: 'تأشيرة',
+    isRequired: true,
+    isActive: true,
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    nameAr: 'شهادة صحية',
+    nameEn: 'Health Certificate',
+    category: 'Medical',
+    categoryAr: 'طبي',
+    isRequired: true,
+    isActive: true,
+    createdAt: '2024-01-08',
+  },
+  {
+    id: '4',
+    nameAr: 'عقد العمل',
+    nameEn: 'Employment Contract',
+    category: 'Contract',
+    categoryAr: 'عقد',
+    isRequired: true,
+    isActive: true,
+    createdAt: '2024-01-05',
+  },
 ];
 
 const mockAges: AgeRange[] = [
-  { id: '1', nameAr: '21-25 سنة', nameEn: '21-25 years', minAge: 21, maxAge: 25, isActive: true, createdAt: '2024-01-15' },
-  { id: '2', nameAr: '26-30 سنة', nameEn: '26-30 years', minAge: 26, maxAge: 30, isActive: true, createdAt: '2024-01-10' },
-  { id: '3', nameAr: '31-35 سنة', nameEn: '31-35 years', minAge: 31, maxAge: 35, isActive: true, createdAt: '2024-01-08' },
-  { id: '4', nameAr: '36-40 سنة', nameEn: '36-40 years', minAge: 36, maxAge: 40, isActive: true, createdAt: '2024-01-05' },
-  { id: '5', nameAr: '41-45 سنة', nameEn: '41-45 years', minAge: 41, maxAge: 45, isActive: true, createdAt: '2024-01-03' },
+  {
+    id: '1',
+    nameAr: '21-25 سنة',
+    nameEn: '21-25 years',
+    minAge: 21,
+    maxAge: 25,
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    nameAr: '26-30 سنة',
+    nameEn: '26-30 years',
+    minAge: 26,
+    maxAge: 30,
+    isActive: true,
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    nameAr: '31-35 سنة',
+    nameEn: '31-35 years',
+    minAge: 31,
+    maxAge: 35,
+    isActive: true,
+    createdAt: '2024-01-08',
+  },
+  {
+    id: '4',
+    nameAr: '36-40 سنة',
+    nameEn: '36-40 years',
+    minAge: 36,
+    maxAge: 40,
+    isActive: true,
+    createdAt: '2024-01-05',
+  },
+  {
+    id: '5',
+    nameAr: '41-45 سنة',
+    nameEn: '41-45 years',
+    minAge: 41,
+    maxAge: 45,
+    isActive: true,
+    createdAt: '2024-01-03',
+  },
 ];
 
 const mockComplaintStatuses: ComplaintStatus[] = [
-  { id: '1', nameAr: 'جديدة', nameEn: 'New', color: '#1890ff', order: 1, isActive: true, createdAt: '2024-01-15' },
-  { id: '2', nameAr: 'قيد المراجعة', nameEn: 'Under Review', color: '#faad14', order: 2, isActive: true, createdAt: '2024-01-10' },
-  { id: '3', nameAr: 'قيد المعالجة', nameEn: 'In Progress', color: '#722ed1', order: 3, isActive: true, createdAt: '2024-01-08' },
-  { id: '4', nameAr: 'تم الحل', nameEn: 'Resolved', color: '#52c41a', order: 4, isActive: true, createdAt: '2024-01-05' },
-  { id: '5', nameAr: 'مغلقة', nameEn: 'Closed', color: '#8c8c8c', order: 5, isActive: true, createdAt: '2024-01-03' },
-  { id: '6', nameAr: 'مرفوضة', nameEn: 'Rejected', color: '#ff4d4f', order: 6, isActive: true, createdAt: '2024-01-01' },
+  {
+    id: '1',
+    nameAr: 'جديدة',
+    nameEn: 'New',
+    color: '#1890ff',
+    order: 1,
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    nameAr: 'قيد المراجعة',
+    nameEn: 'Under Review',
+    color: '#faad14',
+    order: 2,
+    isActive: true,
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    nameAr: 'قيد المعالجة',
+    nameEn: 'In Progress',
+    color: '#722ed1',
+    order: 3,
+    isActive: true,
+    createdAt: '2024-01-08',
+  },
+  {
+    id: '4',
+    nameAr: 'تم الحل',
+    nameEn: 'Resolved',
+    color: '#52c41a',
+    order: 4,
+    isActive: true,
+    createdAt: '2024-01-05',
+  },
+  {
+    id: '5',
+    nameAr: 'مغلقة',
+    nameEn: 'Closed',
+    color: '#8c8c8c',
+    order: 5,
+    isActive: true,
+    createdAt: '2024-01-03',
+  },
+  {
+    id: '6',
+    nameAr: 'مرفوضة',
+    nameEn: 'Rejected',
+    color: '#ff4d4f',
+    order: 6,
+    isActive: true,
+    createdAt: '2024-01-01',
+  },
 ];
 
 const mockNotFollowingColors: NotFollowingColor[] = [
-  { id: '1', nameAr: 'تأخر بسيط', nameEn: 'Slight Delay', color: '#fffbe6', daysFrom: 1, daysTo: 3, isActive: true, createdAt: '2024-01-15' },
-  { id: '2', nameAr: 'تأخر متوسط', nameEn: 'Moderate Delay', color: '#fff7e6', daysFrom: 4, daysTo: 7, isActive: true, createdAt: '2024-01-10' },
-  { id: '3', nameAr: 'تأخر كبير', nameEn: 'Significant Delay', color: '#fff1f0', daysFrom: 8, daysTo: 14, isActive: true, createdAt: '2024-01-08' },
-  { id: '4', nameAr: 'تأخر حرج', nameEn: 'Critical Delay', color: '#ff4d4f', daysFrom: 15, daysTo: 999, isActive: true, createdAt: '2024-01-05' },
+  {
+    id: '1',
+    nameAr: 'تأخر بسيط',
+    nameEn: 'Slight Delay',
+    color: '#fffbe6',
+    daysFrom: 1,
+    daysTo: 3,
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    nameAr: 'تأخر متوسط',
+    nameEn: 'Moderate Delay',
+    color: '#fff7e6',
+    daysFrom: 4,
+    daysTo: 7,
+    isActive: true,
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    nameAr: 'تأخر كبير',
+    nameEn: 'Significant Delay',
+    color: '#fff1f0',
+    daysFrom: 8,
+    daysTo: 14,
+    isActive: true,
+    createdAt: '2024-01-08',
+  },
+  {
+    id: '4',
+    nameAr: 'تأخر حرج',
+    nameEn: 'Critical Delay',
+    color: '#ff4d4f',
+    daysFrom: 15,
+    daysTo: 999,
+    isActive: true,
+    createdAt: '2024-01-05',
+  },
 ];
 
 const mockContractSequence: ContractSequence[] = [
-  { id: '1', nameAr: 'عقود التوسط', nameEn: 'Mediation Contracts', prefix: 'MED', currentNumber: 6750, isActive: true, createdAt: '2024-01-15' },
-  { id: '2', nameAr: 'عقود الإيجار', nameEn: 'Rent Contracts', prefix: 'RNT', currentNumber: 1250, isActive: true, createdAt: '2024-01-10' },
-  { id: '3', nameAr: 'عقود التشغيل', nameEn: 'Operation Contracts', prefix: 'OPR', currentNumber: 890, isActive: true, createdAt: '2024-01-08' },
+  {
+    id: '1',
+    nameAr: 'عقود التوسط',
+    nameEn: 'Mediation Contracts',
+    prefix: 'MED',
+    currentNumber: 6750,
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    nameAr: 'عقود الإيجار',
+    nameEn: 'Rent Contracts',
+    prefix: 'RNT',
+    currentNumber: 1250,
+    isActive: true,
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    nameAr: 'عقود التشغيل',
+    nameEn: 'Operation Contracts',
+    prefix: 'OPR',
+    currentNumber: 890,
+    isActive: true,
+    createdAt: '2024-01-08',
+  },
 ];
 
 const mockComplaintServices: ComplaintService[] = [
-  { id: '1', nameAr: 'إرجاع العاملة', nameEn: 'Worker Return', category: 'Return', categoryAr: 'إرجاع', isActive: true, createdAt: '2024-01-15' },
-  { id: '2', nameAr: 'استبدال العاملة', nameEn: 'Worker Replacement', category: 'Replacement', categoryAr: 'استبدال', isActive: true, createdAt: '2024-01-10' },
-  { id: '3', nameAr: 'استرداد المبلغ', nameEn: 'Refund', category: 'Financial', categoryAr: 'مالي', isActive: true, createdAt: '2024-01-08' },
-  { id: '4', nameAr: 'تمديد الضمان', nameEn: 'Warranty Extension', category: 'Warranty', categoryAr: 'ضمان', isActive: true, createdAt: '2024-01-05' },
+  {
+    id: '1',
+    nameAr: 'إرجاع العاملة',
+    nameEn: 'Worker Return',
+    category: 'Return',
+    categoryAr: 'إرجاع',
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    nameAr: 'استبدال العاملة',
+    nameEn: 'Worker Replacement',
+    category: 'Replacement',
+    categoryAr: 'استبدال',
+    isActive: true,
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    nameAr: 'استرداد المبلغ',
+    nameEn: 'Refund',
+    category: 'Financial',
+    categoryAr: 'مالي',
+    isActive: true,
+    createdAt: '2024-01-08',
+  },
+  {
+    id: '4',
+    nameAr: 'تمديد الضمان',
+    nameEn: 'Warranty Extension',
+    category: 'Warranty',
+    categoryAr: 'ضمان',
+    isActive: true,
+    createdAt: '2024-01-05',
+  },
 ];
 
 // Entity Stats
@@ -244,7 +647,9 @@ export default function SystemEntitiesPage() {
   // Translations
   const t = {
     pageTitle: isRTL ? 'كيانات النظام' : 'System Entities',
-    pageSubtitle: isRTL ? 'إدارة جميع الكيانات والإعدادات الأساسية للنظام' : 'Manage all system entities and basic settings',
+    pageSubtitle: isRTL
+      ? 'إدارة جميع الكيانات والإعدادات الأساسية للنظام'
+      : 'Manage all system entities and basic settings',
     search: isRTL ? 'بحث...' : 'Search...',
     add: isRTL ? 'إضافة' : 'Add',
     edit: isRTL ? 'تعديل' : 'Edit',
@@ -335,8 +740,7 @@ export default function SystemEntitiesPage() {
     const search = searchText.toLowerCase();
     return data.filter(
       (item) =>
-        item.nameAr.toLowerCase().includes(search) ||
-        item.nameEn.toLowerCase().includes(search)
+        item.nameAr.toLowerCase().includes(search) || item.nameEn.toLowerCase().includes(search)
     );
   };
 
@@ -367,8 +771,8 @@ export default function SystemEntitiesPage() {
             ? 'تم التعديل بنجاح'
             : 'Updated successfully'
           : isRTL
-          ? 'تمت الإضافة بنجاح'
-          : 'Added successfully'
+            ? 'تمت الإضافة بنجاح'
+            : 'Added successfully'
       );
       setIsModalOpen(false);
       form.resetFields();
@@ -395,9 +799,7 @@ export default function SystemEntitiesPage() {
       key: 'isActive',
       width: 120,
       render: (isActive: boolean) => (
-        <Tag color={isActive ? 'success' : 'default'}>
-          {isActive ? t.active : t.inactive}
-        </Tag>
+        <Tag color={isActive ? 'success' : 'default'}>{isActive ? t.active : t.inactive}</Tag>
       ),
     },
     {
@@ -418,12 +820,7 @@ export default function SystemEntitiesPage() {
             okText={t.delete}
             cancelText={t.cancel}
           >
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              className={styles.actionBtn}
-            />
+            <Button type="text" danger icon={<DeleteOutlined />} className={styles.actionBtn} />
           </Popconfirm>
         </Space>
       ),
@@ -459,9 +856,7 @@ export default function SystemEntitiesPage() {
       key: 'isActive',
       width: 120,
       render: (isActive: boolean) => (
-        <Tag color={isActive ? 'success' : 'default'}>
-          {isActive ? t.active : t.inactive}
-        </Tag>
+        <Tag color={isActive ? 'success' : 'default'}>{isActive ? t.active : t.inactive}</Tag>
       ),
     },
     {
@@ -482,12 +877,7 @@ export default function SystemEntitiesPage() {
             okText={t.delete}
             cancelText={t.cancel}
           >
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              className={styles.actionBtn}
-            />
+            <Button type="text" danger icon={<DeleteOutlined />} className={styles.actionBtn} />
           </Popconfirm>
         </Space>
       ),
@@ -536,9 +926,7 @@ export default function SystemEntitiesPage() {
       key: 'isActive',
       width: 120,
       render: (isActive: boolean) => (
-        <Tag color={isActive ? 'success' : 'default'}>
-          {isActive ? t.active : t.inactive}
-        </Tag>
+        <Tag color={isActive ? 'success' : 'default'}>{isActive ? t.active : t.inactive}</Tag>
       ),
     },
     {
@@ -559,12 +947,7 @@ export default function SystemEntitiesPage() {
             okText={t.delete}
             cancelText={t.cancel}
           >
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              className={styles.actionBtn}
-            />
+            <Button type="text" danger icon={<DeleteOutlined />} className={styles.actionBtn} />
           </Popconfirm>
         </Space>
       ),
@@ -631,12 +1014,7 @@ export default function SystemEntitiesPage() {
             okText={t.delete}
             cancelText={t.cancel}
           >
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              className={styles.actionBtn}
-            />
+            <Button type="text" danger icon={<DeleteOutlined />} className={styles.actionBtn} />
           </Popconfirm>
         </Space>
       ),
@@ -673,9 +1051,7 @@ export default function SystemEntitiesPage() {
       key: 'isActive',
       width: 120,
       render: (isActive: boolean) => (
-        <Tag color={isActive ? 'success' : 'default'}>
-          {isActive ? t.active : t.inactive}
-        </Tag>
+        <Tag color={isActive ? 'success' : 'default'}>{isActive ? t.active : t.inactive}</Tag>
       ),
     },
     {
@@ -696,12 +1072,7 @@ export default function SystemEntitiesPage() {
             okText={t.delete}
             cancelText={t.cancel}
           >
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              className={styles.actionBtn}
-            />
+            <Button type="text" danger icon={<DeleteOutlined />} className={styles.actionBtn} />
           </Popconfirm>
         </Space>
       ),
@@ -900,12 +1271,8 @@ export default function SystemEntitiesPage() {
             {commonFields}
             <Form.Item name="authorizationSystem" label={t.authSystem}>
               <Select>
-                <Select.Option value="Musaned">
-                  {isRTL ? 'مساند' : 'Musaned'}
-                </Select.Option>
-                <Select.Option value="Enjaz">
-                  {isRTL ? 'إنجاز' : 'Enjaz'}
-                </Select.Option>
+                <Select.Option value="Musaned">{isRTL ? 'مساند' : 'Musaned'}</Select.Option>
+                <Select.Option value="Enjaz">{isRTL ? 'إنجاز' : 'Enjaz'}</Select.Option>
               </Select>
             </Form.Item>
           </>
@@ -914,18 +1281,10 @@ export default function SystemEntitiesPage() {
         return (
           <>
             {commonFields}
-            <Form.Item
-              name="minAge"
-              label={t.minAge}
-              rules={[{ required: true }]}
-            >
+            <Form.Item name="minAge" label={t.minAge} rules={[{ required: true }]}>
               <Input type="number" min={18} max={65} />
             </Form.Item>
-            <Form.Item
-              name="maxAge"
-              label={t.maxAge}
-              rules={[{ required: true }]}
-            >
+            <Form.Item name="maxAge" label={t.maxAge} rules={[{ required: true }]}>
               <Input type="number" min={18} max={65} />
             </Form.Item>
           </>
@@ -1041,7 +1400,6 @@ export default function SystemEntitiesPage() {
           </div>
           <div className={styles.headerText}>
             <h1 className={styles.headerTitle}>{t.pageTitle}</h1>
-            <p className={styles.headerSubtitle}>{t.pageSubtitle}</p>
           </div>
         </div>
       </div>

@@ -308,3 +308,51 @@ export interface ApiError {
   statusCode: number;
   errors?: Record<string, string[]>;
 }
+
+// ==================== Worker/Applicant Types ====================
+export interface WorkerActionDto {
+  id: string;
+  date: string;
+}
+
+export interface WorkerDto {
+  referenceNo?: string | null;
+  fullNameAr?: string | null;
+  fullNameEn?: string | null;
+  workerStatus?: string | null;
+  religion?: string | null;
+  jobId?: string | null;
+  gender?: string | null;
+  nationalityId?: string | null;
+  basicSalary?: number | null;
+  agentId?: string | null;
+  responsibleUserId?: string | null;
+  boxNumber?: string | null;
+  borderNumber?: string | null;
+  birthDate?: string | null;
+  age?: number | null;
+  addressAr?: string | null;
+  addressEn?: string | null;
+  maritalStatus?: string | null;
+  childrenCount?: number | null;
+  weight?: number | null;
+  height?: number | null;
+  educationLevelAr?: string | null;
+  educationLevelEn?: string | null;
+  mobile?: string | null;
+  phone?: string | null;
+  nationalId?: string | null;
+  passportNo?: string | null;
+  passportIssueDate?: string | null;
+  passportExpiryDate?: string | null;
+  passportIssuePlaceAr?: string | null;
+  passportIssuePlaceEn?: string | null;
+  hasExperience?: boolean;
+  skills?: string[] | null;
+}
+
+export interface Worker extends WorkerDto {
+  id: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

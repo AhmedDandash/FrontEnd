@@ -191,9 +191,6 @@ export default function AgentAssignmentPage() {
             <FileTextOutlined className={styles.headerIcon} />
             <div>
               <h1 className={styles.pageTitle}>{t('pageTitle')}</h1>
-              <p className={styles.pageSubtitle}>
-                {t('showingResults')}: <strong>{filteredAssignments.length}</strong>
-              </p>
             </div>
           </div>
           <Button

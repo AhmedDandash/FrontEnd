@@ -1,0 +1,472 @@
+.workersPage {
+  padding: 24px;
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* ==================== Header Section ==================== */
+.pageHeader {
+  background: linear-gradient(135deg, #003366 0%, #00478c 100%);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 0;
+  box-shadow: 0 8px 24px rgba(0, 51, 102, 0.15);
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+
+.headerIcon {
+  font-size: 48px;
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff !important;
+  margin: 0 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.headerButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.headerBtn {
+  height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(4px);
+}
+
+.headerBtn:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.addButton {
+  height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 170, 100, 0.3);
+  background: #00aa64 !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.addButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 170, 100, 0.4) !important;
+  background: #009956 !important;
+}
+
+/* ==================== Tab Navigation ==================== */
+.tabNav {
+  display: flex;
+  gap: 0;
+  background: #ffffff;
+  border-radius: 0 0 12px 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  border: none;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tabItem:hover {
+  color: #003366;
+  background: #f0f7ff;
+}
+
+.tabItemActive {
+  color: #003366 !important;
+  font-weight: 600;
+  border-bottom-color: #003366 !important;
+  background: #f0f7ff;
+}
+
+/* ==================== Statistics Cards ==================== */
+.statsRow {
+  margin-bottom: 24px;
+}
+
+.statCard {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.statCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.statContent {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.statIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.statInfo {
+  flex: 1;
+}
+
+.statLabel {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 0 4px 0;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* ==================== Filter Card ==================== */
+.filterCard {
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.filterHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filterContent {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.filterLabel {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #334155;
+  font-size: 14px;
+}
+
+/* ==================== Active Filters ==================== */
+.activeFilters {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+
+.filterTags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.clearFiltersButton {
+  padding: 0;
+  height: auto;
+  font-size: 13px;
+}
+
+/* ==================== Workers Grid ==================== */
+.workersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.workerCard {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.workerCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  border-color: #00478c;
+}
+
+.workerCardHeader {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.workerReference {
+  font-size: 13px;
+  font-weight: 600;
+  color: #003366;
+  margin: 0;
+}
+
+.workerStatus {
+  font-size: 12px;
+}
+
+.workerCardBody {
+  padding: 20px;
+}
+
+.workerName {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workerDetails {
+  display: grid;
+  gap: 12px;
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.detailIcon {
+  color: #003366;
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.detailLabel {
+  color: #64748b;
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.detailValue {
+  color: #1e293b;
+  font-weight: 600;
+  flex: 1;
+}
+
+.workerSkills {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.skillsTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.skillsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skillTag {
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.workerCardActions {
+  padding: 12px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.actionButton {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* ==================== Empty State ==================== */
+.emptyState {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+/* ==================== Modal ==================== */
+.modal :global(.ant-modal-header) {
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(135deg, #003366 0%, #00478c 100%);
+}
+
+.modal :global(.ant-modal-title) {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.modal :global(.ant-modal-close-x) {
+  color: #ffffff;
+}
+
+.modalForm {
+  margin-top: 24px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.cancelButton {
+  border-radius: 8px;
+}
+
+.submitButton {
+  border-radius: 8px;
+  background: #00aa64 !important;
+  border: none;
+}
+
+.submitButton:hover {
+  background: #009956 !important;
+}
+
+/* ==================== Worker Badges ==================== */
+.workerBadges {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.workerSubName {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: -8px 0 12px 28px;
+}
+
+/* ==================== Filter Actions ==================== */
+.filterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ==================== Responsive Design ==================== */
+@media (max-width: 768px) {
+  .pageHeader {
+    padding: 24px;
+  }
+
+  .pageTitle {
+    font-size: 24px;
+  }
+
+  .headerIcon {
+    font-size: 36px;
+  }
+
+  .headerButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .headerBtn {
+    width: 100%;
+  }
+
+  .tabNav {
+    border-radius: 0 0 8px 8px;
+  }
+
+  .tabItem {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .workersGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .filterHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .statValue {
+    font-size: 24px;
+  }
+}

@@ -212,7 +212,7 @@ export default function SponsorshipTransferPage() {
             <FileDoneOutlined className={styles.headerIcon} />
             <div>
               <h1 className={styles.pageTitle}>{t('pageTitle')}</h1>
-              <p className={styles.pageSubtitle}>
+              <p style={{ display: 'none' }} className={styles.pageSubtitle}>
                 {t('showingResults')}: <strong>{filteredContracts.length}</strong>
               </p>
             </div>

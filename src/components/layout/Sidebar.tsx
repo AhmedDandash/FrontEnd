@@ -106,6 +106,25 @@ export default function Sidebar({
       ],
     },
     {
+      key: 'Workers',
+      icon: <BarChartOutlined />,
+      label: language === 'ar' ? 'العمال' : 'Workers',
+      children: [
+        {
+          key: '/applicants',
+          label: language === 'ar' ? 'العمال' : 'Workers',
+        },
+        {
+          key: '/applicants/followup',
+          label: language === 'ar' ? 'متابعة العمال' : 'Workers Follow-up',
+        },
+        {
+          key: '/applicants/available',
+          label: language === 'ar' ? 'العمال المتاحون' : 'Available Applicants',
+        },
+      ],
+    },
+    {
       key: 'customers',
       icon: <TeamOutlined />,
       label: language === 'ar' ? 'العملاء' : 'Customers',

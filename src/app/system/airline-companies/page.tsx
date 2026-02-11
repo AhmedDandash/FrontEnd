@@ -281,7 +281,6 @@ export default function AirlineCompaniesPage() {
           </div>
           <div className={styles.headerText}>
             <h1 className={styles.headerTitle}>{t.pageTitle}</h1>
-            <p className={styles.headerSubtitle}>{t.pageSubtitle}</p>
           </div>
         </div>
       </div>
