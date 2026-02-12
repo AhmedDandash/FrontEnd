@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   Row,
@@ -32,7 +32,6 @@ import {
   TeamOutlined,
   UserOutlined,
   IdcardOutlined,
-  PhoneOutlined,
   EnvironmentOutlined,
   CalendarOutlined,
   TrophyOutlined,
@@ -56,10 +55,12 @@ import {
 import { useAuthStore } from '@/store/authStore';
 import {
   useWorkers,
+  useWorker,
   useCreateWorker,
   useUpdateWorker,
   useDeleteWorker,
 } from '@/hooks/api/useWorkers';
+import { useAgents } from '@/hooks/api/useAgents';
 import { useJobs } from '@/hooks/api/useJobs';
 import type { Worker, WorkerDto } from '@/types/api.types';
 import styles from './Workers.module.css';
@@ -357,8 +358,8 @@ export default function WorkersPage() {
   const language = useAuthStore((state) => state.language);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [editingWorker, setEditingWorker] = useState<Worker | null>(null);
-  const [viewingWorker, setViewingWorker] = useState<Worker | null>(null);
+  const [editingWorkerId, setEditingWorkerId] = useState<number | null>(null);
+  const [viewingWorkerId, setViewingWorkerId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [filters, setFilters] = useState<{
     search?: string;
@@ -382,6 +383,7 @@ export default function WorkersPage() {
 
   const { data: workers = [], isLoading } = useWorkers();
   const { data: jobs = [] } = useJobs();
+  const { data: agents = [] } = useAgents();
 
   // Only show active jobs in the filter
   const availableJobs = useMemo(() => {
@@ -395,9 +397,31 @@ export default function WorkersPage() {
             : job.jobNameEn || job.jobNameAr || '',
       }));
   }, [jobs, language]);
+
+  const availableAgents = useMemo(() => {
+    return agents
+      .filter((a: any) => (a.isActive === undefined ? true : a.isActive))
+      .map((a: any) => ({
+        value: String(a.id),
+        label:
+          language === 'ar'
+            ? a.agentNameAr || a.agentNameEn || ''
+            : a.agentNameEn || a.agentNameAr || '',
+      }));
+  }, [agents, language]);
   const { mutate: createWorker, isPending: isCreating } = useCreateWorker();
   const { mutate: updateWorker, isPending: isUpdating } = useUpdateWorker();
   const { mutate: deleteWorker } = useDeleteWorker();
+
+  // Fetch editing worker details when opening edit modal
+  const { data: editingWorker } = useWorker(
+    editingWorkerId ? String(editingWorkerId) : undefined
+  );
+
+  // Fetch single worker details when viewing
+  const { data: viewingWorker, isLoading: isViewingLoading } = useWorker(
+    viewingWorkerId ? String(viewingWorkerId) : undefined
+  );
 
   // Tab items matching the legacy HTML
   const tabs = [
@@ -473,17 +497,9 @@ export default function WorkersPage() {
   // Modal handlers
   const handleOpenModal = (worker?: Worker) => {
     if (worker) {
-      setEditingWorker(worker);
-      form.setFieldsValue({
-        ...worker,
-        birthDate: worker.birthDate ? dayjs(worker.birthDate) : undefined,
-        passportIssueDate: worker.passportIssueDate ? dayjs(worker.passportIssueDate) : undefined,
-        passportExpiryDate: worker.passportExpiryDate
-          ? dayjs(worker.passportExpiryDate)
-          : undefined,
-      });
+      setEditingWorkerId(worker.id);
     } else {
-      setEditingWorker(null);
+      setEditingWorkerId(null);
       form.resetFields();
     }
     setIsModalOpen(true);
@@ -491,9 +507,25 @@ export default function WorkersPage() {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setEditingWorker(null);
+    setEditingWorkerId(null);
     form.resetFields();
   };
+
+  // Populate form when editing worker details are loaded
+  useEffect(() => {
+    if (editingWorker) {
+      form.setFieldsValue({
+        ...editingWorker,
+        birthDate: editingWorker.birthDate ? dayjs(editingWorker.birthDate) : undefined,
+        passportIssueDate: editingWorker.passportIssueDate
+          ? dayjs(editingWorker.passportIssueDate)
+          : undefined,
+        passportExpiryDate: editingWorker.passportExpiryDate
+          ? dayjs(editingWorker.passportExpiryDate)
+          : undefined,
+      });
+    }
+  }, [editingWorker, form]);
 
   const handleSubmit = async (values: any) => {
     const workerData: WorkerDto = {
@@ -800,6 +832,21 @@ export default function WorkersPage() {
               </Col>
 
               <Col xs={24} md={6}>
+                <label className={styles.filterLabel}>{t('agent')}</label>
+                <Select
+                  size="large"
+                  placeholder={t('agent')}
+                  value={filters.agent}
+                  onChange={(value) => setFilters({ ...filters, agent: value })}
+                  style={{ width: '100%' }}
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  options={availableAgents}
+                />
+              </Col>
+
+              <Col xs={24} md={6}>
                 <label className={styles.filterLabel}>{t('gender')}</label>
                 <Select
                   size="large"
@@ -1038,9 +1085,9 @@ export default function WorkersPage() {
                   </div>
 
                   <div className={styles.detailRow}>
-                    <PhoneOutlined className={styles.detailIcon} />
-                    <span className={styles.detailLabel}>{t('mobile')}:</span>
-                    <span className={styles.detailValue}>{worker.mobile || 'N/A'}</span>
+                    <UserOutlined className={styles.detailIcon} />
+                    <span className={styles.detailLabel}>{t('agentName')}:</span>
+                    <span className={styles.detailValue}>{worker.agentName || 'N/A'}</span>
                   </div>
                 </div>
 
@@ -1090,7 +1137,7 @@ export default function WorkersPage() {
                     type="text"
                     icon={<EyeOutlined />}
                     className={styles.actionButton}
-                    onClick={() => setViewingWorker(worker)}
+                    onClick={() => setViewingWorkerId(worker.id)}
                   />
                 </Tooltip>
                 <Tooltip title={t('edit')}>
@@ -1118,12 +1165,12 @@ export default function WorkersPage() {
             <span>{t('viewWorker')}</span>
           </Space>
         }
-        open={!!viewingWorker}
-        onCancel={() => setViewingWorker(null)}
+        open={!!viewingWorkerId}
+        onCancel={() => setViewingWorkerId(null)}
         footer={
           <Button
             type="primary"
-            onClick={() => setViewingWorker(null)}
+            onClick={() => setViewingWorkerId(null)}
             style={{ background: '#003366' }}
           >
             {t('close')}
@@ -1132,14 +1179,14 @@ export default function WorkersPage() {
         width={900}
         className={styles.modal}
       >
-        {viewingWorker && (
+        {(isViewingLoading || viewingWorker) && (
           <div>
             {/* Worker Image */}
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
-              {viewingWorker.uploadimage ? (
+              {viewingWorker?.uploadimage ? (
                 <Image
-                  src={viewingWorker.uploadimage}
-                  alt={viewingWorker.fullNameAr || 'Worker'}
+                  src={viewingWorker?.uploadimage}
+                  alt={viewingWorker?.fullNameAr || 'Worker'}
                   width={150}
                   height={150}
                   style={{ borderRadius: '50%', objectFit: 'cover', border: '4px solid #003366' }}
@@ -1149,18 +1196,18 @@ export default function WorkersPage() {
                 <Avatar
                   size={150}
                   icon={<UserOutlined />}
-                  style={{ backgroundColor: viewingWorker.gender === 1 ? '#f472b6' : '#003366' }}
+                  style={{ backgroundColor: viewingWorker?.gender === 1 ? '#f472b6' : '#003366' }}
                 />
               )}
               <h2 style={{ margin: '12px 0 4px', color: '#003366' }}>
                 {language === 'ar'
-                  ? viewingWorker.fullNameAr
-                  : viewingWorker.fullNameEn || viewingWorker.fullNameAr}
+                  ? viewingWorker?.fullNameAr
+                  : viewingWorker?.fullNameEn || viewingWorker?.fullNameAr}
               </h2>
               <p style={{ color: '#6b7280', margin: 0 }}>
-                {language === 'ar' ? viewingWorker.fullNameEn : viewingWorker.fullNameAr}
+                {language === 'ar' ? viewingWorker?.fullNameEn : viewingWorker?.fullNameAr}
               </p>
-              <div style={{ marginTop: 8 }}>{getStatusTag(viewingWorker.workerSatus)}</div>
+              <div style={{ marginTop: 8 }}>{getStatusTag(viewingWorker?.workerSatus)}</div>
             </div>
 
             <Divider />
@@ -1174,52 +1221,52 @@ export default function WorkersPage() {
               style={{ marginBottom: 16 }}
             >
               <Descriptions.Item label={t('referenceNo')}>
-                {viewingWorker.referenceNo || '-'}
+                {viewingWorker?.referenceNo || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('gender')}>
-                {getGenderLabel(viewingWorker.gender)}
+                {getGenderLabel(viewingWorker?.gender)}
               </Descriptions.Item>
               <Descriptions.Item label={t('age')}>
-                {viewingWorker.age ? `${viewingWorker.age} ${t('years')}` : '-'}
+                {viewingWorker?.age ? `${viewingWorker.age} ${t('years')}` : '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('birthDate')}>
-                {viewingWorker.birthDate
+                {viewingWorker?.birthDate
                   ? dayjs(viewingWorker.birthDate).format('YYYY-MM-DD')
                   : '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('maritalStatus')}>
-                {getMaritalLabel(viewingWorker.maritalStatus)}
+                {getMaritalLabel(viewingWorker?.maritalStatus)}
               </Descriptions.Item>
               <Descriptions.Item label={t('childrenCount')}>
-                {viewingWorker.childrenCount ?? '-'}
+                {viewingWorker?.childrenCount ?? '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('religion')}>
-                {viewingWorker.religion === 1
+                {viewingWorker?.religion === 1
                   ? t('muslim')
-                  : viewingWorker.religion === 2
+                  : viewingWorker?.religion === 2
                     ? t('nonMuslim')
-                    : viewingWorker.religion || '-'}
+                    : viewingWorker?.religion || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('nationality')}>
-                {viewingWorker.nationalityId || '-'}
+                {viewingWorker?.nationalityId || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('nationalId')}>
-                {viewingWorker.nationalId || '-'}
+                {viewingWorker?.nationalId || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('educationLevelAr')}>
-                {viewingWorker.educationLevelAr || '-'}
+                {viewingWorker?.educationLevelAr || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('educationLevelEn')}>
-                {viewingWorker.educationLevelEn || '-'}
+                {viewingWorker?.educationLevelEn || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('weight')}>
-                {viewingWorker.weight || '-'}
+                {viewingWorker?.weight || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('height')}>
-                {viewingWorker.height || '-'}
+                {viewingWorker?.height || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('experience')}>
-                {viewingWorker.hasExperience ? t('hasExperience') : t('noExperience')}
+                {viewingWorker?.hasExperience ? t('hasExperience') : t('noExperience')}
               </Descriptions.Item>
             </Descriptions>
 
@@ -1232,23 +1279,23 @@ export default function WorkersPage() {
               style={{ marginBottom: 16 }}
             >
               <Descriptions.Item label={t('passportNo')}>
-                {viewingWorker.passportNo || '-'}
+                {viewingWorker?.passportNo || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('passportIssueDate')}>
-                {viewingWorker.passportIssueDate
+                {viewingWorker?.passportIssueDate
                   ? dayjs(viewingWorker.passportIssueDate).format('YYYY-MM-DD')
                   : '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('passportExpiryDate')}>
-                {viewingWorker.passportExpiryDate
+                {viewingWorker?.passportExpiryDate
                   ? dayjs(viewingWorker.passportExpiryDate).format('YYYY-MM-DD')
                   : '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('passportIssuePlaceAr')}>
-                {viewingWorker.passportIssuePlaceAr || '-'}
+                {viewingWorker?.passportIssuePlaceAr || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('passportIssuePlaceEn')}>
-                {viewingWorker.passportIssuePlaceEn || '-'}
+                {viewingWorker?.passportIssuePlaceEn || '-'}
               </Descriptions.Item>
             </Descriptions>
 
@@ -1261,37 +1308,37 @@ export default function WorkersPage() {
               style={{ marginBottom: 16 }}
             >
               <Descriptions.Item label={t('jobname')}>
-                {viewingWorker.jobname || '-'}
+                {viewingWorker?.jobname || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('basicSalary')}>
-                {viewingWorker.basicSalary || '-'}
+                {viewingWorker?.basicSalary || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('agentName')}>
-                {viewingWorker.agentName || '-'}
+                {viewingWorker?.agentName || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('createdBy')}>
-                {viewingWorker.userName || '-'}
+                {viewingWorker?.userName || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('workerType')}>
-                {viewingWorker.workerType === 1
+                {viewingWorker?.workerType === 1
                   ? language === 'ar'
                     ? 'التوسط'
                     : t('typeMediation')
-                  : viewingWorker.workerType === 2
+                  : viewingWorker?.workerType === 2
                     ? language === 'ar'
                       ? 'التشغيل'
                       : 'Rent/Operation'
-                    : viewingWorker.workerType === 3
+                    : viewingWorker?.workerType === 3
                       ? language === 'ar'
                         ? 'نقل الكفالة'
                         : 'Sponsorship Transfer'
                       : '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('boxNumber')}>
-                {viewingWorker.boxNumber || '-'}
+                {viewingWorker?.boxNumber || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('borderNumber')}>
-                {viewingWorker.borderNumber || '-'}
+                {viewingWorker?.borderNumber || '-'}
               </Descriptions.Item>
             </Descriptions>
 
@@ -1304,9 +1351,11 @@ export default function WorkersPage() {
               style={{ marginBottom: 16 }}
             >
               <Descriptions.Item label={t('mobile')}>
-                {viewingWorker.mobile || '-'}
+                {viewingWorker?.mobile || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label={t('phone')}>{viewingWorker.phone || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('phone')}>
+                {viewingWorker?.phone || '-'}
+              </Descriptions.Item>
             </Descriptions>
 
             {/* Address Details */}
@@ -1318,15 +1367,15 @@ export default function WorkersPage() {
               style={{ marginBottom: 16 }}
             >
               <Descriptions.Item label={t('addressAr')}>
-                {viewingWorker.addressAr || '-'}
+                {viewingWorker?.addressAr || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('addressEn')}>
-                {viewingWorker.addressEn || '-'}
+                {viewingWorker?.addressEn || '-'}
               </Descriptions.Item>
             </Descriptions>
 
             {/* Skills */}
-            {viewingWorker.skills && viewingWorker.skills.length > 0 && (
+            {viewingWorker?.skills && viewingWorker.skills.length > 0 && (
               <div style={{ marginTop: 16 }}>
                 <h4 style={{ color: '#003366', marginBottom: 8 }}>{t('skills')}</h4>
                 <Space wrap>
@@ -1453,11 +1502,7 @@ export default function WorkersPage() {
               </Form.Item>
             </Col>
             <Col xs={24} md={6}>
-              <Form.Item
-                label={t('educationLevelEn')}
-                name="educationLevelEn"
-                rules={[{ required: true }]}
-              >
+              <Form.Item label={t('educationLevelEn')} name="educationLevelEn">
                 <Input size="large" placeholder={t('educationLevelEn')} />
               </Form.Item>
             </Col>
@@ -1491,11 +1536,7 @@ export default function WorkersPage() {
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
-              <Form.Item
-                label={t('passportIssuePlaceEn')}
-                name="passportIssuePlaceEn"
-                rules={[{ required: true }]}
-              >
+              <Form.Item label={t('passportIssuePlaceEn')} name="passportIssuePlaceEn">
                 <Input size="large" placeholder={t('passportIssuePlaceEn')} />
               </Form.Item>
             </Col>
@@ -1539,11 +1580,13 @@ export default function WorkersPage() {
             </Col>
             <Col xs={24} md={8}>
               <Form.Item label={t('agent')} name="agentId">
-                <InputNumber
+                <Select
                   size="large"
-                  style={{ width: '100%' }}
-                  min={1}
                   placeholder={t('agent')}
+                  showSearch
+                  optionFilterProp="label"
+                  style={{ width: '100%' }}
+                  options={availableAgents.map((a) => ({ value: Number(a.value), label: a.label }))}
                 />
               </Form.Item>
             </Col>
