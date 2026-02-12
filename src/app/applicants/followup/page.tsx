@@ -438,7 +438,7 @@ export default function WorkersFollowupPage() {
       title: t('workerName'),
       key: 'name',
       fixed: 'left',
-      width: 180,
+      width: 120,
       render: (_, worker) => (
         <div>
           <div style={{ fontWeight: 600, color: '#003366' }}>
@@ -467,7 +467,7 @@ export default function WorkersFollowupPage() {
     {
       title: t('medicalExamination'),
       key: 'medicalExamination',
-      width: 150,
+      width: 120,
       render: (_, worker) => {
         const workerExam = medicalExaminations.find((exam) => exam.workerId === worker.id);
         if (!workerExam) return '-';
@@ -488,12 +488,12 @@ export default function WorkersFollowupPage() {
       title: t('jobname'),
       dataIndex: 'jobname',
       key: 'jobname',
-      width: 130,
+      width: 120,
     },
     {
       title: t('status'),
       key: 'status',
-      width: 140,
+      width: 120,
       render: (_, worker) => getStatusTag(worker.workerSatus),
     },
     {
