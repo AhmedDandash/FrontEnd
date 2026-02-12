@@ -315,6 +315,18 @@ export interface WorkerActionDto {
   date: string;
 }
 
+export interface MedicalExaminationDto {
+  workerId: number;
+  examDate: string;
+  medicalStatus: number;
+  notes?: string;
+}
+
+export interface MedicalExamination extends MedicalExaminationDto {
+  id: number;
+  createdAt: string;
+}
+
 export interface WorkerDto {
   referenceNo?: string | null;
   fullNameAr?: string | null;

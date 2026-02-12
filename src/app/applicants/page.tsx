@@ -67,6 +67,8 @@ import {
   useCreateWorker,
   useUpdateWorker,
   useDeleteWorker,
+  useCreateMedicalExamination,
+  useMedicalExaminations,
 } from '@/hooks/api/useWorkers';
 import { useAgents } from '@/hooks/api/useAgents';
 import { useJobs } from '@/hooks/api/useJobs';
@@ -233,6 +235,14 @@ const translations = {
     isActiveSaved: 'Active status updated',
     editWorkerFirst: 'Please save worker first before changing active status',
     moreActions: 'More Actions',
+    medicalExamination: 'Medical Examination',
+    examDate: 'Examination Date',
+    medicalStatus: 'Medical Status',
+    notes: 'Notes',
+    medicalStatusPassed: 'Passed',
+    medicalStatusFailed: 'Failed',
+    medicalStatusPending: 'Pending',
+    createMedicalExam: 'Create Medical Examination',
   },
   ar: {
     pageTitle: 'ادارة العمالة',
@@ -391,6 +401,14 @@ const translations = {
     isActiveSaved: 'تم تحديث حالة النشاط',
     editWorkerFirst: 'يرجى حفظ العامل أولاً قبل تعديل حالة النشاط',
     moreActions: 'المزيد من الإجراءات',
+    medicalExamination: 'الفحص الطبي',
+    examDate: 'تاريخ الفحص',
+    medicalStatus: 'الحالة الطبية',
+    notes: 'ملاحظات',
+    medicalStatusPassed: 'ناجح',
+    medicalStatusFailed: 'راسب',
+    medicalStatusPending: 'قيد الانتظار',
+    createMedicalExam: 'إنشاء فحص طبي',
   },
 };
 
@@ -400,6 +418,7 @@ export default function WorkersPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [editingWorkerId, setEditingWorkerId] = useState<number | null>(null);
   const [viewingWorkerId, setViewingWorkerId] = useState<number | null>(null);
+  const [medicalExamWorkerId, setMedicalExamWorkerId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [filters, setFilters] = useState<{
     search?: string;
@@ -415,6 +434,7 @@ export default function WorkersPage() {
     deletionStatus?: string;
   }>({});
   const [form] = Form.useForm();
+  const [medicalExamForm] = Form.useForm();
 
   const t = (key: keyof typeof translations.en) => {
     const lang = translations[language];
@@ -424,6 +444,7 @@ export default function WorkersPage() {
   const { data: workers = [], isLoading } = useWorkers();
   const { data: jobs = [] } = useJobs();
   const { data: agents = [] } = useAgents();
+  const { data: medicalExaminations = [] } = useMedicalExaminations();
 
   // Only show active jobs in the filter
   const availableJobs = useMemo(() => {
@@ -457,6 +478,8 @@ export default function WorkersPage() {
   const { mutate: workerSick } = useWorkerSick();
   const { mutate: workerDeactivate, isPending: isDeactivating } = useWorkerDeactivate();
   const { mutate: workerOut } = useWorkerOut();
+  const { mutate: createMedicalExamination, isPending: isCreatingMedicalExam } =
+    useCreateMedicalExamination();
 
   // Fetch editing worker details when opening edit modal
   const { data: editingWorker } = useWorker(editingWorkerId ? String(editingWorkerId) : undefined);
@@ -593,6 +616,25 @@ export default function WorkersPage() {
       createWorker(workerData);
     }
     handleCloseModal();
+  };
+
+  const handleMedicalExamSubmit = async (values: any) => {
+    if (medicalExamWorkerId === null) return;
+
+    createMedicalExamination(
+      {
+        workerId: medicalExamWorkerId,
+        examDate: values.examDate?.format('YYYY-MM-DD'),
+        medicalStatus: Number(values.medicalStatus),
+        notes: values.notes || '',
+      },
+      {
+        onSuccess: () => {
+          medicalExamForm.resetFields();
+          setMedicalExamWorkerId(null);
+        },
+      }
+    );
   };
 
   const handleDelete = (id: number) => {
@@ -1242,6 +1284,25 @@ export default function WorkersPage() {
                     <span className={styles.detailLabel}>{t('agentName')}:</span>
                     <span className={styles.detailValue}>{worker.agentName || 'N/A'}</span>
                   </div>
+
+                  {/* Medical Examination */}
+                  {medicalExaminations.find((exam) => exam.workerId === worker.id) && (
+                    <div className={styles.detailRow}>
+                      <MedicineBoxOutlined className={styles.detailIcon} />
+                      <span className={styles.detailLabel}>{t('medicalExamination')}:</span>
+                      <span className={styles.detailValue}>
+                        {(() => {
+                          const exam = medicalExaminations.find((e) => e.workerId === worker.id);
+                          const statusMap: Record<number, string> = {
+                            0: language === 'ar' ? 'قيد الانتظار' : 'Pending',
+                            1: language === 'ar' ? 'ناجح' : 'Passed',
+                            2: language === 'ar' ? 'راسب' : 'Failed',
+                          };
+                          return exam ? statusMap[exam.medicalStatus] || 'N/A' : 'N/A';
+                        })()}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Badges */}
@@ -1259,7 +1320,7 @@ export default function WorkersPage() {
                       {t('hasExperience')}
                     </Tag>
                   )}
-                  {worker.religion !== undefined && worker.religion !== null && (
+                  {/* {worker.religion !== undefined && worker.religion !== null && (
                     <Tag color="cyan">
                       {worker.religion === 1
                         ? t('muslim')
@@ -1267,10 +1328,10 @@ export default function WorkersPage() {
                           ? t('nonMuslim')
                           : worker.religion}
                     </Tag>
-                  )}
+                  )} */}
                 </div>
 
-                {worker.skills && worker.skills.length > 0 && (
+                {/* {worker.skills && worker.skills.length > 0 && (
                   <div className={styles.workerSkills}>
                     <p className={styles.skillsTitle}>{t('skills')}:</p>
                     <div className={styles.skillsList}>
@@ -1281,7 +1342,7 @@ export default function WorkersPage() {
                       ))}
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
 
               <div className={styles.workerCardActions}>
@@ -1299,6 +1360,14 @@ export default function WorkersPage() {
                     icon={<EditOutlined />}
                     className={styles.actionButton}
                     onClick={() => handleOpenModal(worker)}
+                  />
+                </Tooltip>
+                <Tooltip title={t('medicalExamination')}>
+                  <Button
+                    type="text"
+                    icon={<MedicineBoxOutlined />}
+                    className={styles.actionButton}
+                    onClick={() => setMedicalExamWorkerId(worker.id)}
                   />
                 </Tooltip>
                 <Dropdown menu={getActionMenu(worker)} trigger={['click']}>
@@ -1808,6 +1877,74 @@ export default function WorkersPage() {
               icon={editingWorkerId !== null ? <EditOutlined /> : <PlusOutlined />}
             >
               {editingWorkerId !== null ? t('updateWorker') : t('createWorker')}
+            </Button>
+          </div>
+        </Form>
+      </Modal>
+
+      {/* Medical Examination Modal */}
+      <Modal
+        title={
+          <Space>
+            <MedicineBoxOutlined />
+            <span>{t('createMedicalExam')}</span>
+          </Space>
+        }
+        open={medicalExamWorkerId !== null}
+        onCancel={() => {
+          setMedicalExamWorkerId(null);
+          medicalExamForm.resetFields();
+        }}
+        footer={null}
+        width={600}
+        className={styles.modal}
+      >
+        <Form
+          form={medicalExamForm}
+          layout="vertical"
+          onFinish={handleMedicalExamSubmit}
+          className={styles.modalForm}
+        >
+          <Form.Item
+            label={t('examDate')}
+            name="examDate"
+            rules={[{ required: true, message: 'Please select examination date' }]}
+          >
+            <DatePicker size="large" style={{ width: '100%' }} />
+          </Form.Item>
+
+          <Form.Item
+            label={t('medicalStatus')}
+            name="medicalStatus"
+            rules={[{ required: true, message: 'Please select medical status' }]}
+          >
+            <Select size="large" placeholder={t('medicalStatus')}>
+              <Select.Option value={0}>{t('medicalStatusPending')}</Select.Option>
+              <Select.Option value={1}>{t('medicalStatusPassed')}</Select.Option>
+              <Select.Option value={2}>{t('medicalStatusFailed')}</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item label={t('notes')} name="notes">
+            <Input.TextArea rows={4} placeholder={t('notes')} />
+          </Form.Item>
+
+          <div className={styles.modalActions}>
+            <Button
+              onClick={() => {
+                setMedicalExamWorkerId(null);
+                medicalExamForm.resetFields();
+              }}
+            >
+              {t('cancel')}
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={isCreatingMedicalExam}
+              icon={<MedicineBoxOutlined />}
+            >
+              {t('createMedicalExam')}
             </Button>
           </div>
         </Form>

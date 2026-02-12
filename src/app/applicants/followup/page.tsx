@@ -37,17 +37,16 @@ import {
   DownOutlined,
   FileTextOutlined,
   FileExcelOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
 import {
   useWorkers,
-  useWorkerEscape,
-  useWorkerRefused,
-  useWorkerSick,
-  useWorkerDeactivate,
-  useWorkerOut,
+  useMedicalExaminations,
+  useUpdateMedicalExamination,
+  useDeleteMedicalExamination,
 } from '@/hooks/api/useWorkers';
-import type { Worker, WorkerActionDto } from '@/types/api.types';
+import type { Worker } from '@/types/api.types';
 import styles from './WorkersFollowup.module.css';
 import dayjs from 'dayjs';
 
@@ -69,6 +68,7 @@ const translations = {
     pending: 'Pending',
     escaped: 'Escaped',
     refused: 'Refused',
+    jobname: 'Job',
     sick: 'Sick',
     out: 'Out',
     reference: 'Ref',
@@ -89,6 +89,8 @@ const translations = {
     workerMobile: 'Worker Mobile',
     whatsApp: 'WhatsApp',
     lastUpdate: 'Last Update',
+    username: 'Username',
+    medicalExamination: 'Medical Examination',
     branch: 'Branch',
     employee: 'Employee',
     job: 'Job',
@@ -122,6 +124,18 @@ const translations = {
     cancel: 'Cancel',
     selectDate: 'Select Date',
     date: 'Date',
+    updateMedicalExam: 'Update Medical Examination',
+    deleteMedicalExam: 'Delete Medical Examination',
+    confirmDeleteExam: 'Are you sure you want to delete this medical examination?',
+    examDate: 'Examination Date',
+    medicalStatus: 'Medical Status',
+    notes: 'Notes',
+    medicalStatusPassed: 'Passed',
+    medicalStatusFailed: 'Failed',
+    medicalStatusPending: 'Pending',
+    noMedicalExam: 'No medical examination record',
+    delete: 'Delete',
+    update: 'Update',
     // Status options
     statusReceived: 'Worker Received',
     statusEscaped: 'Worker Escaped',
@@ -168,6 +182,9 @@ const translations = {
     workerMobile: 'جوال العامل',
     whatsApp: 'واتساب',
     lastUpdate: 'آخر تحديث',
+    jobname: 'الوظيفة',
+    username: 'اسم المستخدم',
+    medicalExamination: 'الفحص الطبي',
     branch: 'الفرع',
     employee: 'الموظف',
     job: 'الوظيفة',
@@ -201,6 +218,18 @@ const translations = {
     cancel: 'إلغاء',
     selectDate: 'اختر التاريخ',
     date: 'التاريخ',
+    updateMedicalExam: 'تحديث الفحص الطبي',
+    deleteMedicalExam: 'حذف الفحص الطبي',
+    confirmDeleteExam: 'هل أنت متأكد من حذف هذا الفحص الطبي؟',
+    examDate: 'تاريخ الفحص',
+    medicalStatus: 'الحالة الطبية',
+    notes: 'ملاحظات',
+    medicalStatusPassed: 'ناجح',
+    medicalStatusFailed: 'راسب',
+    medicalStatusPending: 'قيد الانتظار',
+    noMedicalExam: 'لا يوجد سجل فحص طبي',
+    delete: 'حذف',
+    update: 'تحديث',
     // Status options
     statusReceived: 'استلام العامل',
     statusEscaped: 'هروب العامل',
@@ -227,21 +256,22 @@ export default function WorkersFollowupPage() {
     arrivalDateFrom?: dayjs.Dayjs;
     arrivalDateTo?: dayjs.Dayjs;
   }>({});
-  const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
-  const [actionType, setActionType] = useState<string>('');
-  const [isActionModalOpen, setIsActionModalOpen] = useState(false);
-  const [actionDate, setActionDate] = useState<dayjs.Dayjs>(dayjs());
+  const [editingExamId, setEditingExamId] = useState<number | null>(null);
+  const [isExamModalOpen, setIsExamModalOpen] = useState(false);
+  const [examFormData, setExamFormData] = useState<{
+    examDate: dayjs.Dayjs;
+    medicalStatus: number;
+    notes: string;
+  }>({ examDate: dayjs(), medicalStatus: 0, notes: '' });
 
   const t = (key: keyof typeof translations.en) => {
     return translations[language][key] || key;
   };
 
   const { data: workers = [], isLoading } = useWorkers();
-  const { mutate: workerEscape, isPending: isEscaping } = useWorkerEscape();
-  const { mutate: workerRefused, isPending: isRefusing } = useWorkerRefused();
-  const { mutate: workerSick, isPending: isSicking } = useWorkerSick();
-  const { mutate: workerDeactivate, isPending: isDeactivating } = useWorkerDeactivate();
-  const { mutate: workerOut, isPending: isOuting } = useWorkerOut();
+  const { data: medicalExaminations = [] } = useMedicalExaminations();
+  const { mutate: updateMedicalExam, isPending: isUpdating } = useUpdateMedicalExamination();
+  const { mutate: deleteMedicalExam } = useDeleteMedicalExamination();
 
   // Filter workers
   const filteredWorkers = useMemo(() => {
@@ -285,49 +315,6 @@ export default function WorkersFollowupPage() {
     },
   };
 
-  // Action handlers
-  const handleOpenActionModal = (worker: Worker, type: string) => {
-    setSelectedWorker(worker);
-    setActionType(type);
-    setActionDate(dayjs());
-    setIsActionModalOpen(true);
-  };
-
-  const handleCloseActionModal = () => {
-    setIsActionModalOpen(false);
-    setSelectedWorker(null);
-    setActionType('');
-  };
-
-  const handleConfirmAction = () => {
-    if (!selectedWorker) return;
-
-    const actionData: WorkerActionDto = {
-      id: selectedWorker.id,
-      date: actionDate.toISOString(),
-    };
-
-    switch (actionType) {
-      case 'escape':
-        workerEscape(actionData);
-        break;
-      case 'refused':
-        workerRefused(actionData);
-        break;
-      case 'sick':
-        workerSick(actionData);
-        break;
-      case 'deactivate':
-        workerDeactivate(actionData);
-        break;
-      case 'out':
-        workerOut(actionData);
-        break;
-    }
-
-    handleCloseActionModal();
-  };
-
   const handleClearFilters = () => {
     setFilters({});
   };
@@ -354,41 +341,96 @@ export default function WorkersFollowupPage() {
     );
   };
 
-  // Action menu for each row
-  const getActionMenu = (worker: Worker): MenuProps => ({
-    items: [
+  // Handlers for medical examination
+  const handleOpenUpdateExamModal = (worker: Worker) => {
+    const exam = medicalExaminations.find((e) => e.workerId === worker.id);
+    if (!exam) return;
+
+    setEditingExamId(exam.id);
+    setExamFormData({
+      examDate: exam.examDate ? dayjs(exam.examDate) : dayjs(),
+      medicalStatus: exam.medicalStatus,
+      notes: exam.notes || '',
+    });
+    setIsExamModalOpen(true);
+  };
+
+  const handleDeleteExam = (worker: Worker) => {
+    const exam = medicalExaminations.find((e) => e.workerId === worker.id);
+    if (!exam) return;
+
+    Modal.confirm({
+      title: t('deleteMedicalExam'),
+      icon: <ExclamationCircleOutlined />,
+      content: t('confirmDeleteExam'),
+      okText: t('delete'),
+      cancelText: t('cancel'),
+      okButtonProps: { danger: true },
+      onOk: () => deleteMedicalExam(exam.id),
+    });
+  };
+
+  const handleUpdateExam = () => {
+    if (!editingExamId) return;
+
+    updateMedicalExam(
       {
-        key: 'escape',
-        label: t('markEscape'),
-        icon: <ExclamationCircleOutlined />,
-        onClick: () => handleOpenActionModal(worker, 'escape'),
+        id: editingExamId,
+        data: {
+          examDate: examFormData.examDate.format('YYYY-MM-DD'),
+          medicalStatus: examFormData.medicalStatus,
+          notes: examFormData.notes,
+        },
       },
       {
-        key: 'refused',
-        label: t('markRefused'),
-        icon: <CloseCircleOutlined />,
-        onClick: () => handleOpenActionModal(worker, 'refused'),
-      },
-      {
-        key: 'sick',
-        label: t('markSick'),
-        icon: <MedicineBoxOutlined />,
-        onClick: () => handleOpenActionModal(worker, 'sick'),
-      },
-      {
-        key: 'deactivate',
-        label: t('deactivate'),
-        icon: <StopOutlined />,
-        onClick: () => handleOpenActionModal(worker, 'deactivate'),
-      },
-      {
-        key: 'out',
-        label: t('markOut'),
-        icon: <LogoutOutlined />,
-        onClick: () => handleOpenActionModal(worker, 'out'),
-      },
-    ],
-  });
+        onSuccess: () => {
+          setIsExamModalOpen(false);
+          setEditingExamId(null);
+        },
+      }
+    );
+  };
+
+  const handleCloseExamModal = () => {
+    setIsExamModalOpen(false);
+    setEditingExamId(null);
+    setExamFormData({ examDate: dayjs(), medicalStatus: 0, notes: '' });
+  };
+
+  // Action menu for each row - only medical examination actions
+  const getActionMenu = (worker: Worker): MenuProps => {
+    const exam = medicalExaminations.find((e) => e.workerId === worker.id);
+
+    if (!exam) {
+      return {
+        items: [
+          {
+            key: 'no-exam',
+            label: t('noMedicalExam'),
+            disabled: true,
+          },
+        ],
+      };
+    }
+
+    return {
+      items: [
+        {
+          key: 'update',
+          label: t('updateMedicalExam'),
+          icon: <EditOutlined />,
+          onClick: () => handleOpenUpdateExamModal(worker),
+        },
+        {
+          key: 'delete',
+          label: t('deleteMedicalExam'),
+          icon: <DeleteOutlined />,
+          danger: true,
+          onClick: () => handleDeleteExam(worker),
+        },
+      ],
+    };
+  };
 
   // Table columns matching the HTML
   const columns: TableColumnsType<Worker> = [
@@ -412,7 +454,7 @@ export default function WorkersFollowupPage() {
     },
     {
       title: t('agent'),
-      dataIndex: 'agentId',
+      dataIndex: 'agentName',
       key: 'agent',
       width: 120,
     },
@@ -423,48 +465,30 @@ export default function WorkersFollowupPage() {
       width: 140,
     },
     {
-      title: t('contractNo'),
-      dataIndex: 'contractNo',
-      key: 'contractNo',
-      width: 130,
-    },
-    {
-      title: t('visaNo'),
-      dataIndex: 'visaNo',
-      key: 'visaNo',
-      width: 130,
-    },
-    {
-      title: t('arrivalDate'),
-      dataIndex: 'arrivalDate',
-      key: 'arrivalDate',
-      width: 130,
-      render: (date: string) => (date ? dayjs(date).format('YYYY-MM-DD') : '-'),
-    },
-    {
-      title: t('customerName'),
-      dataIndex: 'customerName',
-      key: 'customerName',
+      title: t('medicalExamination'),
+      key: 'medicalExamination',
       width: 150,
+      render: (_, worker) => {
+        const workerExam = medicalExaminations.find((exam) => exam.workerId === worker.id);
+        if (!workerExam) return '-';
+        const statusMap: Record<number, { label: string; color: string }> = {
+          0: { label: language === 'ar' ? 'قيد الانتظار' : 'Pending', color: 'default' },
+          1: { label: language === 'ar' ? 'ناجح' : 'Passed', color: 'success' },
+          2: { label: language === 'ar' ? 'راسب' : 'Failed', color: 'error' },
+        };
+        const status = statusMap[workerExam.medicalStatus] || statusMap[0];
+        return (
+          <Tag color={status.color} icon={<MedicineBoxOutlined />}>
+            {status.label}
+          </Tag>
+        );
+      },
     },
     {
-      title: t('customerMobile'),
-      dataIndex: 'customerMobile',
-      key: 'customerMobile',
-      width: 140,
-    },
-    {
-      title: t('workerMobile'),
-      dataIndex: 'mobile',
-      key: 'workerMobile',
-      width: 140,
-    },
-    {
-      title: t('lastUpdate'),
-      dataIndex: 'updatedAt',
-      key: 'lastUpdate',
+      title: t('jobname'),
+      dataIndex: 'jobname',
+      key: 'jobname',
       width: 130,
-      render: (date: string) => (date ? dayjs(date).format('YYYY-MM-DD') : '-'),
     },
     {
       title: t('status'),
@@ -473,15 +497,9 @@ export default function WorkersFollowupPage() {
       render: (_, worker) => getStatusTag(worker.workerSatus),
     },
     {
-      title: t('branch'),
-      dataIndex: 'branchId',
-      key: 'branch',
-      width: 120,
-    },
-    {
-      title: t('employee'),
-      dataIndex: 'employeeId',
-      key: 'employee',
+      title: t('username'),
+      dataIndex: 'userName',
+      key: 'username',
       width: 120,
     },
     {
@@ -490,14 +508,11 @@ export default function WorkersFollowupPage() {
       fixed: 'right',
       width: 120,
       render: (_, worker) => (
-        <Space>
-          <Button type="text" size="small" icon={<EditOutlined />} className={styles.editBtn} />
-          <Dropdown menu={getActionMenu(worker)} trigger={['click']}>
-            <Button type="text" size="small" className={styles.actionDropdownBtn}>
-              {t('actions')} <DownOutlined />
-            </Button>
-          </Dropdown>
-        </Space>
+        <Dropdown menu={getActionMenu(worker)} trigger={['click']}>
+          <Button type="text" size="small" className={styles.actionDropdownBtn}>
+            {t('actions')} <DownOutlined />
+          </Button>
+        </Dropdown>
       ),
     },
   ];
@@ -778,45 +793,67 @@ export default function WorkersFollowupPage() {
         />
       </Card>
 
-      {/* Action Confirmation Modal */}
+      {/* Update Medical Examination Modal */}
       <Modal
-        title={t('confirmAction')}
-        open={isActionModalOpen}
-        onCancel={handleCloseActionModal}
+        title={
+          <Space>
+            <MedicineBoxOutlined />
+            <span>{t('updateMedicalExam')}</span>
+          </Space>
+        }
+        open={isExamModalOpen}
+        onCancel={handleCloseExamModal}
         footer={null}
-        width={500}
+        width={600}
         className={styles.modal}
       >
         <Space direction="vertical" style={{ width: '100%' }} size={16}>
-          <p>
-            {actionType === 'escape' && t('confirmEscape')}
-            {actionType === 'refused' && t('confirmRefused')}
-            {actionType === 'sick' && t('confirmSick')}
-            {actionType === 'deactivate' && t('confirmDeactivate')}
-            {actionType === 'out' && t('confirmOut')}
-          </p>
-
           <div>
-            <label className={styles.filterLabel}>{t('date')}</label>
+            <label className={styles.filterLabel}>{t('examDate')}</label>
             <DatePicker
-              value={actionDate}
-              onChange={(date) => setActionDate(date || dayjs())}
+              value={examFormData.examDate}
+              onChange={(date) => setExamFormData({ ...examFormData, examDate: date || dayjs() })}
               style={{ width: '100%' }}
               size="large"
             />
           </div>
 
+          <div>
+            <label className={styles.filterLabel}>{t('medicalStatus')}</label>
+            <Select
+              value={examFormData.medicalStatus}
+              onChange={(value) => setExamFormData({ ...examFormData, medicalStatus: value })}
+              style={{ width: '100%' }}
+              size="large"
+            >
+              <Select.Option value={0}>{t('medicalStatusPending')}</Select.Option>
+              <Select.Option value={1}>{t('medicalStatusPassed')}</Select.Option>
+              <Select.Option value={2}>{t('medicalStatusFailed')}</Select.Option>
+            </Select>
+          </div>
+
+          <div>
+            <label className={styles.filterLabel}>{t('notes')}</label>
+            <Input.TextArea
+              value={examFormData.notes}
+              onChange={(e) => setExamFormData({ ...examFormData, notes: e.target.value })}
+              rows={4}
+              placeholder={t('notes')}
+            />
+          </div>
+
           <div className={styles.modalActions}>
-            <Button className={styles.cancelButton} onClick={handleCloseActionModal}>
+            <Button className={styles.cancelButton} onClick={handleCloseExamModal}>
               {t('cancel')}
             </Button>
             <Button
               type="primary"
               className={styles.submitButton}
-              onClick={handleConfirmAction}
-              loading={isEscaping || isRefusing || isSicking || isDeactivating || isOuting}
+              onClick={handleUpdateExam}
+              loading={isUpdating}
+              icon={<EditOutlined />}
             >
-              {t('yes')}
+              {t('update')}
             </Button>
           </div>
         </Space>

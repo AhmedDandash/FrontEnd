@@ -1,9 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
-import type { Worker, WorkerDto, WorkerActionDto } from '@/types/api.types';
+import type {
+  Worker,
+  WorkerDto,
+  WorkerActionDto,
+  MedicalExaminationDto,
+  MedicalExamination,
+} from '@/types/api.types';
 import { api } from '@/lib/api/client';
 
 const WORKERS_KEY = ['workers'];
+const MEDICAL_EXAMINATIONS_KEY = ['medical-examinations'];
 
 /**
  * Fetch all workers
@@ -201,6 +208,88 @@ export function useWorkerOut() {
     },
     onError: (error: any) => {
       message.error(error.response?.data?.message || 'Failed to update worker status');
+    },
+  });
+}
+
+/**
+ * Create medical examination for a worker
+ */
+export function useCreateMedicalExamination() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: MedicalExaminationDto) => {
+      const response = await api.post('/api/Worker/CreateMedicalExamination', data);
+      return response.data;
+    },
+    onSuccess: (result: any) => {
+      queryClient.invalidateQueries({ queryKey: WORKERS_KEY });
+      queryClient.invalidateQueries({ queryKey: MEDICAL_EXAMINATIONS_KEY });
+      message.success(result?.message || 'Medical examination created successfully');
+    },
+    onError: (error: any) => {
+      message.error(error.response?.data?.message || 'Failed to create medical examination');
+    },
+  });
+}
+
+/**
+ * Get all medical examinations
+ */
+export function useMedicalExaminations() {
+  return useQuery<MedicalExamination[]>({
+    queryKey: MEDICAL_EXAMINATIONS_KEY,
+    queryFn: async () => {
+      const response = await api.get('/api/Worker/GetAllMedicalExamination');
+      const payload = response.data;
+      if (Array.isArray(payload)) return payload as MedicalExamination[];
+      if (payload && Array.isArray(payload.data)) return payload.data as MedicalExamination[];
+      return [] as MedicalExamination[];
+    },
+  });
+}
+
+/**
+ * Update medical examination
+ */
+export function useUpdateMedicalExamination() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<MedicalExaminationDto> }) => {
+      const response = await api.put(`/api/Worker/UpdateMedicalExamination/${id}`, data);
+      return response.data;
+    },
+    onSuccess: (result: any) => {
+      queryClient.invalidateQueries({ queryKey: WORKERS_KEY });
+      queryClient.invalidateQueries({ queryKey: MEDICAL_EXAMINATIONS_KEY });
+      message.success(result?.message || 'Medical examination updated successfully');
+    },
+    onError: (error: any) => {
+      message.error(error.response?.data?.message || 'Failed to update medical examination');
+    },
+  });
+}
+
+/**
+ * Delete medical examination
+ */
+export function useDeleteMedicalExamination() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const response = await api.delete(`/api/Worker/DeleteMedicalExamination/${id}`);
+      return response.data;
+    },
+    onSuccess: (result: any) => {
+      queryClient.invalidateQueries({ queryKey: WORKERS_KEY });
+      queryClient.invalidateQueries({ queryKey: MEDICAL_EXAMINATIONS_KEY });
+      message.success(result?.message || 'Medical examination deleted successfully');
+    },
+    onError: (error: any) => {
+      message.error(error.response?.data?.message || 'Failed to delete medical examination');
     },
   });
 }
