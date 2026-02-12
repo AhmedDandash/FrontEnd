@@ -281,7 +281,7 @@ export default function BranchPage() {
               <div className={styles.statInfo}>
                 <p className={styles.statLabel}>{t('mainBranch')}</p>
                 <h3 className={styles.statValue}>
-                  {branches?.filter((b) => b.mainBranch === null).length || 0}
+                  {branches?.filter((b) => b.mainBranch === 1).length || 0}
                 </h3>
               </div>
             </div>
@@ -312,10 +312,10 @@ export default function BranchPage() {
                       <Space size={8}>
                         <Badge status="success" text={t('active')} />
                         <Tag
-                          color={branch.mainBranch === null ? 'blue' : 'default'}
+                          color={branch.mainBranch === 1 ? 'blue' : 'default'}
                           className={styles.branchTag}
                         >
-                          {branch.mainBranch === null ? t('mainBranch') : t('subBranch')}
+                          {branch.mainBranch === 1 ? t('mainBranch') : t('subBranch')}
                         </Tag>
                       </Space>
                     </div>
