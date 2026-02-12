@@ -26,17 +26,19 @@ export function useWorkers() {
  * Fetch a single worker by ID
  */
 export function useWorker(id: string | undefined) {
+  const normalizedId = id && id !== 'undefined' ? id : undefined;
+
   return useQuery<Worker>({
-    queryKey: [...WORKERS_KEY, id],
+    queryKey: [...WORKERS_KEY, normalizedId],
     queryFn: async () => {
-      if (!id) throw new Error('Worker ID is required');
-      const response = await api.get(`/api/Worker/${id}`);
+      if (!normalizedId) throw new Error('Worker ID is required');
+      const response = await api.get(`/api/Worker/${normalizedId}`);
       const payload = response.data;
       // If API wraps the object in { data: { ... } }
       if (payload && payload.data) return payload.data as Worker;
       return payload as Worker;
     },
-    enabled: !!id,
+    enabled: !!normalizedId,
   });
 }
 
@@ -170,11 +172,12 @@ export function useWorkerDeactivate() {
 
   return useMutation({
     mutationFn: async (data: WorkerActionDto) => {
-      await api.post('/api/Worker/WorkerIsNoActive', data);
+      const response = await api.post('/api/Worker/WorkerIsNoActive', data);
+      return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (result: any) => {
       queryClient.invalidateQueries({ queryKey: WORKERS_KEY });
-      message.success('Worker deactivated successfully');
+      message.success(result?.message || 'Worker deactivated successfully');
     },
     onError: (error: any) => {
       message.error(error.response?.data?.message || 'Failed to deactivate worker');

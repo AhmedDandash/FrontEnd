@@ -51,11 +51,19 @@ import {
   StopOutlined,
   ManOutlined,
   WomanOutlined,
+  MedicineBoxOutlined,
+  CloseCircleOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
 import {
   useWorkers,
   useWorker,
+  useWorkerEscape,
+  useWorkerRefused,
+  useWorkerSick,
+  useWorkerDeactivate,
+  useWorkerOut,
   useCreateWorker,
   useUpdateWorker,
   useDeleteWorker,
@@ -121,6 +129,8 @@ const translations = {
     experience: 'Experience',
     hasExperience: 'Has Experience',
     noExperience: 'No Experience',
+    isActive: 'Active Status',
+    isActiveLabel: 'Is Active',
     approvalStatus: 'Approval Status',
     approved: 'Approved',
     notApproved: 'Not Approved',
@@ -173,6 +183,7 @@ const translations = {
     birthDate: 'Birth Date',
     status: 'Status',
     active: 'Active',
+    inactive: 'Inactive',
     pending: 'Pending',
     refused: 'Refused',
     single: 'Single',
@@ -209,6 +220,19 @@ const translations = {
     agentName: 'Agent Name',
     createdBy: 'Created By',
     workerImage: 'Worker Photo',
+    markEscape: 'Mark Escaped',
+    markRefused: 'Mark Refused',
+    markSick: 'Mark Sick',
+    deactivate: 'Deactivate',
+    markOut: 'Mark Out',
+    statusActionReceived: 'Worker Received',
+    statusActionSuspended: 'Suspended',
+    statusActionFinalExit: 'Final Exit',
+    statusActionReturnWork: 'Return to Work',
+    confirmStatusUpdate: 'Are you sure you want to update this worker status?',
+    isActiveSaved: 'Active status updated',
+    editWorkerFirst: 'Please save worker first before changing active status',
+    moreActions: 'More Actions',
   },
   ar: {
     pageTitle: 'ادارة العمالة',
@@ -263,6 +287,8 @@ const translations = {
     experience: 'سبق له العمل',
     hasExperience: 'سبق له العمل',
     noExperience: 'لم يسبق له العمل',
+    isActive: 'حالة النشاط',
+    isActiveLabel: 'نشط',
     approvalStatus: 'حالة الموافقة',
     approved: 'تم الموافقة',
     notApproved: 'لم يتم الموافقة',
@@ -315,6 +341,7 @@ const translations = {
     birthDate: 'تاريخ الميلاد',
     status: 'الحالة',
     active: 'نشط',
+    inactive: 'غير نشط',
     pending: 'قيد الانتظار',
     refused: 'مرفوض',
     single: 'أعزب',
@@ -351,6 +378,19 @@ const translations = {
     agentName: 'اسم الوكيل',
     createdBy: 'تم الانشاء بواسطة',
     workerImage: 'صورة العامل',
+    markEscape: 'تسجيل هروب',
+    markRefused: 'تسجيل رفض',
+    markSick: 'تسجيل مرض',
+    deactivate: 'إيقاف',
+    markOut: 'تسجيل خروج',
+    statusActionReceived: 'استلام العامل',
+    statusActionSuspended: 'ايقاف مؤقت',
+    statusActionFinalExit: 'خروج نهائي',
+    statusActionReturnWork: 'العودة الى العمل',
+    confirmStatusUpdate: 'هل أنت متأكد من تحديث حالة العامل؟',
+    isActiveSaved: 'تم تحديث حالة النشاط',
+    editWorkerFirst: 'يرجى حفظ العامل أولاً قبل تعديل حالة النشاط',
+    moreActions: 'المزيد من الإجراءات',
   },
 };
 
@@ -412,11 +452,14 @@ export default function WorkersPage() {
   const { mutate: createWorker, isPending: isCreating } = useCreateWorker();
   const { mutate: updateWorker, isPending: isUpdating } = useUpdateWorker();
   const { mutate: deleteWorker } = useDeleteWorker();
+  const { mutate: workerEscape } = useWorkerEscape();
+  const { mutate: workerRefused } = useWorkerRefused();
+  const { mutate: workerSick } = useWorkerSick();
+  const { mutate: workerDeactivate, isPending: isDeactivating } = useWorkerDeactivate();
+  const { mutate: workerOut } = useWorkerOut();
 
   // Fetch editing worker details when opening edit modal
-  const { data: editingWorker } = useWorker(
-    editingWorkerId ? String(editingWorkerId) : undefined
-  );
+  const { data: editingWorker } = useWorker(editingWorkerId ? String(editingWorkerId) : undefined);
 
   // Fetch single worker details when viewing
   const { data: viewingWorker, isLoading: isViewingLoading } = useWorker(
@@ -496,7 +539,7 @@ export default function WorkersPage() {
 
   // Modal handlers
   const handleOpenModal = (worker?: Worker) => {
-    if (worker) {
+    if (worker?.id) {
       setEditingWorkerId(worker.id);
     } else {
       setEditingWorkerId(null);
@@ -528,21 +571,24 @@ export default function WorkersPage() {
   }, [editingWorker, form]);
 
   const handleSubmit = async (values: any) => {
+    const { isActive: _isActive, ...restValues } = values;
     const workerData: WorkerDto = {
-      ...values,
-      birthDate: values.birthDate?.format('YYYY-MM-DD'),
-      passportIssueDate: values.passportIssueDate?.format('YYYY-MM-DD'),
-      passportExpiryDate: values.passportExpiryDate?.format('YYYY-MM-DD'),
-      gender: values.gender !== undefined ? Number(values.gender) : undefined,
-      maritalStatus: values.maritalStatus !== undefined ? Number(values.maritalStatus) : undefined,
-      nationalityId: values.nationalityId ? Number(values.nationalityId) : undefined,
-      jobId: values.jobId ? Number(values.jobId) : undefined,
-      agentId: values.agentId ? Number(values.agentId) : undefined,
-      workerType: values.workerType ? Number(values.workerType) : undefined,
+      ...restValues,
+      birthDate: restValues.birthDate?.format('YYYY-MM-DD'),
+      passportIssueDate: restValues.passportIssueDate?.format('YYYY-MM-DD'),
+      passportExpiryDate: restValues.passportExpiryDate?.format('YYYY-MM-DD'),
+      gender: restValues.gender !== undefined ? Number(restValues.gender) : undefined,
+      maritalStatus:
+        restValues.maritalStatus !== undefined ? Number(restValues.maritalStatus) : undefined,
+      nationalityId: restValues.nationalityId ? Number(restValues.nationalityId) : undefined,
+      jobId: restValues.jobId ? Number(restValues.jobId) : undefined,
+      agentId: restValues.agentId ? Number(restValues.agentId) : undefined,
+      workerType: restValues.workerType ? Number(restValues.workerType) : undefined,
+      workerSatus: restValues.workerSatus ? Number(restValues.workerSatus) : undefined,
     };
 
-    if (editingWorker) {
-      updateWorker({ id: editingWorker.id, data: workerData });
+    if (editingWorkerId !== null) {
+      updateWorker({ id: editingWorkerId, data: workerData });
     } else {
       createWorker(workerData);
     }
@@ -563,6 +609,59 @@ export default function WorkersPage() {
 
   const handleClearFilters = () => {
     setFilters({});
+  };
+
+  const handleWorkerStatusAction = (worker: Worker, action: string) => {
+    const actionDate = new Date().toISOString();
+
+    switch (action) {
+      case 'escape':
+        workerEscape({ id: worker.id, date: actionDate });
+        break;
+      case 'refused':
+        workerRefused({ id: worker.id, date: actionDate });
+        break;
+      case 'sick':
+        workerSick({ id: worker.id, date: actionDate });
+        break;
+      case 'deactivate':
+        workerDeactivate({ id: worker.id, date: actionDate });
+        break;
+      case 'out':
+        workerOut({ id: worker.id, date: actionDate });
+        break;
+      case 'received':
+        updateWorker({ id: worker.id, data: { workerSatus: 1 } });
+        break;
+      case 'suspended':
+        updateWorker({ id: worker.id, data: { workerSatus: 6 } });
+        break;
+      case 'finalExit':
+        updateWorker({ id: worker.id, data: { workerSatus: 7 } });
+        break;
+      case 'returnWork':
+        updateWorker({ id: worker.id, data: { workerSatus: 8 } });
+        break;
+    }
+  };
+
+  const confirmWorkerStatusAction = (worker: Worker, action: string) => {
+    Modal.confirm({
+      title: t('workerStatus'),
+      icon: <ExclamationCircleOutlined />,
+      content: t('confirmStatusUpdate'),
+      okText: t('save'),
+      cancelText: t('cancel'),
+      onOk: () => handleWorkerStatusAction(worker, action),
+    });
+  };
+
+  const handleIsActiveToggle = (workerId: number | null) => {
+    if (!workerId) {
+      return;
+    }
+
+    workerDeactivate({ id: workerId, date: new Date().toISOString() });
   };
 
   // Status tag
@@ -597,15 +696,59 @@ export default function WorkersPage() {
   const getActionMenu = (worker: Worker): MenuProps => ({
     items: [
       {
-        key: 'view',
-        label: t('view'),
-        icon: <EyeOutlined />,
-      },
-      {
-        key: 'edit',
-        label: t('edit'),
-        icon: <EditOutlined />,
-        onClick: () => handleOpenModal(worker),
+        key: 'status-actions',
+        label: t('workerStatus'),
+        icon: <ClockCircleOutlined />,
+        children: [
+          {
+            key: 'received',
+            label: t('statusActionReceived'),
+            icon: <ClockCircleOutlined />,
+            onClick: () => confirmWorkerStatusAction(worker, 'received'),
+          },
+          {
+            key: 'escape',
+            label: t('markEscape'),
+            icon: <ExclamationCircleOutlined />,
+            onClick: () => confirmWorkerStatusAction(worker, 'escape'),
+          },
+          {
+            key: 'sick',
+            label: t('markSick'),
+            icon: <MedicineBoxOutlined />,
+            onClick: () => confirmWorkerStatusAction(worker, 'sick'),
+          },
+          {
+            key: 'refused',
+            label: t('markRefused'),
+            icon: <CloseCircleOutlined />,
+            onClick: () => confirmWorkerStatusAction(worker, 'refused'),
+          },
+          {
+            key: 'out',
+            label: t('markOut'),
+            icon: <LogoutOutlined />,
+            onClick: () => confirmWorkerStatusAction(worker, 'out'),
+          },
+          {
+            key: 'suspended',
+            label: t('statusActionSuspended'),
+            icon: <StopOutlined />,
+            onClick: () => confirmWorkerStatusAction(worker, 'suspended'),
+          },
+          {
+            key: 'finalExit',
+            label: t('statusActionFinalExit'),
+            icon: <StopOutlined />,
+            onClick: () => confirmWorkerStatusAction(worker, 'finalExit'),
+          },
+          {
+            key: 'returnWork',
+            label: t('statusActionReturnWork'),
+            icon: <CheckCircleOutlined />,
+            onClick: () => confirmWorkerStatusAction(worker, 'returnWork'),
+          },
+        ],
       },
       { type: 'divider' },
       {
@@ -1016,7 +1159,17 @@ export default function WorkersPage() {
                 <p className={styles.workerReference}>
                   {t('reference')}: {worker.referenceNo || 'N/A'}
                 </p>
-                {getStatusTag(worker.workerSatus)}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Tooltip title={worker.isActive ? t('active') : t('inactive')}>
+                    <Switch
+                      checked={worker.isActive}
+                      onChange={() => handleIsActiveToggle(worker.id)}
+                      loading={isDeactivating}
+                      size="small"
+                    />
+                  </Tooltip>
+                  {getStatusTag(worker.workerSatus)}
+                </div>
               </div>
 
               <div className={styles.workerCardBody}>
@@ -1149,7 +1302,9 @@ export default function WorkersPage() {
                   />
                 </Tooltip>
                 <Dropdown menu={getActionMenu(worker)} trigger={['click']}>
-                  <Button type="text" icon={<MoreOutlined />} className={styles.actionButton} />
+                  <Tooltip title={t('moreActions')}>
+                    <Button type="text" icon={<MoreOutlined />} className={styles.actionButton} />
+                  </Tooltip>
                 </Dropdown>
               </div>
             </Card>
@@ -1396,7 +1551,7 @@ export default function WorkersPage() {
         title={
           <Space>
             <UserOutlined />
-            <span>{editingWorker ? t('updateWorker') : t('createWorker')}</span>
+            <span>{editingWorkerId !== null ? t('updateWorker') : t('createWorker')}</span>
           </Space>
         }
         open={isModalOpen}
@@ -1601,6 +1756,20 @@ export default function WorkersPage() {
                 <Input size="large" placeholder={t('borderNumber')} />
               </Form.Item>
             </Col>
+            <Col xs={24} md={8}>
+              <Form.Item label={t('workerStatus')} name="workerSatus">
+                <Select size="large" placeholder={t('workerStatus')}>
+                  <Select.Option value={1}>{t('tabTrial')}</Select.Option>
+                  <Select.Option value={2}>{t('tabAvailable')}</Select.Option>
+                  <Select.Option value={3}>{t('tabUnderProcedure')}</Select.Option>
+                  <Select.Option value={4}>{t('tabBackOut')}</Select.Option>
+                  <Select.Option value={5}>{t('tabInsideKingdom')}</Select.Option>
+                  <Select.Option value={6}>{t('tabDeported')}</Select.Option>
+                  {/* <Select.Option value={7}>{t('statusFinalExit')}</Select.Option> */}
+                  <Select.Option value={8}>{t('statusReturnWork')}</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
           </Row>
 
           <Divider titlePlacement="left">{t('contactDetails')}</Divider>
@@ -1636,9 +1805,9 @@ export default function WorkersPage() {
               className={styles.submitButton}
               htmlType="submit"
               loading={isCreating || isUpdating}
-              icon={editingWorker ? <EditOutlined /> : <PlusOutlined />}
+              icon={editingWorkerId !== null ? <EditOutlined /> : <PlusOutlined />}
             >
-              {editingWorker ? t('updateWorker') : t('createWorker')}
+              {editingWorkerId !== null ? t('updateWorker') : t('createWorker')}
             </Button>
           </div>
         </Form>

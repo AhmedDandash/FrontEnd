@@ -15,6 +15,10 @@ import {
   Tooltip,
   Avatar,
   Dropdown,
+  Modal,
+  Descriptions,
+  Divider,
+  Image,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -33,8 +37,9 @@ import {
   DownOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
-import { useWorkers } from '@/hooks/api/useWorkers';
+import { useWorker, useWorkers } from '@/hooks/api/useWorkers';
 import styles from './AvailableWorkers.module.css';
+import dayjs from 'dayjs';
 
 // Translations
 const translations = {
@@ -81,6 +86,29 @@ const translations = {
     personalInfo: 'Personal Info',
     workInfo: 'Work Info',
     skills: 'Skills',
+    viewWorker: 'Worker Details',
+    personalDetails: 'Personal Details',
+    passportDetails: 'Passport Details',
+    contactDetails: 'Contact Details',
+    addressDetails: 'Address Details',
+    close: 'Close',
+    birthDate: 'Birth Date',
+    childrenCount: 'Children',
+    workerType: 'Worker Type',
+    basicSalary: 'Basic Salary',
+    boxNumber: 'Box Number',
+    borderNumber: 'Border Number',
+    phone: 'Phone',
+    mobile: 'Mobile',
+    addressAr: 'Address (Arabic)',
+    addressEn: 'Address (English)',
+    referenceNo: 'Reference No.',
+    passportIssueDate: 'Issue Date',
+    passportExpiryDate: 'Expiry Date',
+    passportIssuePlaceAr: 'Issue Place (Arabic)',
+    passportIssuePlaceEn: 'Issue Place (English)',
+    educationLevelAr: 'Education (Arabic)',
+    educationLevelEn: 'Education (English)',
   },
   ar: {
     pageTitle: 'العمالة المتاحة للاختيار',
@@ -125,6 +153,29 @@ const translations = {
     personalInfo: 'المعلومات الشخصية',
     workInfo: 'معلومات العمل',
     skills: 'المهارات',
+    viewWorker: 'تفاصيل العامل',
+    personalDetails: 'البيانات الشخصية',
+    passportDetails: 'بيانات الجواز',
+    contactDetails: 'بيانات التواصل',
+    addressDetails: 'بيانات العنوان',
+    close: 'إغلاق',
+    birthDate: 'تاريخ الميلاد',
+    childrenCount: 'الأطفال',
+    workerType: 'نوع العامل',
+    basicSalary: 'الراتب الأساسي',
+    boxNumber: 'رقم الصندوق',
+    borderNumber: 'رقم الحدود',
+    phone: 'تليفون ارضي',
+    mobile: 'الجوال',
+    addressAr: 'العنوان (عربي)',
+    addressEn: 'العنوان (إنجليزي)',
+    referenceNo: 'رقم المرجع',
+    passportIssueDate: 'تاريخ الإصدار',
+    passportExpiryDate: 'تاريخ الانتهاء',
+    passportIssuePlaceAr: 'مكان الإصدار (عربي)',
+    passportIssuePlaceEn: 'مكان الإصدار (إنجليزي)',
+    educationLevelAr: 'التعليم (عربي)',
+    educationLevelEn: 'التعليم (إنجليزي)',
   },
 };
 
@@ -132,6 +183,7 @@ export default function AvailableWorkersPage() {
   const language = useAuthStore((state) => state.language);
   const [showFilters, setShowFilters] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [viewingWorkerId, setViewingWorkerId] = useState<number | null>(null);
   const [filters, setFilters] = useState<{
     search?: string;
     nationality?: string;
@@ -148,8 +200,14 @@ export default function AvailableWorkersPage() {
   };
 
   const { data: workers = [], isLoading } = useWorkers();
+  const { data: viewingWorker, isLoading: isViewingLoading } = useWorker(
+    viewingWorkerId ? String(viewingWorkerId) : undefined
+  );
 
-  // Filter workers
+  const getGenderLabel = (g?: number | null) => (g === 1 ? t('female') : t('male'));
+  const getMaritalLabel = (m?: number | null) => (m === 1 ? t('married') : t('single'));
+
+  // Filter workers (show only active workers)
   const filteredWorkers = useMemo(() => {
     return workers.filter((worker) => {
       const searchLower = filters.search?.toLowerCase() || '';
@@ -170,6 +228,9 @@ export default function AvailableWorkersPage() {
       const matchesAgent = !filters.agent || worker.agentId === Number(filters.agent);
       const matchesGender = !filters.gender || worker.gender === Number(filters.gender);
 
+      // Only include active workers
+      const matchesActive = worker.isActive === true;
+
       // Tab filtering based on workerType
       const matchesTab =
         activeTab === 'all' ||
@@ -178,6 +239,7 @@ export default function AvailableWorkersPage() {
         (activeTab === 'sponsorship' && worker.workerType === 5);
 
       return (
+        matchesActive &&
         matchesSearch &&
         matchesNationality &&
         matchesJob &&
@@ -196,7 +258,7 @@ export default function AvailableWorkersPage() {
       total: filteredWorkers.length,
       mediation: filteredWorkers.filter((w) => w.workerType === 1).length,
       rent: filteredWorkers.filter((w) => w.workerType === 2).length,
-      sponsorship: filteredWorkers.filter((w) => w.workerType === 5).length,
+      sponsorship: filteredWorkers.filter((w) => w.workerType === 3).length,
     };
   }, [filteredWorkers]);
 
@@ -523,10 +585,7 @@ export default function AvailableWorkersPage() {
                           {worker.age ? `${worker.age} ${t('years')}` : 'N/A'}
                         </span>
                       </div>
-                      <div className={styles.detailItem}>
-                        <span className={styles.detailItemLabel}>{t('religion')}</span>
-                        <span className={styles.detailItemValue}>{worker.religion || 'N/A'}</span>
-                      </div>
+
                       <div className={styles.detailItem}>
                         <span className={styles.detailItemLabel}>{t('maritalStatus')}</span>
                         <span className={styles.detailItemValue}>
@@ -576,7 +635,7 @@ export default function AvailableWorkersPage() {
                           type="default"
                           icon={<EyeOutlined />}
                           className={`${styles.actionBtn} ${styles.viewBtn}`}
-                          onClick={() => console.log('View worker:', worker.id)}
+                          onClick={() => setViewingWorkerId(worker.id)}
                         >
                           {t('view')}
                         </Button>
@@ -589,6 +648,194 @@ export default function AvailableWorkersPage() {
           ))}
         </div>
       )}
+
+      <Modal
+        title={
+          <Space>
+            <EyeOutlined />
+            <span>{t('viewWorker')}</span>
+          </Space>
+        }
+        open={!!viewingWorkerId}
+        onCancel={() => setViewingWorkerId(null)}
+        footer={
+          <Button type="primary" onClick={() => setViewingWorkerId(null)}>
+            {t('close')}
+          </Button>
+        }
+        width={900}
+      >
+        {(isViewingLoading || viewingWorker) && (
+          <div>
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              {viewingWorker?.uploadimage ? (
+                <Image
+                  src={viewingWorker.uploadimage}
+                  alt={viewingWorker.fullNameAr || 'Worker'}
+                  width={150}
+                  height={150}
+                  style={{ borderRadius: '50%', objectFit: 'cover', border: '4px solid #003366' }}
+                  preview={{ mask: <EyeOutlined style={{ fontSize: 20 }} /> }}
+                />
+              ) : (
+                <Avatar
+                  size={150}
+                  icon={<UserOutlined />}
+                  style={{ backgroundColor: viewingWorker?.gender === 1 ? '#f472b6' : '#003366' }}
+                />
+              )}
+              <h2 style={{ margin: '12px 0 4px', color: '#003366' }}>
+                {language === 'ar'
+                  ? viewingWorker?.fullNameAr
+                  : viewingWorker?.fullNameEn || viewingWorker?.fullNameAr}
+              </h2>
+              <p style={{ color: '#6b7280', margin: 0 }}>
+                {language === 'ar' ? viewingWorker?.fullNameEn : viewingWorker?.fullNameAr}
+              </p>
+            </div>
+
+            <Divider />
+
+            <Descriptions
+              title={t('personalDetails')}
+              bordered
+              column={{ xs: 1, sm: 2 }}
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label={t('referenceNo')}>
+                {viewingWorker?.referenceNo || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('gender')}>
+                {getGenderLabel(viewingWorker?.gender)}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('age')}>
+                {viewingWorker?.age ? `${viewingWorker.age} ${t('years')}` : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('birthDate')}>
+                {viewingWorker?.birthDate
+                  ? dayjs(viewingWorker.birthDate).format('YYYY-MM-DD')
+                  : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('maritalStatus')}>
+                {getMaritalLabel(viewingWorker?.maritalStatus)}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('childrenCount')}>
+                {viewingWorker?.childrenCount ?? '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('religion')}>
+                {viewingWorker?.religion === 1
+                  ? t('muslim')
+                  : viewingWorker?.religion === 2
+                    ? t('nonMuslim')
+                    : viewingWorker?.religion || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('nationality')}>
+                {viewingWorker?.nationalityId || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('educationLevelAr')}>
+                {viewingWorker?.educationLevelAr || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('educationLevelEn')}>
+                {viewingWorker?.educationLevelEn || '-'}
+              </Descriptions.Item>
+            </Descriptions>
+
+            <Descriptions
+              title={t('passportDetails')}
+              bordered
+              column={{ xs: 1, sm: 2 }}
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label={t('passportNo')}>
+                {viewingWorker?.passportNo || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('passportIssueDate')}>
+                {viewingWorker?.passportIssueDate
+                  ? dayjs(viewingWorker.passportIssueDate).format('YYYY-MM-DD')
+                  : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('passportExpiryDate')}>
+                {viewingWorker?.passportExpiryDate
+                  ? dayjs(viewingWorker.passportExpiryDate).format('YYYY-MM-DD')
+                  : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('passportIssuePlaceAr')}>
+                {viewingWorker?.passportIssuePlaceAr || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('passportIssuePlaceEn')}>
+                {viewingWorker?.passportIssuePlaceEn || '-'}
+              </Descriptions.Item>
+            </Descriptions>
+
+            <Descriptions
+              title={t('workInfo')}
+              bordered
+              column={{ xs: 1, sm: 2 }}
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label={t('jobname')}>
+                {viewingWorker?.jobname || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('basicSalary')}>
+                {viewingWorker?.basicSalary || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('agentName')}>
+                {viewingWorker?.agentName || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('createdBy')}>
+                {viewingWorker?.userName || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('workerType')}>
+                {viewingWorker?.workerType === 1
+                  ? t('mediation')
+                  : viewingWorker?.workerType === 2
+                    ? t('rent')
+                    : viewingWorker?.workerType === 3
+                      ? t('sponsorship')
+                      : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('boxNumber')}>
+                {viewingWorker?.boxNumber || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('borderNumber')}>
+                {viewingWorker?.borderNumber || '-'}
+              </Descriptions.Item>
+            </Descriptions>
+
+            <Descriptions
+              title={t('contactDetails')}
+              bordered
+              column={{ xs: 1, sm: 2 }}
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label={t('mobile')}>
+                {viewingWorker?.mobile || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('phone')}>
+                {viewingWorker?.phone || '-'}
+              </Descriptions.Item>
+            </Descriptions>
+
+            <Descriptions
+              title={t('addressDetails')}
+              bordered
+              column={{ xs: 1, sm: 2 }}
+              size="small"
+            >
+              <Descriptions.Item label={t('addressAr')}>
+                {viewingWorker?.addressAr || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('addressEn')}>
+                {viewingWorker?.addressEn || '-'}
+              </Descriptions.Item>
+            </Descriptions>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
