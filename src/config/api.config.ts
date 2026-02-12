@@ -65,4 +65,13 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/Users/UpdateUserById/${id}`,
     DELETE: (id: number) => `/api/Users/DeleteUserById/${id}`,
   },
+
+  // Agent
+  AGENT: {
+    GET_ALL: '/api/Agent',
+    GET_BY_ID: (id: number) => `/api/Agent/${id}`,
+    CREATE: '/api/Agent',
+    UPDATE: (id: number) => `/api/Agent/${id}`,
+    DELETE: (id: number) => `/api/Agent/${id}`,
+  },
 } as const;

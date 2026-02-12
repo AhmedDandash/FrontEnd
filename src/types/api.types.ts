@@ -367,3 +367,74 @@ export interface Worker extends WorkerDto {
   createdAt?: string | null;
   updatedAt?: string | null;
 }
+
+// ==================== Agent Types ====================
+export interface Agent {
+  id: number;
+  agentNameAr?: string | null;
+  agentNameEn?: string | null;
+  username?: string | null;
+  nationalityId?: number | null;
+  nationalityNameAr?: string | null;
+  nationalityNameEn?: string | null;
+  agentLicense?: string | null;
+  contractType?: number | null;
+  phone?: string | null;
+  mobile?: string | null;
+  email?: string | null;
+  addressAr?: string | null;
+  addressEn?: string | null;
+  companyNameAr?: string | null;
+  companyNameEn?: string | null;
+  followUpEmails?: string | null;
+  warrantyEmails?: string | null;
+  accountingEmails?: string | null;
+  sendAllEmails?: boolean;
+  isActive?: boolean;
+  contractsCount?: number;
+  filesCount?: number;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface CreateAgentDto {
+  agentNameAr?: string | null;
+  agentNameEn?: string | null;
+  username?: string | null;
+  nationalityId?: number | null;
+  agentLicense?: string | null;
+  contractType?: number | null;
+  phone?: string | null;
+  mobile?: string | null;
+  email?: string | null;
+  addressAr?: string | null;
+  addressEn?: string | null;
+  companyNameAr?: string | null;
+  companyNameEn?: string | null;
+  followUpEmails?: string | null;
+  warrantyEmails?: string | null;
+  accountingEmails?: string | null;
+  sendAllEmails?: boolean;
+  isActive?: boolean;
+}
+
+export interface UpdateAgentDto {
+  agentNameAr?: string | null;
+  agentNameEn?: string | null;
+  username?: string | null;
+  nationalityId?: number | null;
+  agentLicense?: string | null;
+  contractType?: number | null;
+  phone?: string | null;
+  mobile?: string | null;
+  email?: string | null;
+  addressAr?: string | null;
+  addressEn?: string | null;
+  companyNameAr?: string | null;
+  companyNameEn?: string | null;
+  followUpEmails?: string | null;
+  warrantyEmails?: string | null;
+  accountingEmails?: string | null;
+  sendAllEmails?: boolean;
+  isActive?: boolean;
+}

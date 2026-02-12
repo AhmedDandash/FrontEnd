@@ -1,0 +1,89 @@
+/**
+ * Agent Hooks
+ * Custom hooks for agent CRUD operations using React Query
+ */
+
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AgentService } from '@/services/agent.service';
+import type { Agent, CreateAgentDto, UpdateAgentDto } from '@/types/api.types';
+import { message } from 'antd';
+
+export const AGENTS_KEY = 'agents';
+
+/**
+ * Fetch all agents
+ */
+export const useAgents = () => {
+  return useQuery<Agent[], Error>({
+    queryKey: [AGENTS_KEY],
+    queryFn: AgentService.getAll,
+  });
+};
+
+/**
+ * Fetch agent by ID
+ */
+export const useAgent = (id: number) => {
+  return useQuery<Agent, Error>({
+    queryKey: [AGENTS_KEY, id],
+    queryFn: () => AgentService.getById(id),
+    enabled: !!id,
+  });
+};
+
+/**
+ * Create new agent
+ */
+export const useCreateAgent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Agent, Error, CreateAgentDto>({
+    mutationFn: AgentService.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [AGENTS_KEY] });
+      message.success('Agent created successfully');
+    },
+    onError: (error: any) => {
+      console.error('Create agent error:', error);
+      message.error(error?.response?.data?.message || 'Failed to create agent');
+    },
+  });
+};
+
+/**
+ * Update agent
+ */
+export const useUpdateAgent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Agent, Error, { id: number; data: UpdateAgentDto }>({
+    mutationFn: ({ id, data }) => AgentService.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [AGENTS_KEY] });
+      message.success('Agent updated successfully');
+    },
+    onError: (error: any) => {
+      console.error('Update agent error:', error);
+      message.error(error?.response?.data?.message || 'Failed to update agent');
+    },
+  });
+};
+
+/**
+ * Delete agent
+ */
+export const useDeleteAgent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, number>({
+    mutationFn: AgentService.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [AGENTS_KEY] });
+      message.success('Agent deleted successfully');
+    },
+    onError: (error: any) => {
+      console.error('Delete agent error:', error);
+      message.error(error?.response?.data?.message || 'Failed to delete agent');
+    },
+  });
+};
