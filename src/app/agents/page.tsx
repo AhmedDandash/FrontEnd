@@ -133,6 +133,7 @@ export default function AgentsPage() {
       },
       agentNameAr: { ar: 'اسم الوكيل (عربي)', en: 'Agent Name (Arabic)' },
       agentNameEn: { ar: 'اسم الوكيل (إنجليزي)', en: 'Agent Name (English)' },
+      username: { ar: 'اسم المستخدم', en: 'Username' },
       addressAr: { ar: 'العنوان (عربي)', en: 'Address (Arabic)' },
       addressEn: { ar: 'العنوان (إنجليزي)', en: 'Address (English)' },
       companyNameAr: { ar: 'اسم الشركة (عربي)', en: 'Company Name (Arabic)' },
@@ -162,6 +163,7 @@ export default function AgentsPage() {
         !searchLower ||
         agent.agentNameAr?.toLowerCase().includes(searchLower) ||
         agent.agentNameEn?.toLowerCase().includes(searchLower) ||
+        agent.username?.toLowerCase().includes(searchLower) ||
         agent.email?.toLowerCase().includes(searchLower) ||
         agent.agentLicense?.toLowerCase().includes(searchLower);
 
@@ -650,7 +652,14 @@ export default function AgentsPage() {
                 <Input size="large" placeholder={t('agentNameEn')} />
               </Form.Item>
             </Col>
-            
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={t('username')}
+                name="username"
+              >
+                <Input size="large" placeholder={t('username')} />
+              </Form.Item>
+            </Col>
             <Col xs={24} md={12}>
               <Form.Item label={t('nationality')} name="nationalityId">
                 <Select
@@ -816,7 +825,9 @@ export default function AgentsPage() {
               size="small"
               style={{ marginBottom: 16 }}
             >
-              
+              <Descriptions.Item label={t('username')}>
+                {viewingAgent.username || '-'}
+              </Descriptions.Item>
               <Descriptions.Item label={t('licenseNumber')}>
                 {viewingAgent.agentLicense || '-'}
               </Descriptions.Item>
