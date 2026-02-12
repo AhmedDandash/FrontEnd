@@ -438,3 +438,29 @@ export interface UpdateAgentDto {
   sendAllEmails?: boolean;
   isActive?: boolean;
 }
+
+// ==================== Job Types ====================
+export interface Job {
+  id: number;
+  jobNameAr?: string | null;
+  jobNameEn?: string | null;
+  hasWorkCard?: boolean;
+  workCardFees?: number | null;
+  isActive?: boolean;
+}
+
+export interface CreateJobDto {
+  jobNameAr?: string | null;
+  jobNameEn?: string | null;
+  hasWorkCard?: boolean;
+  workCardFees?: number | null;
+  isActive?: boolean;
+}
+
+export interface UpdateJobDto {
+  jobNameAr?: string | null;
+  jobNameEn?: string | null;
+  hasWorkCard?: boolean;
+  workCardFees?: number | null;
+  isActive?: boolean;
+}

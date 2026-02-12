@@ -74,4 +74,13 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/Agent/${id}`,
     DELETE: (id: number) => `/api/Agent/${id}`,
   },
+
+  // General Options - Jobs
+  JOB: {
+    GET_ALL: '/api/GeneralOptions/Job',
+    GET_BY_ID: (id: number) => `/api/GeneralOptions/Job/${id}`,
+    CREATE: '/api/GeneralOptions/Job',
+    UPDATE: (id: number) => `/api/GeneralOptions/Job/${id}`,
+    DELETE: (id: number) => `/api/GeneralOptions/Job/${id}`,
+  },
 } as const;

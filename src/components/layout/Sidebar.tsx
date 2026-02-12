@@ -275,6 +275,7 @@ export default function Sidebar({
       icon: <SettingOutlined />,
       label: language === 'ar' ? 'الإعدادات' : 'Settings',
       children: [
+        {key: '/settings/general', label: language === 'ar' ? 'الإعدادات العامة' : 'General Settings' },
         { key: '/settings/users', label: language === 'ar' ? 'المستخدمين' : 'Users' },
         {
           key: '/settings/privileges',
