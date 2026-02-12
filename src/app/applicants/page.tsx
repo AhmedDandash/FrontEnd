@@ -60,6 +60,7 @@ import {
   useUpdateWorker,
   useDeleteWorker,
 } from '@/hooks/api/useWorkers';
+import { useJobs } from '@/hooks/api/useJobs';
 import type { Worker, WorkerDto } from '@/types/api.types';
 import styles from './Workers.module.css';
 import dayjs from 'dayjs';
@@ -380,6 +381,20 @@ export default function WorkersPage() {
   };
 
   const { data: workers = [], isLoading } = useWorkers();
+  const { data: jobs = [] } = useJobs();
+
+  // Only show active jobs in the filter
+  const availableJobs = useMemo(() => {
+    return jobs
+      .filter((job) => job.isActive)
+      .map((job) => ({
+        value: String(job.id),
+        label:
+          language === 'ar'
+            ? job.jobNameAr || job.jobNameEn || ''
+            : job.jobNameEn || job.jobNameAr || '',
+      }));
+  }, [jobs, language]);
   const { mutate: createWorker, isPending: isCreating } = useCreateWorker();
   const { mutate: updateWorker, isPending: isUpdating } = useUpdateWorker();
   const { mutate: deleteWorker } = useDeleteWorker();
@@ -780,14 +795,7 @@ export default function WorkersPage() {
                   allowClear
                   showSearch
                   optionFilterProp="label"
-                  options={[
-                    { value: '1198', label: language === 'ar' ? 'عاملة منزلية' : 'Housemaid' },
-                    { value: '1199', label: language === 'ar' ? 'سائق خاص' : 'Private Driver' },
-                    { value: '1293', label: language === 'ar' ? 'عامل منزلي' : 'Houseworker' },
-                    { value: '1246', label: language === 'ar' ? 'طباخ' : 'Cook' },
-                    { value: '1568', label: language === 'ar' ? 'حارس منزلي' : 'Home Guard' },
-                    { value: '1602', label: language === 'ar' ? 'مزارع منزلي' : 'Home Farmer' },
-                  ]}
+                  options={availableJobs}
                 />
               </Col>
 
@@ -1502,14 +1510,10 @@ export default function WorkersPage() {
                   placeholder={t('jobname')}
                   showSearch
                   optionFilterProp="label"
-                  options={[
-                    { value: 1, label: language === 'ar' ? 'عاملة منزلية' : 'Housemaid' },
-                    { value: 2, label: language === 'ar' ? 'سائق خاص' : 'Private Driver' },
-                    { value: 3, label: language === 'ar' ? 'عامل منزلي' : 'Houseworker' },
-                    { value: 4, label: language === 'ar' ? 'طباخ' : 'Cook' },
-                    { value: 5, label: language === 'ar' ? 'حارس منزلي' : 'Home Guard' },
-                    { value: 6, label: language === 'ar' ? 'مزارع منزلي' : 'Home Farmer' },
-                  ]}
+                  options={availableJobs.map((job) => ({
+                    value: Number(job.value),
+                    label: job.label,
+                  }))}
                 />
               </Form.Item>
             </Col>
@@ -1543,7 +1547,7 @@ export default function WorkersPage() {
                 />
               </Form.Item>
             </Col>
-            
+
             <Col xs={24} md={8}>
               <Form.Item label={t('boxNumber')} name="boxNumber">
                 <Input size="large" placeholder={t('boxNumber')} />
