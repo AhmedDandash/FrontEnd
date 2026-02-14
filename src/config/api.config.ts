@@ -83,4 +83,22 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/GeneralOptions/Job/${id}`,
     DELETE: (id: number) => `/api/GeneralOptions/Job/${id}`,
   },
+
+  // Workers
+  WORKERS: {
+    GET_ALL: '/api/Worker',
+    GET_BY_ID: (id: number) => `/api/Worker/${id}`,
+  },
+
+  // Recruitment Request
+  RECRUITMENT_REQUEST: {
+    GET_ALL: '/api/RecruitmentRequest',
+    CREATE: '/api/RecruitmentRequest',
+    CHOICE_CUSTOMER: '/api/RecruitmentRequest/ChoiceCusomer',
+    CHOICE_WORKER: '/api/RecruitmentRequest/ChoiceWorker',
+    DELETE_WORKER: (requestId: number) => `/api/RecruitmentRequest/DeleteWorker/${requestId}`,
+    REVIEW_REQUEST: '/api/RecruitmentRequest/ReviewRequest',
+    REFUSED_REQUEST: '/api/RecruitmentRequest/RefusedRequest',
+    ACCEPT_REQUEST: '/api/RecruitmentRequest/AcceptRequest',
+  },
 } as const;

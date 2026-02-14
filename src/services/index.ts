@@ -9,3 +9,4 @@ export { CustomerService } from './customer.service';
 export { DocumentService } from './document.service';
 export { RoleService } from './role.service';
 export { UserService } from './user.service';
+export { RecruitmentRequestService } from './recruitment-request.service';

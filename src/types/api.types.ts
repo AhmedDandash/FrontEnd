@@ -476,3 +476,63 @@ export interface UpdateJobDto {
   workCardFees?: number | null;
   isActive?: boolean;
 }
+
+// ==================== Nationality Types ====================
+export interface Nationality {
+  id: number;
+  nationalityNameAr?: string | null;
+  nationalityNameEn?: string | null;
+  isActive?: boolean;
+}
+
+// ==================== Recruitment Request Types ====================
+export interface RecruitmentRequest {
+  id: number;
+  requestCode?: string | null;
+  customerName?: string | null;
+  customerPhone?: string | null;
+  customerEmail?: string | null;
+  workerAge?: number | null;
+  customerId?: number | null;
+  workerName?: string | null;
+  workerReligion?: number | null; // 1 = Muslim, 2 = Non-Muslim
+  nationalityId?: number | null;
+  jobName?: string | null;
+  jobId?: number | null;
+  requestType?: number | null; // 0 = Pending, 1 = Review, 2 = Accepted, etc.
+  requestStats?: number | null;
+  specialSpecifications?: string | null;
+  createdAt?: string | null;
+  workerId?: number | null;
+}
+
+export interface CreateRecruitmentRequestDto {
+  requestCode?: string | null;
+  customerName?: string | null;
+  customerPhone?: string | null;
+  customerEmail?: string | null;
+  customerNationalId?: string | null;
+  workerAge?: number | null;
+  workerReligion?: number | null;
+  workerNationalityId?: number | null;
+  jobId?: number | null;
+  specialSpecifications?: string | null;
+}
+
+export interface ChoiceCustomerDto {
+  customerId: number;
+  requestId: number;
+}
+
+export interface ChoiceWorkerDto {
+  workerId: number;
+  requestId: number;
+}
+
+export interface RequestActionDto {
+  // `type` historically used; some endpoints use `requestStats` now.
+  // Keep both to accept either shape from callers.
+  type?: number;
+  requestStats?: number;
+  requestId: number;
+}

@@ -128,7 +128,6 @@
   color: #00478c;
 }
 
-
 /* Job Section */
 .jobSection {
   background: linear-gradient(135deg, #003366 0%, #00478c 100%);
@@ -460,4 +459,41 @@ html[dir='rtl'] .cardHeader {
   min-height: 400px;
   font-size: 18px;
   color: #999;
+}
+
+/* Card Actions */
+.cardActions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.cardActions button {
+  font-weight: 500;
+}
+
+.cardActions :global(.ant-space) {
+  width: 100%;
+}
+
+/* Action Button Styles */
+.cardActions :global(.ant-btn-primary) {
+  box-shadow: 0 2px 4px rgba(0, 71, 140, 0.2);
+}
+
+.cardActions :global(.ant-btn-primary):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 71, 140, 0.3);
+}
+
+.cardActions :global(.ant-btn-dangerous) {
+  box-shadow: 0 2px 4px rgba(255, 77, 79, 0.2);
+}
+
+.cardActions :global(.ant-btn-dangerous):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3);
 }
