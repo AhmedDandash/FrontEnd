@@ -196,6 +196,8 @@ export default function RecruitmentRequestsPage() {
     };
   }, [requests]);
 
+  const activeJobs = useMemo(() => jobs.filter((job) => job.isActive), [jobs]);
+
   // Get status color
   const getStatusColor = (status: number | null | undefined) => {
     const colors: Record<number, string> = {
@@ -626,9 +628,12 @@ export default function RecruitmentRequestsPage() {
                   value={selectedJobs}
                   onChange={setSelectedJobs}
                   style={{ width: '100%' }}
-                  options={jobs.map((j) => ({
+                  options={activeJobs.map((j) => ({
                     value: String(j.id),
-                    label: language === 'ar' ? j.jobNameAr : j.jobNameEn,
+                    label:
+                      language === 'ar'
+                        ? j.jobNameAr || j.jobNameEn || String(j.id)
+                        : j.jobNameEn || j.jobNameAr || String(j.id),
                   }))}
                   allowClear
                 />
@@ -962,9 +967,12 @@ export default function RecruitmentRequestsPage() {
               >
                 <Select
                   placeholder={language === 'ar' ? 'اختر الوظيفة' : 'Select job'}
-                  options={jobs.map((j) => ({
+                  options={activeJobs.map((j) => ({
                     value: j.id,
-                    label: language === 'ar' ? j.jobNameAr : j.jobNameEn,
+                    label:
+                      language === 'ar'
+                        ? j.jobNameAr || j.jobNameEn || String(j.id)
+                        : j.jobNameEn || j.jobNameAr || String(j.id),
                   }))}
                 />
               </Form.Item>

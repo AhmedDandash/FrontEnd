@@ -189,18 +189,41 @@ export class RecruitmentRequestService {
   static async getJobs(): Promise<Job[]> {
     try {
       const response = await api.get<any>(API_ENDPOINTS.JOB.GET_ALL);
-      console.log('🔍 Jobs Response:', response.data);
+      console.log('Jobs Response:', response.data);
 
-      if (response.data?.data && Array.isArray(response.data.data)) {
-        return response.data.data;
-      }
+      let rawJobs: any[] = [];
+
       if (Array.isArray(response.data)) {
-        return response.data;
+        rawJobs = response.data;
+      } else if (response.data && typeof response.data === 'object') {
+        if (Array.isArray(response.data.jobs)) {
+          rawJobs = response.data.jobs;
+        } else if (Array.isArray(response.data.data)) {
+          rawJobs = response.data.data;
+        } else if (Array.isArray(response.data.result)) {
+          rawJobs = response.data.result;
+        } else if (Array.isArray(response.data.items)) {
+          rawJobs = response.data.items;
+        }
       }
 
-      return [];
+      const normalizedJobs: Job[] = rawJobs
+        .map((job) => ({
+          id: Number(job.id ?? job.jobId ?? 0),
+          jobNameAr: job.jobNameAr ?? job.nameAr ?? job.jobName ?? null,
+          jobNameEn: job.jobNameEn ?? job.nameEn ?? job.jobName ?? null,
+          hasWorkCard: job.hasWorkCard ?? false,
+          workCardFees:
+            job.workCardFees !== undefined && job.workCardFees !== null
+              ? Number(job.workCardFees)
+              : null,
+          isActive: job.isActive ?? true,
+        }))
+        .filter((job) => Number.isFinite(job.id) && job.id > 0);
+
+      return normalizedJobs;
     } catch (error) {
-      console.error('❌ Error fetching jobs:', error);
+      console.error('Error fetching jobs:', error);
       return [];
     }
   }
@@ -249,3 +272,4 @@ export class RecruitmentRequestService {
     }
   }
 }
+
