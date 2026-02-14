@@ -140,7 +140,7 @@ export default function Sidebar({
       label: language === 'ar' ? 'العقود' : 'Contracts',
       children: [
         { key: '/contracts', label: language === 'ar' ? 'جميع العقود' : 'All Contracts' },
-        { key: '/contracts/rent', label: language === 'ar' ? 'عقود الإيجار' : 'Rent Contracts' },
+        { key: '/contracts/rent', label: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts' },
         { key: '/contracts/delegates', label: language === 'ar' ? 'مندوبو العقود' : 'Delegates' },
         { key: '/contracts/penalties', label: language === 'ar' ? 'غرامات العقود' : 'Penalties' },
         { key: '/contracts/transmital', label: language === 'ar' ? 'نقل العقود' : 'Transfer' },
