@@ -179,9 +179,12 @@ export default function Sidebar({
     {
       key: 'recruitment',
       icon: <UserAddOutlined />,
-      label: language === 'ar' ? 'التوظيف' : 'Recruitment',
+      label: language === 'ar' ? 'طلبات الاستقدام' : 'Recruitment',
       children: [
-        { key: '/recruitment/requests', label: language === 'ar' ? 'طلبات التوظيف' : 'Requests' },
+        {
+          key: '/recruitment/requests',
+          label: language === 'ar' ? 'طلبات الاستقدام' : 'Recruitment',
+        },
         {
           key: '/recruitment/applicants',
           label: language === 'ar' ? 'المتقدمون المتاحون' : 'Available Applicants',
