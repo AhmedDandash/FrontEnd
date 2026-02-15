@@ -137,10 +137,20 @@ export default function Sidebar({
     {
       key: 'operation',
       icon: <TeamOutlined />,
-      label: language === 'ar' ? 'العمليات' : 'Operations',
+      label: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts',
       children: [
-        { key: '/operation/rent', label: language === 'ar' ? 'عمليات الإيجار' : 'Rent Operations' },
-        { key: '/operation/collection-renewal', label: language === 'ar' ? 'التحصيل والتجديد' : 'Collection & Renewal Operations' },
+        {
+          key: '/operation/rent',
+          label: language === 'ar' ? 'عقود التشغيل ' : 'Operation Contracts',
+        },
+        {
+          key: '/operation/collection-renewal',
+          label: language === 'ar' ? 'التحصيل والتجديد' : 'Collection & Renewal Operations',
+        },
+        {
+          key: '/operation/rent-prices-offers',
+          label: language === 'ar' ? 'أسعار وعروض التشغيل' : 'Rent Prices & Offers',
+        },
       ],
     },
     {

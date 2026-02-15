@@ -1,0 +1,1273 @@
+<!DOCTYPE html><html lang="en-us" dir="ltr" style="" class=" js flexbox flexboxlegacy canvas canvastext webgl no-touch geolocation postmessage no-websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers no-applicationcache svg inlinesvg smil svgclippaths js flexbox flexboxlegacy canvas canvastext webgl no-touch geolocation postmessage no-websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers no-applicationcache svg inlinesvg smil svgclippaths"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection and renewal </title>
+    <meta name="google-site-verification" content="VEb6bE4-uNCNGtQEZeWtEusYDZkWi2hH9dxL9_Dqg_s">
+
+
+<link href="/Content/cssstrap?v=dahLjJyziXLvcDXOxxaxQmhHCMg-hXXl5myNsdwDUg81" rel="stylesheet">
+        <style>
+             @import Url('https://fonts.googleapis.com/css?family=Quicksand:400,500,700&display=swap&subset=vietnamese');
+        </style>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.2/css/all.css">
+
+    <link href="/Content/css?v=2H07Dg0D4KV1slSsVaE3xztmk_hvfYCab7P-gGsEJp41" rel="stylesheet">
+
+    <link href="/Content/AppStyles?v=5u9X7bF1xaW2QdQ_JW0-NGGYJ2reCppSYqYrHjWIPhw1" rel="stylesheet">
+
+
+    <script src="/bundles/modernizr?v=w9fZKPSiHtN4N4FRqV7jn-3kGoQY5hHpkwFv5TfMrus1"></script>
+
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.6.0/dist/geosearch.css">
+    <script src="https://unpkg.com/leaflet-geosearch@3.6.0/dist/bundle.min.js"></script>
+    <style>
+        .leaflet-container {
+            height: 400px;
+            width: 600px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .blink-bg {
+            color: #fff;
+            padding: 10px;
+            display: inline-block;
+            border-radius: 5px;
+            animation: blinkingBackground 4s infinite;
+        }
+
+        @keyframes blinkingBackground {
+            0% {
+                background-color: #740000;
+            }
+
+            25% {
+                background-color: #1056c0;
+            }
+
+            50% {
+                background-color: #ef0a1a;
+            }
+
+            75% {
+                background-color: #a30357;
+            }
+
+            100% {
+                background-color: #d50404;
+            }
+        }
+
+        /* حل مشكلة إخفاء مربع البحث */
+   
+
+            .leaflet-control-geosearch form {
+                direction: rtl !important;
+                text-align: right;
+            }
+
+            .leaflet-control-geosearch input {
+                width: 100% !important;
+                height: 40px !important;
+                font-size: 16px !important;
+                padding: 5px 10px !important;
+            }
+        .select2-container { 
+            z-index: 999999;
+        }
+    </style>
+</head>
+<body class="fixed-left white widescreen">
+    
+
+
+        <div id="wrapper">
+            
+<div class="topbar">
+    <div class="topbar-left">
+
+        <a class="logo">
+            <img src="/up/74/Branch/logo/3ecc0db1-fefb-45e4-b24b-feec003f44bf.jpg" style="height:50px; text-align:center;">
+        </a>
+    </div>
+
+    <div class="navbar navbar-default" role="navigation">
+        <div class="container">
+
+
+            <!-- Page title -->
+            <ul class="nav navbar-nav navbar-left">
+                <li>
+                    <button class="button-menu-mobile open-left">
+                        <i class="zmdi zmdi-menu"></i>
+                    </button>
+                </li>
+
+            </ul>
+            <div class="Musa3edLogo">
+                <img src="/Content/images/Musa3ed.png">
+            </div>
+            <ul class="nav navbar-nav navbar-right ">
+                    <li class="dropdown m-t-10  ">
+                        <select class="form-control    ui-selectee" disabled="" style="border: 2px solid #aaf3a2 !important; background-color: #e0fadd !important;border-radius: 5px; height:40px; min-width: 70px;">
+                            <option value="0" class="ui-selectee">show All branchs</option>
+                                <option selected="'selected'" class="ui-selectee"> Sigma competences recruitment office</option>
+                                <option class="ui-selectee">SIGMA</option>
+                        </select>
+                    </li>
+                <li class="dropdown" id="User">
+                    <a class="dropdown-toggle waves-effect" id="dLabel" role="button" data-toggle="dropdown" data-target="#" href="#">
+                            <span class="fa fa-user-circle " style="font-size:30px;"></span>
+                    </a>
+                    <div class="dropdown-menu right-dropdown-menu border-radius-10 m-t-20 keep-Open">
+                        <span class="arrow right-arrow" style=""></span>
+
+                        <div class="row" role="menu" aria-labelledby="dLabel">
+                            <div class="col-md-12 m-15">
+                                <div class="row">
+                                    
+                                    <div class="col-md-12">
+                                        <h4 class="text-left m-l-10 m-b-0"></h4>
+                                        <p class="text-left m-l-10">Branch </p>
+                                        <ul class="list-unstyled">
+                                            <li class="m-r-20 m-10">
+                                                <a href="/en-us/appearancesettings/themes" class="p-t-10"><i class="fa fa-paint-brush"></i><span class="text-left m-l-10 m-r-10">اعدادات السمات</span></a>
+
+                                            </li>
+                                            <li class="m-r-20 m-10">
+                                                <a href="/en-us/Profile" class="p-t-10"><i class="fa fa-grin"></i><span class="text-left m-l-10 m-r-10">الصفحه الشخصيه</span></a>
+
+                                            </li>
+                                            <li class="m-r-20 m-10">
+                                                <a onclick="ChangePassowrd()" class="p-t-10"><i class="fa fa-rotate"></i><span class="text-left m-l-10 m-r-10"> تغير كلمة المرور</span></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <hr style="margin: 0; ">
+                                    <ul class="ul-list">
+                                        <li class="col-md-12" id="logout">
+<form action="/en-us/Account/LogOff" class="text-custom" id="logoutForm" method="post"><input name="__RequestVerificationToken" type="hidden" value="Cyjdqf7S_jtb6__o4HW4_tjXNN25wy5x7fdxYTctW0h-PPRF1I7TXWLpp1d_iPeXaFxPtw3WzTzr_aXzAnjV38dndt08GYU4OvT_GY1bkhzON4C6HIvwTzX4x3CXr8OsekbMxBndKtUYau3MdToeyg2">                                                <a href="javascript:document.getElementById('logoutForm').submit()" class="logout_btn" style="background: rgba(77, 77, 77, 0.08) !important;"><i class="fa fa-sign-out-alt p-l-5"></i><span>Logout</span></a>
+</form>                                        </li>
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+
+
+
+                <li>
+                    <a href="/en-us/Home/ChangeLang?Lang=ar-sa&amp;ReturnUrl=%252fen-us%252fCollectionAndRenewal" class="font-16"><span class="fa fa-language text-primary"></span> العربية</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+            
+            
+
+
+
+
+<div class="left side-menu">
+    <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 1010px;"><div class="sidebar-inner slimscrollleft " style="overflow: hidden; width: auto; height: 1010px;">
+ 
+        <div id="sidebar-menu" class="m-t-15">
+            <ul>
+                <li>
+                    <a href="/en-us/Home/Dashboard" class="waves-effect">
+                        <i class="fa fa-tachometer-alt  text-primary "></i>
+
+                        <span> Home </span>
+                    </a>
+                </li>
+
+
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-building text-primary "></i> 
+                                        <span>The Offic   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/Branch" style="font-weight:normal;border-right: 0px;">Company Data  </a></li><li><a href="/en-us/Document" style="font-weight:normal;border-right: 0px;">Documents  </a></li><li><a href="/en-us/RulesManagement" style="font-weight:normal;border-right: 0px;">Privileges  </a></li>
+                        </ul>
+                    </li>
+ 
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-cog text-primary "></i> 
+                                        <span>Customer Web Site   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/CustomerWebPage/Settings" style="font-weight:normal;border-right: 0px;">WebSite Setting  </a></li><li><a href="/en-us/CustomerWebPage/ContactUs" style="font-weight:normal;border-right: 0px;">Contact Us  </a></li><li><a href="/en-us/CustomerWebPage/ScreensAndLinks" style="font-weight:normal;border-right: 0px;">Screens and links  </a></li>
+                        </ul>
+                    </li>
+
+
+                
+
+
+
+                <li>
+                   <a href="/en-us/Agent" class="waves-effect"><i class="fa fa-user-secret  text-primary "></i>
+                         
+                            <span> Agents </span></a>
+               </li>
+
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-chart-line text-primary "></i> 
+                                        <span>Statistics   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/Statistics/AgentProductivity" style="font-weight:normal;border-right: 0px;">Agent Productivity  </a></li><li><a href="/en-us/Statistics/OfficeProductivity" style="font-weight:normal;border-right: 0px;">Office Productivity  </a></li><li><a href="/en-us/Contract/EmployeesProductivity" style="font-weight:normal;border-right: 0px;">Employees Productivity  </a></li><li><a href="/en-us/Statistics/TotalProductivity" style="font-weight:normal;border-right: 0px;">Total Productivity  </a></li><li><a href="/en-us/Statistics/FollowUpStatistics" style="font-weight:normal;border-right: 0px;">Follow-Up Statistics  </a></li><li><a href="/en-us/Statistics/ApplicantStatistics" style="font-weight:normal;border-right: 0px;">Applicants Statistics  </a></li><li><a href="/en-us/Statistics/OperationVisasStatistics" style="font-weight:normal;border-right: 0px;">Visas Statistics  </a></li>
+                        </ul>
+                    </li>
+
+
+                
+
+
+                 
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-envelope text-primary "></i> 
+                                        <span>SMS   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/CustomerSMS" style="font-weight:normal;border-right: 0px;">Send SMS  </a></li><li><a href="/en-us/SendEmail" style="font-weight:normal;border-right: 0px;">Send Email   </a></li><li><a href="/en-us/Automatic_SMS" style="font-weight:normal;border-right: 0px;">Mobile Archive  </a></li><li><a href="/en-us/AutomaticTrackingSMS" style="font-weight:normal;border-right: 0px;">SMS Template Setting  </a></li><li><a href="/en-us/SMS_Settting" style="font-weight:normal;border-right: 0px;">SMS Settting  </a></li>
+                        </ul>
+                    </li>
+
+
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-users text-primary "></i> 
+                                        <span>Customers   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/AllCustomer" style="font-weight:normal;border-right: 0px;">Customers  </a></li><li><a href="/en-us/cer/CustomerPhone" style="font-weight:normal;border-right: 0px;">جهات الاتصال  </a></li><li><a href="/en-us/CustomerContacts" style="font-weight:normal;border-right: 0px;">Customer Contacts  </a></li>
+                        </ul>
+                    </li>
+
+
+                
+
+                
+
+
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-paper-plane text-primary "></i> 
+                                        <span>Recruitment requests   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/RecruitmentRequest" style="font-weight:normal;border-right: 0px;">Recruitment requests  </a></li>
+                        </ul>
+                    </li>
+
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-paper-plane text-primary "></i> 
+                                        <span>Reception   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/MediationOffers" style="font-weight:normal;border-right: 0px;">عروض واسعار التوسط  </a></li><li><a href="/en-us/RentOffers" style="font-weight:normal;border-right: 0px;">عروض واسعار التشغيل  </a></li>
+                        </ul>
+                    </li>
+
+                <li>
+                   <a href="/en-us/Complaints" class="waves-effect"><i class="fas fa-file  text-primary "></i>
+                         
+                            <span> Complaints </span></a>
+               </li>
+
+<li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fas fa-file text-primary "></i> 
+                                        <span>Mediation Contracts    </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/Contract" style="font-weight:normal;border-right: 0px;">Mediation Contracts   </a></li><li><a href="/en-us/AutomaticFollowup" style="font-weight:normal;border-right: 0px;">FollowUp  </a></li><li><a href="/en-us/AutomaticFollowup?OPI=1" style="font-weight:normal;border-right: 0px;">Operation FollowUp  </a></li><li><a href="/en-us/NotFollowUp" style="font-weight:normal;border-right: 0px;">Incomplete Follow-up  </a></li><li><a href="/en-us/Warranty" style="font-weight:normal;border-right: 0px;">The Warranty  </a></li><li><a href="/en-us/AgentAssignment" style="font-weight:normal;border-right: 0px;">Requests  </a></li><li><a href="/en-us/Complaints" style="font-weight:normal;border-right: 0px;">Complaints  </a></li>
+                        </ul>
+                    </li>
+                
+
+                 <li>
+                   <a href="/en-us/SponsorshipTransfer" class="waves-effect"><i class="fas fa-file  text-primary "></i>
+                         
+                            <span> Sponsorship Transfer contracts </span></a>
+               </li>
+
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-user-secret text-primary "></i> 
+                                        <span>Mediation Contract Reports   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/ArrivalReport" style="font-weight:normal;border-right: 0px;">Arrival Report  </a></li><li><a href="/en-us/AlternativesReport" style="font-weight:normal;border-right: 0px;">Alternatives Agents  </a></li><li><a href="/en-us/Contract_Delegates" style="font-weight:normal;border-right: 0px;">Delegates  </a></li><li><a href="/en-us/Visa" style="font-weight:normal;border-right: 0px;">Visas Request  </a></li><li><a href="/en-us/CancellationOfCanceledContracts" style="font-weight:normal;border-right: 0px;">Cancellation penalty  </a></li><li><a href="/en-us/ContractPenalty" style="font-weight:normal;border-right: 0px;">Delay penalty  </a></li><li><a href="/en-us/Contract/Transmital" style="font-weight:normal;border-right: 0px;">Transmital  </a></li>
+                        </ul>
+                    </li>
+
+
+                
+
+
+                <li class="has_sub active">
+                        <a href="javascript:void(0);" class="waves-effect  active subdrop" style="color: #ff5b5b !important;"><i class="fa fa-file-alt  "></i> 
+                                        <span>operation Contracts   </span> <span class="menu-arrow "></span></a>
+                        <ul class="list-unstyled" style="display: block;">
+                            <li><a href="/en-us/RentContract" style="font-weight:normal;border-right: 0px;">operation Contracts  </a></li><li><a href="/en-us/RentPriceOffer" style="font-weight:normal;border-right: 0px;">operation Prices And Offers  </a></li><li><a href="/en-us/Applicants/AvailableApplicants?RRTC=1" style="font-weight:normal;border-right: 0px;">Available applicants  </a></li><li class="active subdrop"><a href="/en-us/CollectionAndRenewal" class="active" style="color: #ff5b5b !important;">Collection and renewal  </a></li>
+                        </ul>
+                    </li>
+            
+                
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fas fa-users text-primary "></i> 
+                                        <span>HR Management   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/HR/Department/Index" style="font-weight:normal;border-right: 0px;">Departments  </a></li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fas fa-pen-square text-primary "></i> 
+                                        <span>Requests   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/HR/RequestsArchivee/Index" style="font-weight:normal;border-right: 0px;">Requests Archivee  </a></li><li><a href="/en-us/HR/Vacation/MakeRequest" style="font-weight:normal;border-right: 0px;">Vacation Request  </a></li><li><a href="/en-us/HR/Permission/MakeRequest/Permission" style="font-weight:normal;border-right: 0px;">Request permission  </a></li><li><a href="/en-us/HR/Custody/MakeReceiptRequest" style="font-weight:normal;border-right: 0px;">Request receipt custody  </a></li><li><a href="/en-us/HR/JobModify/MakeRequest" style="font-weight:normal;border-right: 0px;">Request job modification  </a></li><li><a href="/en-us/HR/RequstExperience/Index" style="font-weight:normal;border-right: 0px;">Experience requst  </a></li><li><a href="/en-us/HR/RequestResignation/MakeRequest" style="font-weight:normal;border-right: 0px;">Request Resignation  </a></li><li><a href="/en-us/HR/RequestEntitlement/Index" style="font-weight:normal;border-right: 0px;">Entitlements Request  </a></li><li><a href="/en-us/HR/Loans/MakeRequest" style="font-weight:normal;border-right: 0px;">Loans  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-eye text-primary "></i> 
+                                        <span>Inquiry   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/HR/Instance" style="font-weight:normal;border-right: 0px;">Requests inbox  </a></li><li><a href="/en-us/HR/Instance/Outbox" style="font-weight:normal;border-right: 0px;">Requests outbox  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-user text-primary "></i> 
+                                        <span>Employees   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/emp" style="font-weight:normal;border-right: 0px;">employees Management  </a></li><li><a href="/en-us/Accounts/EmpCommission" style="font-weight:normal;border-right: 0px;">Employee Commission  </a></li><li><a href="/en-us/co/Commission" style="font-weight:normal;border-right: 0px;">الشرائح والعمولات الجديدة  </a></li><li><a href="/en-us/CommisionSlices" style="font-weight:normal;border-right: 0px;">Commision Slices  </a></li><li><a href="/en-us/HR/EmployeesAttendance/index" style="font-weight:normal;border-right: 0px;">الحضور والانصراف الجديدة  </a></li><li><a href="/en-us/HR/EmployeesAttendance/VacationsBalance" style="font-weight:normal;border-right: 0px;">رصيد الاجازات  </a></li><li><a href="/en-us/HR/EmployeesAttendance/EmployeesOnVacation" style="font-weight:normal;border-right: 0px;">موظفين في اجازة  </a></li><li><a href="/en-us/Emp/EmployeesAttendence" style="font-weight:normal;border-right: 0px;">Attendce And Departing  </a></li>
+                        </ul>
+                    </li><li><a href="/en-us/EmployeeComplaints" style="font-weight:normal;border-right: 0px;">Employee Complaints  </a></li><li><a href="/en-us/HR/SalaryDefinition/Index" style="font-weight:normal;border-right: 0px;">Salary declaration letter  </a></li>
+                        </ul>
+                    </li>
+
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-th-list text-primary "></i> 
+                                        <span>Operation Management   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/OperationManagement/VisaRequest" style="font-weight:normal;border-right: 0px;">Visa Request  </a></li><li><a href="/en-us/OperationManagement/VisaPayment" style="font-weight:normal;border-right: 0px;">Request for issuing a financial visa  </a></li><li><a href="/en-us/OperationManagement/VisaRecoveryPayment" style="font-weight:normal;border-right: 0px;">Visa Recovery Payment  </a></li><li><a href="/en-us/OperationManagement/OperationPlans" style="font-weight:normal;border-right: 0px;">Issuing Plan  </a></li>
+                        </ul>
+                    </li>
+ 
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fas fa-home text-primary "></i> 
+                                        <span>Management of housing   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/Applicants" style="font-weight:normal;border-right: 0px;">Applicant  </a></li><li><a href="/en-us/Applicants/AvailableApplicants" style="font-weight:normal;border-right: 0px;">Available Applicants  </a></li><li><a href="/en-us/Applicants/ApplicantsNationality" style="font-weight:normal;border-right: 0px;">Follow-up operation workers  </a></li><li><a href="/en-us/Applicants/ApplicantsFollowUp" style="font-weight:normal;border-right: 0px;">Arrived Applicants Follow Up  </a></li>
+                        </ul>
+                    </li>
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-plane text-primary "></i> 
+                                        <span>Logistic services   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/housing" style="font-weight:normal;border-right: 0px;">Housing  </a></li><li><a href="/en-us/RequestRations" style="font-weight:normal;border-right: 0px;">Requests Rations  </a></li><li><a href="/en-us/ReceiveApplicants/PickUp" style="font-weight:normal;border-right: 0px;">Pick up  </a></li><li><a href="/en-us/lgs/HousingApplicants" style="font-weight:normal;border-right: 0px;">Housing  </a></li><li><a href="/en-us/lgs/DailyMovements" style="font-weight:normal;border-right: 0px;">Daily movements  </a></li><li><a href="/en-us/HousingEmp" style="font-weight:normal;border-right: 0px;">Applicant accommodation management  </a></li>
+                        </ul>
+                    </li>
+
+
+
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fas fa-chart-line text-primary "></i> 
+                                        <span>Accounting   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/Accounts/Transactions" style="font-weight:normal;border-right: 0px;">Journal Entry  </a></li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-dollar-sign text-primary "></i> 
+                                        <span>Accounts   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/Accounts" style="font-weight:normal;border-right: 0px;">Accounts Tree  </a></li><li><a href="/en-us/CustomerAccountStatement" style="font-weight:normal;border-right: 0px;">Account statement  </a></li><li><a href="/en-us/Accounts/RevenuesAndExpenses" style="font-weight:normal;border-right: 0px;">Revenues And Expenses  </a></li><li><a href="/en-us/Accounts/LiquidityIndex" style="font-weight:normal;border-right: 0px;">Liquidity report  </a></li><li><a href="/en-us/TrialBalance" style="font-weight:normal;border-right: 0px;">Trial Balance  </a></li><li><a href="/en-us/TrialBalance/IndexGroups" style="font-weight:normal;border-right: 0px;">Trial Balance Groups  </a></li><li><a href="/en-us/AccountsSettings" style="font-weight:normal;border-right: 0px;">Accounts Settings  </a></li><li><a href="/en-us/Accounts/AccountsList" style="font-weight:normal;border-right: 0px;">Accounts List  </a></li><li><a href="/en-us/AccountStatement/TaxReport" style="font-weight:normal;border-right: 0px;">Tax report  </a></li><li><a href="/en-us/ContractProfit" style="font-weight:normal;border-right: 0px;">Contracts Profit And Costs  </a></li><li><a href="/en-us/Acc/ContractProfit2" style="font-weight:normal;border-right: 0px;">Contracts Profit And Costs  الجديدة    </a></li><li><a href="/en-us/Accounts/AccountsAnalysing" style="font-weight:normal;border-right: 0px;">Accounts Analysing  </a></li><li><a href="/en-us/ClosingOfTheFiscalYear" style="font-weight:normal;border-right: 0px;">Closing Of The Fiscal Year  </a></li><li><a href="/en-us/ClosingOfTheFiscalYear/Budget" style="font-weight:normal;border-right: 0px;">Budget  </a></li><li><a href="/en-us/ClosingOfTheFiscalYear/Budget_Periodic" style="font-weight:normal;border-right: 0px;">Statement of financial position  </a></li><li><a href="/en-us/ClosingOfTheFiscalYear/IncomeList" style="font-weight:normal;border-right: 0px;"> Income List  </a></li><li><a href="/en-us/ClosingOfTheFiscalYear/BalanceSheet" style="font-weight:normal;border-right: 0px;">Balance Sheet  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-dollar-sign text-primary "></i> 
+                                        <span>Debentures   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/Accounts/PublicDebenture" style="font-weight:normal;border-right: 0px;">Public Transactions  </a></li><li><a href="/en-us/Accounts/FixedAssetsDebenture" style="font-weight:normal;border-right: 0px;">Fixed Assets Debenture  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-dollar-sign text-primary "></i> 
+                                        <span>Account Statement   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/Acc/AccPages/CustomerStatement" style="font-weight:normal;border-right: 0px;">Customer Account Statement  </a></li><li><a href="/en-us/Acc/AccPages/CustomersStatement" style="font-weight:normal;border-right: 0px;">Customers Account Statement  </a></li><li><a href="/en-us/Acc/AccPages/BankAccounts" style="font-weight:normal;border-right: 0px;">Bank Accounts  </a></li><li><a href="/en-us/AgentAccountStatement/AgentStatement" style="font-weight:normal;border-right: 0px;">Agent Account Statement  </a></li><li><a href="/en-us/AccountStatement/DetailedAccountStatement" style="font-weight:normal;border-right: 0px;">Detailed Account Statement  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-dollar-sign text-primary "></i> 
+                                        <span>Tax Invoices   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/Acc/Zatca" style="font-weight:normal;border-right: 0px;">Tax invoice  </a></li><li><a href="/en-us/Acc/Zatca/Settings" style="font-weight:normal;border-right: 0px;">اعدادات الربط  </a></li><li><a href="/en-us/Acc/Zatca/Settings" style="font-weight:normal;border-right: 0px;">تفعيل الربط  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-dollar-sign text-primary "></i> 
+                                        <span>Fixed Assets   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/AssetsClassification" style="font-weight:normal;border-right: 0px;">Assets Classification  </a></li><li><a href="/en-us/AssetsManagement" style="font-weight:normal;border-right: 0px;">Assets Management  </a></li><li><a href="/en-us/AssetsBalance" style="font-weight:normal;border-right: 0px;"> Assets Balance  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-dollar-sign text-primary "></i> 
+                                        <span>رواتب العمالة   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/Acc/ApplicantSalary" style="font-weight:normal;border-right: 0px;">رواتب العمالة  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-dollar-sign text-primary "></i> 
+                                        <span>اقساط العقود   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/ctim/ContractInstalments" style="font-weight:normal;border-right: 0px;">اقساط العقود  </a></li>
+                        </ul>
+                    </li>
+                        </ul>
+                    </li>
+
+
+                <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-cogs text-primary "></i> 
+                                        <span>Settings   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-cogs text-primary "></i> 
+                                        <span>General Settings   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/SystemEntities" style="font-weight:normal;border-right: 0px;">General Settings  </a></li><li><a href="/en-us/AirlineCompanies" style="font-weight:normal;border-right: 0px;">Airlines  </a></li><li><a href="/en-us/ReportsSetttings" style="font-weight:normal;border-right: 0px;">Report settings  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-cogs text-primary "></i> 
+                                        <span>النماذج والتقارير   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/templates" style="font-weight:normal;border-right: 0px;">templates  </a></li><li><a href="/en-us/ReportGenerator" style="font-weight:normal;border-right: 0px;">Reports  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-cogs text-primary "></i> 
+                                        <span>Rent   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/RentGeneralSettings" style="font-weight:normal;border-right: 0px;">Rent Settings  </a></li><li><a href="/en-us/RentWarningPeriod" style="font-weight:normal;border-right: 0px;">Expiry alert period  </a></li><li><a href="/en-us/ReportGenerator/Rents" style="font-weight:normal;border-right: 0px;">Report Generator  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-cogs text-primary "></i> 
+                                        <span>Recruitment   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/MediationSettings" style="font-weight:normal;border-right: 0px;">Recruitment Settings  </a></li><li><a href="/en-us/cts/OtherExpenses" style="font-weight:normal;border-right: 0px;">تكاليف أخرى للعقود  </a></li><li><a href="/en-us/cts/Tags" style="font-weight:normal;border-right: 0px;">تصنيفات العقود  </a></li><li><a href="/en-us/PriceOffer" style="font-weight:normal;border-right: 0px;">Prices of contracts  </a></li><li><a href="/en-us/ReportGenerator/Mediation" style="font-weight:normal;border-right: 0px;">Report Generator  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-cogs text-primary "></i> 
+                                        <span>Sponsorship   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/SponsorshipSettings" style="font-weight:normal;border-right: 0px;">Sponsorship  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-cogs text-primary "></i> 
+                                        <span>Human Resources   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/HR/HRSettings/Index" style="font-weight:normal;border-right: 0px;">HR Settings  </a></li><li><a href="/en-us/HR/Custody/Index" style="font-weight:normal;border-right: 0px;">Custody type  </a></li><li><a href="/en-us/HR/CustomVacation/Index" style="font-weight:normal;border-right: 0px;">Vacation type  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-cogs text-primary "></i> 
+                                        <span>Finance   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/FinancialSettings" style="font-weight:normal;border-right: 0px;">Financial Settings  </a></li><li><a href="/en-us/Acc/EditAccountTree" style="font-weight:normal;border-right: 0px;">Modify account tree  </a></li><li><a href="/en-us/ReportGenerator/Accounting" style="font-weight:normal;border-right: 0px;">Accounts Report Generator  </a></li>
+                        </ul>
+                    </li><li class="has_sub ">
+                        <a href="javascript:void(0);" class="waves-effect" style="color: #505050  !important;"><i class="fa fa-cogs text-primary "></i> 
+                                        <span>Ration Setting   </span> <span class="menu-arrow text-primary"></span></a>
+                        <ul class="list-unstyled" style="">
+                            <li><a href="/en-us/Meals" style="font-weight:normal;border-right: 0px;">Ration Setting  </a></li>
+                        </ul>
+                    </li><li><a href="/en-us/PageFilter/PageFilter" style="font-weight:normal;border-right: 0px;">Quick Search  </a></li>
+                        </ul>
+                    </li>
+ 
+<li>
+                   <a href="/en-us/CompaniesStats/BillingAndSubscriptions" class="waves-effect"><i class="fa-solid fa-file-invoice-dollar  text-primary "></i>
+                         
+                            <span> Billing and subscriptions </span></a>
+               </li>
+
+
+                
+
+
+                
+ 
+                
+
+
+
+
+
+
+
+
+
+
+            </ul>
+
+
+
+            <div class="clearfix  "></div>
+        </div>
+        <div class="clearfix"></div>
+    </div><div class="slimScrollBar" style="background: rgb(220, 220, 220); width: 5px; position: absolute; top: 0px; opacity: 0.4; display: block; border-radius: 7px; z-index: 99; left: 1px; height: 937.592px; visibility: visible;"></div><div class="slimScrollRail" style="width: 5px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; background: rgb(51, 51, 51); opacity: 0.2; z-index: 90; left: 1px;"></div></div>
+    <div class="clearfix"></div>
+</div>
+
+<style>
+    html[dir=rtl] #sidebar-menu li a {
+        padding-left: 1px;
+    }
+
+    html[dir=rtl] #sidebar-menu i {
+        margin: auto;
+    }
+</style>
+
+            <div class="content-page">
+                <div class="content">
+                    <div class="container m-b-30">
+                        <div class="row m-t-30">
+                            <div class="col-md-12">
+                                <div class="breadcrumbDiv">
+                                    <h3 class="ui-dialog-title title-right pull-left">
+                                        Collection and renewal
+                                    </h3>
+                                    <ul class="list-inline col-md-9 d-inline-block ul-mrg-top-3 breadcrumb">
+                                        <li class="breadcrumb-item ">
+                                            <a href="/en-us">
+                                                <span class="list-inline-item h4 fa fa-home"></span>
+                                            </a>
+                                        </li>
+                                        
+
+    <li class="breadcrumb-item">Collection and renewal</li>
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+<div class="col-md-12">
+    <div class="panel panel-primary panel-border">
+        <div class="panel-body table-responsive">
+<form action="/en-us/CollectionAndRenewal" class="p-t-15" method="get" role="form">                
+
+                    <div class="panel panel-primary panel-border">
+                        <div class="panel panel-shadow filter">
+                            <header class="panel-heading accordion" data-toggle="collapse" data-parent="#accordion" href="#accordionOne">
+                                <i class="collapse-caret fa fa-angle-up"></i>
+                                <h4> Search Filters</h4>
+                                <span class="pull-right">Shown 10 . Count 583  </span>
+                            </header>
+                            <div id="accordionOne" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                            <label for="isEnded">Contract Status</label>
+                            
+                            <div class="input-group">
+                                                <span class="input-group-addon text-primary text-primary">
+                                                    <i class="fa fa-list"></i>
+                                                </span>
+                            <div class="dropdown bootstrap-select form-control"><select name="isEnded" id="isEnded" class="form-control selectpicker" data-placeholder="اختار" tabindex="-98"><option value="0" selected="selected">none</option><option value="3">Valid contracts</option><option value="1">Expired contracts</option><option value="2">Contracts will expire soon</option></select><button type="button" class="btn dropdown-toggle btn-default" data-toggle="dropdown" role="button" data-id="isEnded" title="none"><div class="filter-option"><div class="filter-option-inner"><div class="filter-option-inner-inner">none</div></div> </div><span class="bs-caret"><span class="caret"></span></span></button><div class="dropdown-menu open" role="combobox"><div class="inner open" role="listbox" aria-expanded="false" tabindex="-1"><ul class="dropdown-menu inner "></ul></div></div></div></div></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-1 col-sm-10">
+                                                <button type="submit" class="btn btn-primary waves-effect waves-light m-b-5">
+                                    <i class="fa fa-search m-r-5"></i> <span>Search</span>
+                                </button>
+                                                <a href="/en-us/CollectionAndRenewal" class="btn btn-inverse  waves-effect waves-light m-b-5">
+                                   <i class="fa fa-ban m-r-5"></i> <span>Cancel</span>
+                               </a>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                
+</form>            <div class="row p-l-r-20">
+                <div class="col-md-6">
+                    <a href="/en-us/CollectionAndRenewal/ExcelPrintCollectionAndRenewal?isEnded=0" class="btn btn-success"><span class="fa fa-file-excel"></span>  Print Excel</a>
+                </div>
+
+
+                <div class="col-md-6 text-right">
+                    <ul class="m-0 pagination"><li class="page-item"><select class="custom-select custom-select-sm form-control form-control-sm pagernumber changePage"><option disabled="" selected="" value="/en-us/CollectionAndRenewal?s=10">10</option><option value="/en-us/CollectionAndRenewal?s=15">15</option><option value="/en-us/CollectionAndRenewal?s=20">20</option><option value="/en-us/CollectionAndRenewal?s=24">24</option><option value="/en-us/CollectionAndRenewal?s=50">50</option><option value="/en-us/CollectionAndRenewal?s=100">100</option></select></li><li class="page-item  active"><a class="page-link">1</a></li><li class="page-item "><a class="page-link" href="/en-us/CollectionAndRenewal?p=2">2</a></li><li class="page-item "><a class="page-link" href="/en-us/CollectionAndRenewal?p=3">3</a></li><li class=" page-item"><a href="/en-us/CollectionAndRenewal?p=2">Next</a> </li><li class="page-item"><a href="/en-us/CollectionAndRenewal?p=59">Last</a></li></ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="contractdiv" data-ajax-error="unexpected error while downloading data">
+
+
+
+<div class="col-md-12 rent-contract" data-id="20939" name="con_20939" data-reload="/en-us/RentContract/Partial_Contract/20939">
+    <div class="panel panel-success panel-border">
+        <div class="panel-heading"></div>
+        <div class="panel-body table-responsive">
+            <div class="branchname"> Sigma competences recruitment office</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <a href="/en-us/RentContract/ViewRentContract/20939">
+                                    <h1 class="text-custom font-60">766</h1>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <a href="/en-us/AllCustomer/ViewCust/700860f2-d75a-40f5-bf2a-dd070792d574">
+                                <h4 class="m-t-0 header-title-small"><b>Customer Information</b> </h4>
+                                <h4 class="m-t-0 m-b-0"> Ebdallh sed hsn alhrany    </h4>
+                            </a>
+                                <a href="https://web.whatsapp.com/send?phone=+966555255501" target="_blank"><span class="fab fa-whatsapp text-info m-r-5 m-t-5"></span> <b>0555255501</b></a>
+                            <p>  <span class="fa fa-id-card-o m-r-5 m-l-5"></span>1001808714</p>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="col-md-3">
+                                    <p class="text-info"> Sign Date </p><b> 2026/01/14</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract begin date</p><b>Wednesday 14 January 2026</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract end date</p><b> Thursday 12 February 2026 </b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">المدة المتبقية  </p><b class="">  ينتهى بعد  29  يوم</b>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="col-md-12 rent-contract" data-id="17179" name="con_17179" data-reload="/en-us/RentContract/Partial_Contract/17179">
+    <div class="panel panel-success panel-border">
+        <div class="panel-heading"></div>
+        <div class="panel-body table-responsive">
+            <div class="branchname"> Sigma competences recruitment office</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <a href="/en-us/RentContract/ViewRentContract/17179">
+                                    <h1 class="text-custom font-60">765</h1>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <a href="/en-us/AllCustomer/ViewCust/84701c4b-1c58-4ae9-a25d-8f47fdd18bbe">
+                                <h4 class="m-t-0 header-title-small"><b>Customer Information</b> </h4>
+                                <h4 class="m-t-0 m-b-0"> Hnan mhmd ely byk     </h4>
+                            </a>
+                                <a href="https://web.whatsapp.com/send?phone=+966505617966" target="_blank"><span class="fab fa-whatsapp text-info m-r-5 m-t-5"></span> <b>0505617966</b></a>
+                            <p>  <span class="fa fa-id-card-o m-r-5 m-l-5"></span>1008012286</p>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="col-md-3">
+                                    <p class="text-info"> Sign Date </p><b> 2024/08/15</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract begin date</p><b>Saturday 17 August 2024</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract end date</p><b> Sunday 15 September 2024 </b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">المدة المتبقية  </p><b class="text-danger"> انتهى منذ  486 يوم</b>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="col-md-12 rent-contract" data-id="17159" name="con_17159" data-reload="/en-us/RentContract/Partial_Contract/17159">
+    <div class="panel panel-success panel-border">
+        <div class="panel-heading"></div>
+        <div class="panel-body table-responsive">
+            <div class="branchname"> Sigma competences recruitment office</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <a href="/en-us/RentContract/ViewRentContract/17159">
+                                    <h1 class="text-custom font-60">764</h1>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <a href="/en-us/AllCustomer/ViewCust/39f8b5c5-a440-4eee-b422-9c46d227e28f">
+                                <h4 class="m-t-0 header-title-small"><b>Customer Information</b> </h4>
+                                <h4 class="m-t-0 m-b-0"> Hythm hashm eli meuh    </h4>
+                            </a>
+                                <a href="https://web.whatsapp.com/send?phone=+966560344911" target="_blank"><span class="fab fa-whatsapp text-info m-r-5 m-t-5"></span> <b>0560344911</b></a>
+                            <p>  <span class="fa fa-id-card-o m-r-5 m-l-5"></span>1110701834</p>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="col-md-3">
+                                    <p class="text-info"> Sign Date </p><b> 2024/08/17</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract begin date</p><b>Saturday 17 August 2024</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract end date</p><b> Sunday 15 September 2024 </b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">المدة المتبقية  </p><b class="text-danger"> انتهى منذ  486 يوم</b>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="col-md-12 rent-contract" data-id="17155" name="con_17155" data-reload="/en-us/RentContract/Partial_Contract/17155">
+    <div class="panel panel-success panel-border">
+        <div class="panel-heading"></div>
+        <div class="panel-body table-responsive">
+            <div class="branchname"> Sigma competences recruitment office</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <a href="/en-us/RentContract/ViewRentContract/17155">
+                                    <h1 class="text-custom font-60">763</h1>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <a href="/en-us/AllCustomer/ViewCust/74b7ca44-5f39-4dc4-b83b-e429a73593a1">
+                                <h4 class="m-t-0 header-title-small"><b>Customer Information</b> </h4>
+                                <h4 class="m-t-0 m-b-0"> Hylh sakan mhmd al sakan    </h4>
+                            </a>
+                                <a href="https://web.whatsapp.com/send?phone=+966537313043" target="_blank"><span class="fab fa-whatsapp text-info m-r-5 m-t-5"></span> <b>0537313043</b></a>
+                            <p>  <span class="fa fa-id-card-o m-r-5 m-l-5"></span>1017900331</p>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="col-md-3">
+                                    <p class="text-info"> Sign Date </p><b> 2024/08/18</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract begin date</p><b>Saturday 17 August 2024</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract end date</p><b> Sunday 15 September 2024 </b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">المدة المتبقية  </p><b class="text-danger"> انتهى منذ  486 يوم</b>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="col-md-12 rent-contract" data-id="17055" name="con_17055" data-reload="/en-us/RentContract/Partial_Contract/17055">
+    <div class="panel panel-success panel-border">
+        <div class="panel-heading"></div>
+        <div class="panel-body table-responsive">
+            <div class="branchname"> Sigma competences recruitment office</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <a href="/en-us/RentContract/ViewRentContract/17055">
+                                    <h1 class="text-custom font-60">761</h1>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <a href="/en-us/AllCustomer/ViewCust/a0fd4ac6-b0ec-48a6-9980-f5a19e41d82a">
+                                <h4 class="m-t-0 header-title-small"><b>Customer Information</b> </h4>
+                                <h4 class="m-t-0 m-b-0"> Salhh frag mhmd alhydry     </h4>
+                            </a>
+                                <a href="https://web.whatsapp.com/send?phone=+966504600103" target="_blank"><span class="fab fa-whatsapp text-info m-r-5 m-t-5"></span> <b>0504600103</b></a>
+                            <p>  <span class="fa fa-id-card-o m-r-5 m-l-5"></span>1008217919</p>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="col-md-3">
+                                    <p class="text-info"> Sign Date </p><b> </b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract begin date</p><b>Wednesday 07 August 2024</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract end date</p><b> Thursday 05 September 2024 </b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">المدة المتبقية  </p><b class="text-danger"> انتهى منذ  496 يوم</b>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="col-md-12 rent-contract" data-id="17044" name="con_17044" data-reload="/en-us/RentContract/Partial_Contract/17044">
+    <div class="panel panel-success panel-border">
+        <div class="panel-heading"></div>
+        <div class="panel-body table-responsive">
+            <div class="branchname"> Sigma competences recruitment office</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <a href="/en-us/RentContract/ViewRentContract/17044">
+                                    <h1 class="text-custom font-60">760</h1>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <a href="/en-us/AllCustomer/ViewCust/d71d1b40-643e-4a03-a614-af3f010b1ea7">
+                                <h4 class="m-t-0 header-title-small"><b>Customer Information</b> </h4>
+                                <h4 class="m-t-0 m-b-0"> Mhmd ahmd mhmd al ely alsyd    </h4>
+                            </a>
+                                <a href="https://web.whatsapp.com/send?phone=+966501361447" target="_blank"><span class="fab fa-whatsapp text-info m-r-5 m-t-5"></span> <b>0501361447</b></a>
+                            <p>  <span class="fa fa-id-card-o m-r-5 m-l-5"></span>1035012812</p>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="col-md-3">
+                                    <p class="text-info"> Sign Date </p><b> 2024/08/11</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract begin date</p><b>Tuesday 06 August 2024</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract end date</p><b> Wednesday 04 September 2024 </b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">المدة المتبقية  </p><b class="text-danger"> انتهى منذ  497 يوم</b>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="col-md-12 rent-contract" data-id="17018" name="con_17018" data-reload="/en-us/RentContract/Partial_Contract/17018">
+    <div class="panel panel-success panel-border">
+        <div class="panel-heading"></div>
+        <div class="panel-body table-responsive">
+            <div class="branchname"> Sigma competences recruitment office</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <a href="/en-us/RentContract/ViewRentContract/17018">
+                                    <h1 class="text-custom font-60">758</h1>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <a href="/en-us/AllCustomer/ViewCust/64ef11c8-c856-434d-8204-ca6328a92f72">
+                                <h4 class="m-t-0 header-title-small"><b>Customer Information</b> </h4>
+                                <h4 class="m-t-0 m-b-0"> Mni ebdalhfyz ebdalghafur kl asrar     </h4>
+                            </a>
+                                <a href="https://web.whatsapp.com/send?phone=+966570628433" target="_blank"><span class="fab fa-whatsapp text-info m-r-5 m-t-5"></span> <b>0570628433</b></a>
+                            <p>  <span class="fa fa-id-card-o m-r-5 m-l-5"></span>1077577234</p>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="col-md-3">
+                                    <p class="text-info"> Sign Date </p><b> 2024/08/12</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract begin date</p><b>Saturday 03 August 2024</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract end date</p><b> Sunday 01 September 2024 </b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">المدة المتبقية  </p><b class="text-danger"> انتهى منذ  500 يوم</b>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="col-md-12 rent-contract" data-id="16878" name="con_16878" data-reload="/en-us/RentContract/Partial_Contract/16878">
+    <div class="panel panel-success panel-border">
+        <div class="panel-heading"></div>
+        <div class="panel-body table-responsive">
+            <div class="branchname"> Sigma competences recruitment office</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <a href="/en-us/RentContract/ViewRentContract/16878">
+                                    <h1 class="text-custom font-60">756</h1>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <a href="/en-us/AllCustomer/ViewCust/d58c9e2e-1dfe-49db-8ce2-b6c7a5aec210">
+                                <h4 class="m-t-0 header-title-small"><b>Customer Information</b> </h4>
+                                <h4 class="m-t-0 m-b-0"> Fhd mhmd ely al ahmd alasmry     </h4>
+                            </a>
+                                <a href="https://web.whatsapp.com/send?phone=+966597778881" target="_blank"><span class="fab fa-whatsapp text-info m-r-5 m-t-5"></span> <b>0597778881</b></a>
+                            <p>  <span class="fa fa-id-card-o m-r-5 m-l-5"></span>1080441692</p>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="col-md-3">
+                                    <p class="text-info"> Sign Date </p><b> 2024/08/09</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract begin date</p><b>Saturday 13 July 2024</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract end date</p><b> Sunday 11 August 2024 </b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">المدة المتبقية  </p><b class="text-danger"> انتهى منذ  521 يوم</b>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="col-md-12 rent-contract" data-id="16842" name="con_16842" data-reload="/en-us/RentContract/Partial_Contract/16842">
+    <div class="panel panel-success panel-border">
+        <div class="panel-heading"></div>
+        <div class="panel-body table-responsive">
+            <div class="branchname"> Sigma competences recruitment office</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <a href="/en-us/RentContract/ViewRentContract/16842">
+                                    <h1 class="text-custom font-60">755</h1>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <a href="/en-us/AllCustomer/ViewCust/086f6aff-e1a2-46b3-a3f4-4deab9d91065">
+                                <h4 class="m-t-0 header-title-small"><b>Customer Information</b> </h4>
+                                <h4 class="m-t-0 m-b-0"> Rhmh bdr hmdan alhydry     </h4>
+                            </a>
+                                <a href="https://web.whatsapp.com/send?phone=+966505615807" target="_blank"><span class="fab fa-whatsapp text-info m-r-5 m-t-5"></span> <b>0505615807</b></a>
+                            <p>  <span class="fa fa-id-card-o m-r-5 m-l-5"></span>1008630988</p>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="col-md-3">
+                                    <p class="text-info"> Sign Date </p><b> 2024/07/10</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract begin date</p><b>Wednesday 10 July 2024</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract end date</p><b> Thursday 08 August 2024 </b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">المدة المتبقية  </p><b class="text-danger"> انتهى منذ  524 يوم</b>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="col-md-12 rent-contract" data-id="16761" name="con_16761" data-reload="/en-us/RentContract/Partial_Contract/16761">
+    <div class="panel panel-success panel-border">
+        <div class="panel-heading"></div>
+        <div class="panel-body table-responsive">
+            <div class="branchname"> Sigma competences recruitment office</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <a href="/en-us/RentContract/ViewRentContract/16761">
+                                    <h1 class="text-custom font-60">754</h1>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <a href="/en-us/AllCustomer/ViewCust/dcff5948-e34a-4770-883d-2b4363795900">
+                                <h4 class="m-t-0 header-title-small"><b>Customer Information</b> </h4>
+                                <h4 class="m-t-0 m-b-0"> Nsryn ely kshmue alhrany    </h4>
+                            </a>
+                                <a href="https://web.whatsapp.com/send?phone=+966599828251" target="_blank"><span class="fab fa-whatsapp text-info m-r-5 m-t-5"></span> <b>0599828251</b></a>
+                            <p>  <span class="fa fa-id-card-o m-r-5 m-l-5"></span>1084768686</p>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="col-md-3">
+                                    <p class="text-info"> Sign Date </p><b> 2024/07/01</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract begin date</p><b>Monday 01 July 2024</b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">Contract end date</p><b> Tuesday 30 July 2024 </b>
+                            </div>
+                            <div class="col-md-3">
+                                    <p class="text-info">المدة المتبقية  </p><b class="text-danger"> انتهى منذ  533 يوم</b>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+
+<div class="col-md-12">
+    <div class="panel panel-info panel-border">
+        <div class="panel-heading">  </div>
+        <div class="panel-body text-center ltr">
+            <ul class="m-0 pagination"><li class="page-item"><select class="custom-select custom-select-sm form-control form-control-sm pagernumber changePage"><option disabled="" selected="" value="/en-us/CollectionAndRenewal?s=10">10</option><option value="/en-us/CollectionAndRenewal?s=15">15</option><option value="/en-us/CollectionAndRenewal?s=20">20</option><option value="/en-us/CollectionAndRenewal?s=24">24</option><option value="/en-us/CollectionAndRenewal?s=50">50</option><option value="/en-us/CollectionAndRenewal?s=100">100</option></select></li><li class="page-item  active"><a class="page-link">1</a></li><li class="page-item "><a class="page-link" href="/en-us/CollectionAndRenewal?p=2">2</a></li><li class="page-item "><a class="page-link" href="/en-us/CollectionAndRenewal?p=3">3</a></li><li class=" page-item"><a href="/en-us/CollectionAndRenewal?p=2">Next</a> </li><li class="page-item"><a href="/en-us/CollectionAndRenewal?p=59">Last</a></li></ul>
+            <div class="pull-left">Shown 10 . Count 583  </div>
+        </div>
+    </div>
+</div>
+
+
+                    </div>
+                </div>
+
+                <footer class="footer m-t-20">
+                    <div class="row">
+                        <div class="col-md-6">
+
+                        </div>
+                        <div class="col-md-6">
+                            <h4>2026 © Derayah Ltd Version 1.7.0</h4>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+            
+
+        </div>
+
+    <script>
+        var resizefunc = [];
+    </script>
+    <script src="/bundles/jqueryrtl?v=gkWyJthHPtwkFjvHuNinBjchIfwLwc_KbE-H26J2kAI1"></script>
+
+    <script src="/bundles/jqueryui?v=BldxLTj4uQvGaqoOuk_iW7oilq2izVF8FhmSdhDiBzo1"></script>
+
+
+<script src="/bundles/bootstrap?v=lescQEuG5u4jd-GcVDBcbpUOSyTDIg0Kk9zHDX55GCw1"></script>
+    <script src="/bundles/jqueryval?v=jTPefzwFx0iM3EsWaYKTfsfd9Bl-EGtCr4NXRQtZFHM1"></script>
+
+    <script src="/bundles/echarts?v=j_2baJQttvm-hKE1asyxHGYSuQ2NTqRPaNwQ6MJLnSw1"></script>
+
+    <script src="/bundles/Lap?v=FGg_1fJw3kz_MNCtZXohz2WucC3zs8nrNRjOD4qCawI1"></script>
+
+    <script src="/bundles/app?v=XqbNofKj5WgKfUlEPW7bMH1gjfmc90v7g294yRVzC201"></script>
+
+<script src="/bundles/LapEN?v=4fVuGNcYlez9i0Z0stxQlxTxGwaYkU3mVpztLrZgzho1"></script>
+
+    <script src="/bundles/js/ar?v=4b42879zzG4HTEWAvgKe_TGtQmNrnNNWl1nuFMGDm4Y1"></script>
+
+
+
+    <script src="https://cdn.tiny.cloud/1/fmp9yoy3kxjg6me4b3cenypfbdyvv3527j9kzdbnfmgl79pc/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+
+    
+    <input data-val="true" data-val-required="The Screen field is required." id="ScreenId" name="ScreenId" type="hidden" value="AvailableApplicants">
+    <div id="ChangePassowrd" class="modal-demo" style="min-width:600px">
+    <button type="button" class="close" onclick="Custombox.close();">
+        <span>×</span><span class="sr-only">Close</span>
+    </button>
+    <h4 class="custom-modal-title">تغير الحالة</h4>
+    <div class="custom-modal-text">
+        <div class="row">
+<form action="/en-us/Account/ChangePassowrd" class="p-t-15" method="post" role="form" novalidate="novalidate">                
+                    <input name="__RequestVerificationToken" type="hidden" value="GMWqL2qp6uIxC5dzSmjhERaVT9VspqwkHitf4d3U2fyvqHiyRKnM9GTAlI1PZ8AIJAy08YD0UwidDHW-BAnFPlL4bd-HAcU70A60LgiiyzLOMOSTYurR4bzlQxgLD0YLTh_ORWQ5iqiQ8CvxOtO1TQ2">
+                    <div class="row">
+                        <div class="col-md-12 form-group ">
+                            <label>كلمة السر الحالية  </label>
+                            <span class="field-validation-valid text-danger" data-valmsg-for="CurrentPassowrd" data-valmsg-replace="true"></span>
+                            <input class="form-control" id="CurrentPassowrd" name="CurrentPassowrd" type="password">
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label>  كلمة المرور الجديدة</label>
+                            <span class="field-validation-valid text-danger" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                            <input class="form-control" data-val="true" data-val-length="The Password must be at least 6 characters long." data-val-length-max="100" data-val-length-min="6" data-val-required="The Password field is required." id="Password" name="Password" type="password">
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label> تأكيد كلمة المرور الجديدة </label>
+                            <span class="field-validation-valid text-danger" data-valmsg-for="ConfirmPassword" data-valmsg-replace="true"></span>
+                            <input class="form-control" data-val="true" data-val-equalto="The password and confirmation password do not match." data-val-equalto-other="*.Password" id="ConfirmPassword" name="ConfirmPassword" type="password">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-success waves-effect waves-light p-l-r-50">
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                
+</form>        </div>
+    </div>
+</div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+
+
+
+
+
+        $('#EmpBranchListItem').on('change', function() {
+             window.location='/en-us/home/ChangebranchId/' + $(this).val();
+         });
+           //$('.dropdown-toggle').dropdown();
+           // $('.selectpicker').selectpicker();
+            //alert("sdfsd")
+            //alert("sdfsd")
+        });
+        function ChangePassowrd() {
+            Custombox.open({
+                target: "#ChangePassowrd",
+                effect: "rotate",
+                overlaySpeed: 100,
+                overlayColor: "#36404a",
+            });
+        }
+    </script>
+            <div>
+            <a target="_blank" href="https://wa.me/966112333799" style="position: fixed; bottom: 15px;left: 2px;">
+                <img src="/Content/whatsapp.png" style="width: 80px;">
+            </a>
+        </div>
+    
+    
+  
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+    
+    <style>
+        .st-action-image {
+            max-height: 45px !important;
+            width: 40px !important;
+        }
+    </style>
+
+
+<div><div class="sweet-overlay" tabindex="-1"></div><div class="sweet-alert" tabindex="-1"><div class="icon error"><span class="x-mark"><span class="line left"></span><span class="line right"></span></span></div><div class="icon warning"> <span class="body"></span> <span class="dot"></span> </div> <div class="icon info"></div> <div class="icon success"> <span class="line tip"></span> <span class="line long"></span> <div class="placeholder"></div> <div class="fix"></div> </div> <div class="icon custom"></div> <h2>Title</h2><p class="lead text-muted">Text</p><p><button class="cancel btn btn-lg" tabindex="2">Cancel</button> <button class="confirm btn btn-lg" tabindex="1">OK</button></p></div></div></body></html>

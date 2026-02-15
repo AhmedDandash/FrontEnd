@@ -10,3 +10,5 @@ export { DocumentService } from './document.service';
 export { RoleService } from './role.service';
 export { UserService } from './user.service';
 export { RecruitmentRequestService } from './recruitment-request.service';
+export { EmploymentContractOfferService } from './employment-contract-offer.service';
+export { EmploymentOperatingContractService } from './employment-operating-contract.service';

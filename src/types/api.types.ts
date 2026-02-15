@@ -536,3 +536,179 @@ export interface RequestActionDto {
   requestStats?: number;
   requestId: number;
 }
+
+// ==================== Employment Contract Offer Types ====================
+export interface EmploymentContractOffer {
+  id: number;
+  offerType?: number | null;
+  offerContractType?: number | null;
+  offerTitle?: string | null;
+  numberOfDays?: number | null;
+  nationalityId?: number | null;
+  nationalityName?: string | null;
+  jobId?: number | null;
+  jobName?: string | null;
+  duration?: number | null;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+  showForExternalCustomers?: boolean;
+  showForReception?: boolean;
+  isActive?: boolean;
+  cost?: number | null;
+  costTax?: number | null;
+  promissoryNoteAmount?: number | null;
+  insurance?: number | null;
+  previousExperience?: number | null;
+  dailyPriceWithoutTax?: number | null;
+  workerSalary?: number | null;
+  totalCostWithTax?: number | null;
+  branchId?: number | null;
+  branchName?: string | null;
+  offersCount?: number | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface CreateEmploymentContractOfferDto {
+  offerType?: number | null;
+  offerContractType?: number | null;
+  offerTitle?: string | null;
+  numberOfDays?: number | null;
+  nationalityId?: number | null;
+  jobId?: number | null;
+  duration?: number | null;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+  showForExternalCustomers?: boolean;
+  showForReception?: boolean;
+  isActive?: boolean;
+  cost?: number | null;
+  costTax?: number | null;
+  promissoryNoteAmount?: number | null;
+  insurance?: number | null;
+  previousExperience?: number | null;
+  dailyPriceWithoutTax?: number | null;
+  workerSalary?: number | null;
+  totalCostWithTax?: number | null;
+  branchId?: number | null;
+  // Additional fields for special offers and packages
+  isOffer?: boolean;
+  isPremium?: boolean;
+  offersCount?: number | null;
+}
+
+export interface UpdateEmploymentContractOfferDto {
+  offerType?: number | null;
+  offerContractType?: number | null;
+  offerTitle?: string | null;
+  numberOfDays?: number | null;
+  nationalityId?: number | null;
+  jobId?: number | null;
+  duration?: number | null;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+  showForExternalCustomers?: boolean;
+  showForReception?: boolean;
+  isActive?: boolean;
+  cost?: number | null;
+  costTax?: number | null;
+  promissoryNoteAmount?: number | null;
+  insurance?: number | null;
+  previousExperience?: number | null;
+  dailyPriceWithoutTax?: number | null;
+  workerSalary?: number | null;
+  totalCostWithTax?: number | null;
+  branchId?: number | null;
+}
+
+export interface EmploymentContractOfferSummary {
+  nationalityId?: number | null;
+  nationalityName?: string | null;
+  jobId?: number | null;
+  jobName?: string | null;
+  branchId?: number | null;
+  branchName?: string | null;
+  availableOffersCount?: number | null;
+  offersCount?: number | null; // Legacy field
+}
+
+// ==================== Employment Operating Contract Types ====================
+export interface EmploymentOperatingContract {
+  id: number;
+  createdBy?: number | null;
+  createdAt?: string | null;
+  customerId?: number | null;
+  customerNameAr?: string | null;
+  mobile?: string | null;
+  customerIdentiy?: string | null;
+  offerContractType?: number | null;
+  offerType?: number | null;
+  nationalityId?: number | null;
+  jobId?: number | null;
+  jobName?: string | null;
+  duration?: number | null;
+  contractStartDate?: string | null;
+  contractEndDate?: string | null;
+  customerAddress?: string | null;
+  cost?: number | null;
+  costTax?: number | null;
+  totalCostWithTax?: number | null;
+  isFinish?: boolean | null;
+  finishBy?: number | null;
+  finishDate?: string | null;
+  noteFinish?: string | null;
+}
+
+export interface CreateEmploymentOperatingContractDto {
+  customerId?: number | null;
+  marketerId?: number | null;
+  contractCategory?: number | null;
+  offerId?: number | null;
+  operationType?: number | null;
+  paymentMethod?: number | null;
+  nationalityId?: number | null;
+  jobId?: number | null;
+  duration?: number | null;
+  contractStartDate?: string | null;
+  contractEndDate?: string | null;
+  previousExperience?: number | null;
+  offerPrice?: number | null;
+  laborManagement?: number | null;
+  workerNameEn?: string | null;
+  workerNameAr?: string | null;
+  workerPhone?: string | null;
+  workersCount?: number | null;
+  cost?: number | null;
+  insurance?: number | null;
+  customerAddress?: string | null;
+}
+
+export interface UpdateEmploymentOperatingContractDto {
+  customerId?: number | null;
+  marketerId?: number | null;
+  contractCategory?: number | null;
+  offerId?: number | null;
+  operationType?: number | null;
+  paymentMethod?: number | null;
+  nationalityId?: number | null;
+  jobId?: number | null;
+  duration?: number | null;
+  contractStartDate?: string | null;
+  contractEndDate?: string | null;
+  previousExperience?: number | null;
+  offerPrice?: number | null;
+  laborManagement?: number | null;
+  workerNameEn?: string | null;
+  workerNameAr?: string | null;
+  workerPhone?: string | null;
+  workersCount?: number | null;
+  cost?: number | null;
+  insurance?: number | null;
+  customerAddress?: string | null;
+}
+
+export interface EndContractDto {
+  contractId: number;
+  endDate?: string | null;
+  reason?: string | null;
+}

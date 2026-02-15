@@ -101,4 +101,24 @@ export const API_ENDPOINTS = {
     REFUSED_REQUEST: '/api/RecruitmentRequest/RefusedRequest',
     ACCEPT_REQUEST: '/api/RecruitmentRequest/AcceptRequest',
   },
+
+  // Employment Contract Offers
+  EMPLOYMENT_CONTRACT_OFFERS: {
+    SUMMARY: '/api/EmploymentContractOffers/summary',
+    GET_ALL: '/api/EmploymentContractOffers',
+    CREATE: '/api/EmploymentContractOffers',
+    GET_BY_ID: (id: number) => `/api/EmploymentContractOffers/${id}`,
+    UPDATE: (id: number) => `/api/EmploymentContractOffers/${id}`,
+    DELETE: (id: number) => `/api/EmploymentContractOffers/${id}`,
+  },
+
+  // Employment Operating Contract
+  EMPLOYMENT_OPERATING_CONTRACT: {
+    GET_ALL: '/api/EmploymentOperatingContract',
+    CREATE: '/api/EmploymentOperatingContract',
+    GET_BY_ID: (id: number) => `/api/EmploymentOperatingContract/${id}`,
+    UPDATE: (id: number) => `/api/EmploymentOperatingContract/${id}`,
+    DELETE: (id: number) => `/api/EmploymentOperatingContract/${id}`,
+    END_CONTRACT: '/api/EmploymentOperatingContract/EndContract',
+  },
 } as const;

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Card,
   Row,
@@ -17,6 +18,7 @@ import {
   Badge,
   Dropdown,
   DatePicker,
+  Spin,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -50,12 +52,15 @@ import {
 } from '@ant-design/icons';
 
 import { useAuthStore } from '@/store/authStore';
+import { useEmploymentOperatingContracts } from '@/hooks/api/useEmploymentOperatingContracts';
+import type { EmploymentOperatingContract } from '@/types/api.types';
 import styles from './RentContracts.module.css';
 
 const { RangePicker } = DatePicker;
 
 interface RentContract {
   id: string;
+  customerId: number;
   contractNumber: string;
   customerName: string;
   customerNameAr: string;
@@ -83,62 +88,11 @@ interface RentContract {
   notesAr: string;
 }
 
-// Mock data for rent contracts
-const mockRentContracts: RentContract[] = Array.from({ length: 50 }, (_, i) => {
-  const monthlyRent = Math.floor(Math.random() * 2000) + 1000;
-  const monthsActive = Math.floor(Math.random() * 24) + 1;
-  const totalCollected = monthlyRent * monthsActive;
-  const daysRemaining = Math.floor(Math.random() * 365);
-
-  return {
-    id: `rent-${i + 1}`,
-    contractNumber: `R${2024000 + i}`,
-    customerName: [
-      'Ahmed Al-Rashid',
-      'Fatima Hassan',
-      'Mohammed Al-Qahtani',
-      'Sara Abdullah',
-      'Khalid Ibrahim',
-      'Nora Al-Saud',
-      'Omar Mansour',
-      'Layla Ahmed',
-    ][i % 8],
-    customerNameAr: [
-      'أحمد الراشد',
-      'فاطمة حسن',
-      'محمد القحطاني',
-      'سارة عبدالله',
-      'خالد إبراهيم',
-      'نورة آل سعود',
-      'عمر منصور',
-      'ليلى أحمد',
-    ][i % 8],
-    customerPhone: `05${Math.floor(Math.random() * 9)}${String(Math.floor(Math.random() * 10000000)).padStart(7, '0')}`,
-    status: (['active', 'pending', 'expired', 'renewed', 'cancelled'] as const)[i % 5],
-    startDate: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-    endDate: new Date(Date.now() + Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-    monthlyRent,
-    totalCollected,
-    remainingAmount: Math.floor(Math.random() * monthlyRent),
-    workerName: ['Maria Santos', 'Kumar Patel', 'Siti Rahman', 'Fatima Ali'][i % 4],
-    workerNameAr: ['ماريا سانتوس', 'كومار باتل', 'سيتي رحمن', 'فاطمة علي'][i % 4],
-    nationality: ['Philippines', 'India', 'Indonesia', 'Bangladesh'][i % 4],
-    nationalityAr: ['الفلبين', 'الهند', 'إندونيسيا', 'بنغلاديش'][i % 4],
-    profession: ['Housemaid', 'Driver', 'Cook', 'Nurse'][i % 4],
-    professionAr: ['خادمة منزلية', 'سائق', 'طباخ', 'ممرضة'][i % 4],
-    agent: ['Siham Al-Harbi', 'Mohammed Al-Otaibi', 'Sara Al-Dosari'][i % 3],
-    agentAr: ['سهام الحربي', 'محمد العتيبي', 'سارة الدوسري'][i % 3],
-    branch: 'Sigma Recruitment Office',
-    branchAr: 'سيجما الكفاءات للاستقدام',
-    renewalCount: Math.floor(Math.random() * 5),
-    daysRemaining,
-    createdAt: new Date(Date.now() - Math.random() * 730 * 24 * 60 * 60 * 1000).toISOString(),
-    notes: 'Rent contract in good standing',
-    notesAr: 'عقد الإيجار في وضع جيد',
-  };
-});
-
 export default function RentContractsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const customerId = searchParams.get('customerId');
+
   const language = useAuthStore((state) => state.language);
   const [mounted, setMounted] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -147,6 +101,90 @@ export default function RentContractsPage() {
   const [dateRange, setDateRange] = useState<[any, any] | null>(null);
   const [selectedContract, setSelectedContract] = useState<RentContract | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+  // Fetch contracts from API
+  const { contracts: apiContracts, isLoading } = useEmploymentOperatingContracts();
+
+  // Safely extract data from API response (handles wrapped responses)
+  const contractsData = useMemo((): EmploymentOperatingContract[] => {
+    console.log('Rent Page - API Response:', apiContracts);
+    if (!apiContracts) return [];
+    if (Array.isArray(apiContracts)) return apiContracts;
+    if (
+      typeof apiContracts === 'object' &&
+      'data' in apiContracts &&
+      Array.isArray((apiContracts as any).data)
+    ) {
+      return (apiContracts as any).data;
+    }
+    return [];
+  }, [apiContracts]);
+
+  // Map API data to internal RentContract format
+  const allContracts = useMemo((): RentContract[] => {
+    console.log('Rent Page - Contracts Data Count:', contractsData.length);
+    const mapped = contractsData.map((contract): RentContract => {
+      const startDate = contract.contractStartDate || new Date().toISOString();
+      const endDate = contract.contractEndDate || new Date().toISOString();
+      const daysRemaining = Math.max(
+        0,
+        Math.floor((new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+      );
+
+      // Determine status based on dates and finish status
+      let status: RentContract['status'] = 'active';
+      if (contract.isFinish) {
+        status = 'cancelled';
+      } else if (daysRemaining <= 0) {
+        status = 'expired';
+      } else if (daysRemaining <= 30) {
+        status = 'pending'; // expiring soon
+      }
+
+      const monthlyRent = contract.cost || 0;
+      const monthsActive = Math.max(
+        1,
+        Math.floor((Date.now() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24 * 30))
+      );
+      const totalCollected = monthlyRent * monthsActive;
+
+      return {
+        id: String(contract.id),
+        customerId: contract.customerId || 0,
+        contractNumber: `R${2024000 + contract.id}`,
+        customerName: contract.customerNameAr || 'Unknown',
+        customerNameAr: contract.customerNameAr || 'غير معروف',
+        customerPhone: contract.mobile || '05xxxxxxxx',
+        status,
+        startDate,
+        endDate,
+        monthlyRent,
+        totalCollected,
+        remainingAmount: Math.max(
+          0,
+          (contract.totalCostWithTax || contract.cost || 0) - totalCollected
+        ),
+        workerName: contract.jobName || 'Unknown',
+        workerNameAr: contract.jobName || 'غير معروف',
+        nationality: 'Unknown',
+        nationalityAr: 'غير معروف',
+        profession: contract.jobName || 'Unknown',
+        professionAr: contract.jobName || 'غير معروف',
+        agent: 'Unknown',
+        agentAr: 'غير معروف',
+        branch: 'Sigma Recruitment Office',
+        branchAr: 'سيجما الكفاءات للاستقدام',
+        renewalCount: 0,
+        daysRemaining,
+        createdAt: contract.createdAt || new Date().toISOString(),
+        notes: contract.noteFinish || '',
+        notesAr: contract.noteFinish || '',
+      };
+    });
+    console.log('Rent Page - Mapped Contracts Count:', mapped.length);
+    console.log('Rent Page - Sample Contract:', mapped[0]);
+    return mapped;
+  }, [contractsData]);
 
   useEffect(() => {
     setMounted(true);
@@ -206,9 +244,13 @@ export default function RentContractsPage() {
     refresh: language === 'ar' ? 'تحديث' : 'Refresh',
   };
 
-  // Filter contracts
+  // Filter contracts (including by customer ID if provided)
   const filteredContracts = useMemo(() => {
-    return mockRentContracts.filter((contract) => {
+    return allContracts.filter((contract) => {
+      // Filter by customer ID if provided in URL
+      if (customerId && contract.customerId !== Number(customerId)) {
+        return false;
+      }
       const searchLower = searchText.toLowerCase();
       const matchesSearch =
         !searchText ||
@@ -229,18 +271,17 @@ export default function RentContractsPage() {
 
       return matchesSearch && matchesStatus && matchesNationality && matchesDate;
     });
-  }, [searchText, statusFilter, nationalityFilter, dateRange]);
+  }, [allContracts, searchText, statusFilter, nationalityFilter, dateRange, customerId]);
 
   // Statistics
   const stats = useMemo(
     () => ({
-      total: mockRentContracts.length,
-      active: mockRentContracts.filter((c) => c.status === 'active').length,
-      expiring: mockRentContracts.filter((c) => c.daysRemaining < 30 && c.status === 'active')
-        .length,
-      revenue: mockRentContracts.reduce((sum, c) => sum + c.totalCollected, 0),
+      total: allContracts.length,
+      active: allContracts.filter((c) => c.status === 'active').length,
+      expiring: allContracts.filter((c) => c.daysRemaining < 30 && c.status === 'active').length,
+      revenue: allContracts.reduce((sum, c) => sum + c.totalCollected, 0),
     }),
-    []
+    [allContracts]
   );
 
   const formatDate = (dateString: string) => {
@@ -281,6 +322,81 @@ export default function RentContractsPage() {
     setShowDetailsModal(true);
   };
 
+  const handleAddContract = () => {
+    // Navigate to customers page to select customer first
+    router.push('/customers');
+  };
+
+  const handleExportExcel = () => {
+    console.log('Export to Excel clicked');
+    // TODO: Implement Excel export
+  };
+
+  const handlePrint = () => {
+    console.log('Print clicked');
+    window.print();
+  };
+
+  const handleEditContract = (contract: RentContract) => {
+    console.log('Edit contract:', contract.id);
+    // TODO: Navigate to edit page or open modal
+  };
+
+  const handleDeleteContract = (contract: RentContract) => {
+    console.log('Delete contract:', contract.id);
+    // TODO: Show confirmation modal and delete
+  };
+
+  const handlePrintContract = (contract: RentContract) => {
+    console.log('Print contract:', contract.id);
+    // TODO: Open print preview for specific contract
+  };
+
+  const handleAddNote = (contract: RentContract) => {
+    console.log('Add note for contract:', contract.id);
+    // TODO: Open add note modal
+  };
+
+  const handleAddComplaint = (contract: RentContract) => {
+    console.log('Add complaint for contract:', contract.id);
+    // TODO: Open add complaint modal
+  };
+
+  const handleAddContact = (contract: RentContract) => {
+    console.log('Add contact for contract:', contract.id);
+    // TODO: Open add contact modal
+  };
+
+  const handleCollectPayment = (contract: RentContract) => {
+    console.log('Collect payment for contract:', contract.id);
+    // TODO: Open payment collection modal
+  };
+
+  const handleRenewContract = (contract: RentContract) => {
+    console.log('Renew contract:', contract.id);
+    // TODO: Open contract renewal modal
+  };
+
+  const handleReleaseWorker = (contract: RentContract) => {
+    console.log('Release worker from contract:', contract.id);
+    // TODO: Open release worker confirmation
+  };
+
+  const handleTransferWorker = (contract: RentContract) => {
+    console.log('Transfer worker from contract:', contract.id);
+    // TODO: Open transfer worker modal
+  };
+
+  const handleCancelContract = (contract: RentContract) => {
+    console.log('Cancel contract:', contract.id);
+    // TODO: Open cancel contract confirmation
+  };
+
+  const handleFollowUpStatus = (contract: RentContract) => {
+    console.log('View follow-up status for contract:', contract.id);
+    // TODO: Navigate to follow-up page or open modal
+  };
+
   const getMenuItems = (contract: RentContract): MenuProps['items'] => [
     {
       key: 'view',
@@ -292,11 +408,13 @@ export default function RentContractsPage() {
       key: 'edit',
       label: t.edit,
       icon: <EditOutlined />,
+      onClick: () => handleEditContract(contract),
     },
     {
       key: 'print',
       label: t.print,
       icon: <PrinterOutlined />,
+      onClick: () => handlePrintContract(contract),
     },
     {
       type: 'divider',
@@ -306,6 +424,7 @@ export default function RentContractsPage() {
       label: t.delete,
       icon: <DeleteOutlined />,
       danger: true,
+      onClick: () => handleDeleteContract(contract),
     },
   ];
 
@@ -454,13 +573,31 @@ export default function RentContractsPage() {
           {/* Bottom Section - Action Buttons */}
           <div className={styles.cardBottom}>
             <div className={styles.actionsList}>
-              <Button type="link" icon={<FileProtectOutlined />} className={styles.actionBtn} block>
+              <Button
+                type="link"
+                icon={<FileProtectOutlined />}
+                className={styles.actionBtn}
+                block
+                onClick={() => handleAddNote(contract)}
+              >
                 {t.addNote}
               </Button>
-              <Button type="link" icon={<WarningOutlined />} className={styles.actionBtn} block>
+              <Button
+                type="link"
+                icon={<WarningOutlined />}
+                className={styles.actionBtn}
+                block
+                onClick={() => handleAddComplaint(contract)}
+              >
                 {t.addComplaint}
               </Button>
-              <Button type="link" icon={<PhoneOutlined />} className={styles.actionBtn} block>
+              <Button
+                type="link"
+                icon={<PhoneOutlined />}
+                className={styles.actionBtn}
+                block
+                onClick={() => handleAddContact(contract)}
+              >
                 {t.addContact}
               </Button>
               <Button
@@ -468,6 +605,7 @@ export default function RentContractsPage() {
                 icon={<MoneyCollectOutlined />}
                 className={`${styles.actionBtn} ${styles.successBtn}`}
                 block
+                onClick={() => handleCollectPayment(contract)}
               >
                 {t.collectPayment}
               </Button>
@@ -476,13 +614,26 @@ export default function RentContractsPage() {
                 icon={<ReloadOutlined />}
                 className={`${styles.actionBtn} ${styles.successBtn}`}
                 block
+                onClick={() => handleRenewContract(contract)}
               >
                 {t.renewContract}
               </Button>
-              <Button type="link" icon={<UserDeleteOutlined />} className={styles.actionBtn} block>
+              <Button
+                type="link"
+                icon={<UserDeleteOutlined />}
+                className={styles.actionBtn}
+                block
+                onClick={() => handleReleaseWorker(contract)}
+              >
                 {t.releaseWorker}
               </Button>
-              <Button type="link" icon={<UserAddOutlined />} className={styles.actionBtn} block>
+              <Button
+                type="link"
+                icon={<UserAddOutlined />}
+                className={styles.actionBtn}
+                block
+                onClick={() => handleTransferWorker(contract)}
+              >
                 {t.transferWorker}
               </Button>
               <Button
@@ -490,10 +641,17 @@ export default function RentContractsPage() {
                 icon={<CloseCircleOutlined />}
                 className={`${styles.actionBtn} ${styles.dangerBtn}`}
                 block
+                onClick={() => handleCancelContract(contract)}
               >
                 {t.cancel}
               </Button>
-              <Button type="link" icon={<BarsOutlined />} className={styles.actionBtn} block>
+              <Button
+                type="link"
+                icon={<BarsOutlined />}
+                className={styles.actionBtn}
+                block
+                onClick={() => handleFollowUpStatus(contract)}
+              >
                 {t.followUpStatus}
               </Button>
             </div>
@@ -505,6 +663,16 @@ export default function RentContractsPage() {
 
   if (!mounted) {
     return null;
+  }
+
+  if (isLoading) {
+    return (
+      <div
+        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}
+      >
+        <Spin size="large" tip={language === 'ar' ? 'جاري التحميل...' : 'Loading...'} />
+      </div>
+    );
   }
 
   return (
@@ -520,13 +688,26 @@ export default function RentContractsPage() {
             </div>
           </div>
           <div className={styles.headerActions}>
-            <Button icon={<FileExcelOutlined />} className={styles.secondaryBtn}>
+            <Button
+              icon={<FileExcelOutlined />}
+              className={styles.secondaryBtn}
+              onClick={handleExportExcel}
+            >
               {t.exportExcel}
             </Button>
-            <Button icon={<PrinterOutlined />} className={styles.secondaryBtn}>
+            <Button
+              icon={<PrinterOutlined />}
+              className={styles.secondaryBtn}
+              onClick={handlePrint}
+            >
               {t.print}
             </Button>
-            <Button type="primary" icon={<PlusOutlined />} className={styles.primaryBtn}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              className={styles.primaryBtn}
+              onClick={handleAddContract}
+            >
               {t.addContract}
             </Button>
           </div>
@@ -577,6 +758,23 @@ export default function RentContractsPage() {
           </Card>
         </Col>
       </Row>
+
+      {/* Customer Filter Indicator */}
+      {customerId && (
+        <Card style={{ marginBottom: 16, background: '#e6f7ff', borderColor: '#1890ff' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <UserOutlined style={{ color: '#1890ff' }} />
+            <span>
+              {language === 'ar'
+                ? `عرض عقود العميل رقم: ${customerId}`
+                : `Showing contracts for Customer ID: ${customerId}`}
+            </span>
+            <Button type="link" size="small" onClick={() => router.push('/operation/rent')}>
+              {language === 'ar' ? 'عرض جميع العقود' : 'Show All Contracts'}
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Filters */}
       <Card className={styles.filterCard}>
@@ -640,8 +838,8 @@ export default function RentContractsPage() {
       <div className={styles.resultsInfo}>
         <span>
           {language === 'ar'
-            ? `عرض ${filteredContracts.length} من ${mockRentContracts.length} عقد`
-            : `Showing ${filteredContracts.length} of ${mockRentContracts.length} contracts`}
+            ? `عرض ${filteredContracts.length} من ${allContracts.length} عقد`
+            : `Showing ${filteredContracts.length} of ${allContracts.length} contracts`}
         </span>
       </div>
 

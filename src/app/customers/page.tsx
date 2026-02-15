@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   Row,
@@ -14,6 +15,7 @@ import {
   Form,
   Avatar,
   Dropdown,
+  Divider,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -28,20 +30,39 @@ import {
   HomeOutlined,
   TeamOutlined,
   MoreOutlined,
+  EyeOutlined,
+  FileTextOutlined,
+  SwapOutlined,
+  DollarOutlined,
 } from '@ant-design/icons';
 
 import { useAuthStore } from '@/store/authStore';
 import { useCustomers } from '@/hooks/api/useCustomers';
-import type { Customer, CreateCustomerDto, UpdateCustomerDto } from '@/types/api.types';
+import { useEmploymentOperatingContracts } from '@/hooks/api/useEmploymentOperatingContracts';
+import { useJobs } from '@/hooks/api/useJobs';
+import type {
+  Customer,
+  CreateCustomerDto,
+  UpdateCustomerDto,
+  CreateEmploymentOperatingContractDto,
+} from '@/types/api.types';
 import styles from './Customers.module.css';
 
 export default function CustomersPage() {
+  const router = useRouter();
   const language = useAuthStore((state) => state.language);
   const [searchText, setSearchText] = useState('');
   const [cityFilter, setCityFilter] = useState<string>('all');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [form] = Form.useForm();
+
+  // Contract creation modal
+  const [isContractModalVisible, setIsContractModalVisible] = useState(false);
+  const [selectedCustomerForContract, setSelectedCustomerForContract] = useState<Customer | null>(
+    null
+  );
+  const [contractForm] = Form.useForm();
 
   // Use real API
   const {
@@ -54,6 +75,31 @@ export default function CustomersPage() {
     isUpdating,
     isDeleting,
   } = useCustomers();
+
+  // Employment operating contracts API
+  const { createContract, isCreating: isCreatingContract } = useEmploymentOperatingContracts();
+
+  // Jobs API
+  const { data: jobsData, isLoading: isLoadingJobs } = useJobs();
+
+  // Safely extract jobs array from API response and filter active jobs only
+  const jobs = useMemo(() => {
+    if (!jobsData) return [];
+    let jobsArray: any[] = [];
+
+    if (Array.isArray(jobsData)) {
+      jobsArray = jobsData;
+    } else if (
+      typeof jobsData === 'object' &&
+      'data' in jobsData &&
+      Array.isArray((jobsData as any).data)
+    ) {
+      jobsArray = (jobsData as any).data;
+    }
+
+    // Filter to only include active jobs
+    return jobsArray.filter((job: any) => job.isActive === true);
+  }, [jobsData]);
 
   const t = (key: string) => {
     const translations: { [key: string]: { ar: string; en: string } } = {
@@ -179,8 +225,136 @@ export default function CustomersPage() {
     }
   };
 
+  const handleCreateOperationContract = (customer: Customer) => {
+    setSelectedCustomerForContract(customer);
+    contractForm.resetFields();
+    // Pre-fill customer ID and default values
+    contractForm.setFieldsValue({
+      customerId: customer.id,
+      workersCount: 1,
+      previousExperience: 0,
+      operationType: 1, // Default to "Duration"
+      paymentMethod: 1, // Default to "Cash"
+    });
+    setIsContractModalVisible(true);
+  };
+
+  const handleContractSubmit = async () => {
+    try {
+      const values = await contractForm.validateFields();
+
+      // Clean and format data - convert empty strings to null
+      const cleanData: any = {};
+
+      // Number fields that should be null if empty or converted to number
+      const numberFields = [
+        'customerId',
+        'marketerId',
+        'contractCategory',
+        'offerId',
+        'operationType',
+        'paymentMethod',
+        'nationalityId',
+        'jobId',
+        'duration',
+        'previousExperience',
+        'offerPrice',
+        'laborManagement',
+        'workersCount',
+        'cost',
+        'insurance',
+      ];
+
+      // String fields
+      const stringFields = ['workerNameEn', 'workerNameAr', 'workerPhone', 'customerAddress'];
+
+      // Date fields
+      const dateFields = ['contractStartDate', 'contractEndDate'];
+
+      // Process number fields
+      numberFields.forEach((field) => {
+        if (field in values) {
+          if (values[field] === '' || values[field] === undefined || values[field] === null) {
+            cleanData[field] = null;
+          } else {
+            const num = Number(values[field]);
+            cleanData[field] = isNaN(num) ? null : num;
+          }
+        }
+      });
+
+      // Process string fields
+      stringFields.forEach((field) => {
+        if (field in values) {
+          cleanData[field] =
+            values[field] === '' || values[field] === undefined ? null : String(values[field]);
+        }
+      });
+
+      // Process date fields
+      dateFields.forEach((field) => {
+        if (values[field]) {
+          try {
+            const date = new Date(values[field]);
+            cleanData[field] = date.toISOString();
+          } catch (e) {
+            cleanData[field] = null;
+          }
+        } else {
+          cleanData[field] = null;
+        }
+      });
+
+      const contractData: CreateEmploymentOperatingContractDto = {
+        ...cleanData,
+        customerId: selectedCustomerForContract?.id || null,
+      };
+
+      console.log('Submitting contract data:', JSON.stringify(contractData, null, 2));
+
+      createContract(contractData);
+
+      setIsContractModalVisible(false);
+      contractForm.resetFields();
+      setSelectedCustomerForContract(null);
+    } catch (error) {
+      console.error('Contract form validation failed:', error);
+    }
+  };
+
   const getActionMenu = (customer: Customer): MenuProps => ({
     items: [
+      {
+        key: 'view',
+        label: language === 'ar' ? 'عرض التفاصيل' : 'View Details',
+        icon: <EyeOutlined />,
+        onClick: () => console.log('View customer:', customer.id),
+      },
+      {
+        key: 'contracts',
+        label: language === 'ar' ? 'عقود الوساطة' : 'Mediation Contracts',
+        icon: <FileTextOutlined />,
+        onClick: () => console.log('View mediation contracts:', customer.id),
+      },
+      {
+        key: 'transfer',
+        label: language === 'ar' ? 'عقود نقل الكفالة' : 'Transfer Contracts',
+        icon: <SwapOutlined />,
+        onClick: () => console.log('View transfer contracts:', customer.id),
+      },
+      {
+        key: 'rent',
+        label: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts',
+        icon: <FileTextOutlined />,
+        onClick: () => router.push(`/operation/rent?customerId=${customer.id}`),
+      },
+      {
+        key: 'statement',
+        label: language === 'ar' ? 'كشف الحساب' : 'Account Statement',
+        icon: <DollarOutlined />,
+        onClick: () => console.log('View account statement:', customer.id),
+      },
+      { type: 'divider' },
       {
         key: 'edit',
         label: t('edit'),
@@ -423,6 +597,17 @@ export default function CustomersPage() {
                 {/* Card Footer Actions */}
                 <div className={styles.cardFooter}>
                   <Button
+                    type="primary"
+                    icon={<FileTextOutlined />}
+                    onClick={() => handleCreateOperationContract(customer)}
+                    style={{
+                      marginRight: language === 'ar' ? 0 : 8,
+                      marginLeft: language === 'ar' ? 8 : 0,
+                    }}
+                  >
+                    {language === 'ar' ? 'إنشاء عقد تشغيل' : 'Create Operation Contract'}
+                  </Button>
+                  <Button
                     type="link"
                     icon={<EditOutlined />}
                     onClick={() => handleEditCustomer(customer)}
@@ -541,6 +726,375 @@ export default function CustomersPage() {
               <Select.Option value={4}>{getHousingType(4)}</Select.Option>
             </Select>
           </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Create Operation Contract Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FileTextOutlined />
+            <span>
+              {language === 'ar' ? 'إنشاء عقد تشغيل جديد' : 'Create New Operation Contract'}
+            </span>
+          </div>
+        }
+        open={isContractModalVisible}
+        onOk={handleContractSubmit}
+        onCancel={() => {
+          setIsContractModalVisible(false);
+          contractForm.resetFields();
+          setSelectedCustomerForContract(null);
+        }}
+        confirmLoading={isCreatingContract}
+        okText={language === 'ar' ? 'إنشاء العقد' : 'Create Contract'}
+        cancelText={language === 'ar' ? 'إلغاء' : 'Cancel'}
+        width={900}
+      >
+        {selectedCustomerForContract && (
+          <div style={{ marginBottom: 16, padding: 12, background: '#f5f5f5', borderRadius: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Avatar size={40} icon={<UserOutlined />} />
+              <div>
+                <div style={{ fontWeight: 600 }}>{selectedCustomerForContract.arabicName}</div>
+                <div style={{ fontSize: 12, color: '#666' }}>
+                  {language === 'ar' ? 'الهوية:' : 'ID:'}{' '}
+                  {selectedCustomerForContract.identityNumber}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <Form form={contractForm} layout="vertical">
+          {/* Customer Information Section */}
+          <Divider plain style={{ fontWeight: 600, textAlign: 'left' }}>
+            {language === 'ar' ? 'معلومات العميل' : 'Customer Information'}
+          </Divider>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'كيف وصلت لنا' : 'How did you reach us'}
+                name="marketerId"
+              >
+                <Select placeholder={language === 'ar' ? 'اختر' : 'Select'}>
+                  <Select.Option value={167}>{language === 'ar' ? 'قوقل' : 'Google'}</Select.Option>
+                  <Select.Option value={168}>
+                    {language === 'ar' ? 'سناب شات' : 'Snapchat'}
+                  </Select.Option>
+                  <Select.Option value={169}>
+                    {language === 'ar' ? 'تويتر' : 'Twitter'}
+                  </Select.Option>
+                  <Select.Option value={170}>
+                    {language === 'ar' ? 'انستقرام' : 'Instagram'}
+                  </Select.Option>
+                  <Select.Option value={171}>
+                    {language === 'ar' ? 'مساند' : 'Musaned'}
+                  </Select.Option>
+                  <Select.Option value={172}>
+                    {language === 'ar' ? 'احد الاقارب والاصدقاء' : 'Relatives/Friends'}
+                  </Select.Option>
+                  <Select.Option value={173}>
+                    {language === 'ar' ? 'لوحة المحل' : 'Store Sign'}
+                  </Select.Option>
+                  <Select.Option value={174}>
+                    {language === 'ar' ? 'عميل سابق' : 'Previous Client'}
+                  </Select.Option>
+                  <Select.Option value={278}>
+                    {language === 'ar' ? 'تيك توك' : 'TikTok'}
+                  </Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'عنوان العميل' : 'Customer Address'}
+                name="customerAddress"
+              >
+                <Input placeholder={language === 'ar' ? 'عنوان العميل' : 'Customer address'} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Contract Details Section */}
+          <Divider plain style={{ fontWeight: 600, textAlign: 'left' }}>
+            {language === 'ar' ? 'تفاصيل العقد' : 'Contract Details'}
+          </Divider>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'نوع العملية' : 'Operation Type'}
+                name="operationType"
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      language === 'ar'
+                        ? 'الرجاء اختيار نوع العملية'
+                        : 'Please select operation type',
+                  },
+                ]}
+              >
+                <Select
+                  placeholder={language === 'ar' ? 'اختر نوع العملية' : 'Select operation type'}
+                >
+                  <Select.Option value={1}>{language === 'ar' ? 'مدة' : 'Duration'}</Select.Option>
+                  <Select.Option value={3}>
+                    {language === 'ar' ? 'نقل الخدمات' : 'Sponsorship Transfer'}
+                  </Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'طريقة السداد' : 'Payment Method'}
+                name="paymentMethod"
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      language === 'ar'
+                        ? 'الرجاء اختيار طريقة السداد'
+                        : 'Please select payment method',
+                  },
+                ]}
+              >
+                <Select
+                  placeholder={language === 'ar' ? 'اختر طريقة السداد' : 'Select payment method'}
+                >
+                  <Select.Option value={1}>{language === 'ar' ? 'نقدي' : 'Cash'}</Select.Option>
+                  <Select.Option value={2}>
+                    {language === 'ar' ? 'دفعات' : 'Installments'}
+                  </Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'الجنسية' : 'Nationality'}
+                name="nationalityId"
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      language === 'ar' ? 'الرجاء اختيار الجنسية' : 'Please select nationality',
+                  },
+                ]}
+              >
+                <Select placeholder={language === 'ar' ? 'اختر الجنسية' : 'Select Nationality'}>
+                  <Select.Option value={1}>{getNationality(1)}</Select.Option>
+                  <Select.Option value={2}>{getNationality(2)}</Select.Option>
+                  <Select.Option value={3}>{getNationality(3)}</Select.Option>
+                  <Select.Option value={4}>{getNationality(4)}</Select.Option>
+                  <Select.Option value={5}>{getNationality(5)}</Select.Option>
+                  <Select.Option value={6}>{getNationality(6)}</Select.Option>
+                  <Select.Option value={7}>{getNationality(7)}</Select.Option>
+                  <Select.Option value={8}>{getNationality(8)}</Select.Option>
+                  <Select.Option value={9}>{getNationality(9)}</Select.Option>
+                  <Select.Option value={10}>{getNationality(10)}</Select.Option>
+                  <Select.Option value={11}>{getNationality(11)}</Select.Option>
+                  <Select.Option value={12}>{getNationality(12)}</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'المهنة' : 'Job'}
+                name="jobId"
+                rules={[
+                  {
+                    required: true,
+                    message: language === 'ar' ? 'الرجاء اختيار المهنة' : 'Please select job',
+                  },
+                ]}
+              >
+                <Select
+                  placeholder={language === 'ar' ? 'اختر المهنة' : 'Select Job'}
+                  loading={isLoadingJobs}
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input, option) => {
+                    const label = String(option?.label ?? '');
+                    return label.toLowerCase().includes(input.toLowerCase());
+                  }}
+                  options={jobs.map((job: any) => ({
+                    value: job.id,
+                    label:
+                      language === 'ar'
+                        ? job.jobNameAr || job.jobNameEn || `Job ${job.id}`
+                        : job.jobNameEn || job.jobNameAr || `Job ${job.id}`,
+                  }))}
+                  notFoundContent={
+                    isLoadingJobs ? (
+                      <Spin size="small" />
+                    ) : (
+                      <Empty
+                        description={language === 'ar' ? 'لا توجد مهن' : 'No jobs available'}
+                      />
+                    )
+                  }
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'مدة العقد' : 'Contract Duration'}
+                name="duration"
+              >
+                <Input
+                  type="number"
+                  placeholder={language === 'ar' ? 'المدة بالأشهر' : 'Duration in months'}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'الخبرة السابقة' : 'Previous Experience'}
+                name="previousExperience"
+              >
+                <Select placeholder={language === 'ar' ? 'اختر' : 'Select'}>
+                  <Select.Option value={0}>
+                    {language === 'ar' ? 'لا يهم' : 'Does not matter'}
+                  </Select.Option>
+                  <Select.Option value={1}>
+                    {language === 'ar' ? 'سبق له العمل' : 'Has worked before'}
+                  </Select.Option>
+                  <Select.Option value={2}>
+                    {language === 'ar' ? 'لم يسبق له العمل' : 'No prior work'}
+                  </Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'تاريخ بداية العقد' : 'Contract Start Date'}
+                name="contractStartDate"
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      language === 'ar'
+                        ? 'الرجاء اختيار تاريخ البداية'
+                        : 'Please select start date',
+                  },
+                ]}
+              >
+                <Input type="date" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'تاريخ نهاية العقد' : 'Contract End Date'}
+                name="contractEndDate"
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      language === 'ar' ? 'الرجاء اختيار تاريخ النهاية' : 'Please select end date',
+                  },
+                ]}
+              >
+                <Input type="date" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Pricing Section */}
+          <Divider plain style={{ fontWeight: 600, textAlign: 'left' }}>
+            {language === 'ar' ? 'التسعير' : 'Pricing'}
+          </Divider>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'التكلفة' : 'Cost'}
+                name="cost"
+                rules={[
+                  {
+                    required: true,
+                    message: language === 'ar' ? 'الرجاء إدخال التكلفة' : 'Please enter cost',
+                  },
+                ]}
+              >
+                <Input
+                  type="number"
+                  prefix="SAR"
+                  placeholder={language === 'ar' ? 'التكلفة' : 'Cost'}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label={language === 'ar' ? 'التأمين' : 'Insurance'} name="insurance">
+                <Input
+                  type="number"
+                  prefix="SAR"
+                  placeholder={language === 'ar' ? 'قيمة التأمين' : 'Insurance value'}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Worker Information Section */}
+          <Divider plain style={{ fontWeight: 600, textAlign: 'left' }}>
+            {language === 'ar' ? 'معلومات العامل' : 'Worker Information'}
+          </Divider>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'اسم العامل (عربي)' : 'Worker Name (Arabic)'}
+                name="workerNameAr"
+              >
+                <Input
+                  placeholder={language === 'ar' ? 'اسم العامل بالعربي' : 'Worker name in Arabic'}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'اسم العامل (إنجليزي)' : 'Worker Name (English)'}
+                name="workerNameEn"
+              >
+                <Input
+                  placeholder={
+                    language === 'ar' ? 'اسم العامل بالإنجليزي' : 'Worker name in English'
+                  }
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'هاتف العامل' : 'Worker Phone'}
+                name="workerPhone"
+              >
+                <Input
+                  placeholder={language === 'ar' ? 'رقم هاتف العامل' : 'Worker phone number'}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={language === 'ar' ? 'عدد العمال' : 'Workers Count'}
+                name="workersCount"
+              >
+                <Input
+                  type="number"
+                  placeholder={language === 'ar' ? 'عدد العمال' : 'Number of workers'}
+                  defaultValue={1}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
       </Modal>
     </div>

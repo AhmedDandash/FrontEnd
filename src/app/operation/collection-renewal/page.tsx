@@ -19,6 +19,7 @@ import {
   Badge,
   Pagination,
   Segmented,
+  Spin,
 } from 'antd';
 import {
   SearchOutlined,
@@ -44,6 +45,8 @@ import {
   UnorderedListOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
+import { useEmploymentOperatingContracts } from '@/hooks/api/useEmploymentOperatingContracts';
+import type { EmploymentOperatingContract } from '@/types/api.types';
 import styles from './CollectionRenewal.module.css';
 
 interface RentalContract {
@@ -78,245 +81,71 @@ interface ContractStats {
   collectionRate: number;
 }
 
-// Mock data generation
-const generateMockContracts = (): RentalContract[] => [
-  {
-    id: '1',
-    contractId: 20939,
-    contractNumber: 766,
-    branchName: 'Sigma Competences Recruitment Office',
-    branchNameAr: 'سيقما الكفاءات للإستقدام',
-    customerName: 'Abdullah Syed Hassan Al-Harfi',
-    customerNameAr: 'عبدالله سيد حسن الهرفي',
-    customerPhone: '0555255501',
-    customerId: '1001808714',
-    customerUuid: '700860f2-d75a-40f5-bf2a-dd070792d574',
-    signDate: '2026-01-14',
-    startDate: '2026-01-14',
-    endDate: '2026-02-12',
-    remainingDays: 29,
-    status: 'valid',
-    totalAmount: 15000,
-    paidAmount: 15000,
-    workerName: 'Maria Santos',
-    workerNameAr: 'ماريا سانتوس',
-    workerNationality: 'Philippines',
-    workerNationalityAr: 'الفلبين',
-  },
-  {
-    id: '2',
-    contractId: 17179,
-    contractNumber: 765,
-    branchName: 'Sigma Competences Recruitment Office',
-    branchNameAr: 'سيقما الكفاءات للإستقدام',
-    customerName: 'Hanan Mohammed Ali Bek',
-    customerNameAr: 'حنان محمد علي بيك',
-    customerPhone: '0505617966',
-    customerId: '1008012286',
-    customerUuid: '84701c4b-1c58-4ae9-a25d-8f47fdd18bbe',
-    signDate: '2024-08-15',
-    startDate: '2024-08-17',
-    endDate: '2024-09-15',
-    remainingDays: -486,
-    status: 'expired',
-    totalAmount: 12000,
-    paidAmount: 10000,
-    workerName: 'Sarah Ahmed',
-    workerNameAr: 'سارة أحمد',
-    workerNationality: 'Indonesia',
-    workerNationalityAr: 'إندونيسيا',
-  },
-  {
-    id: '3',
-    contractId: 17159,
-    contractNumber: 764,
-    branchName: 'Sigma Competences Recruitment Office',
-    branchNameAr: 'سيقما الكفاءات للإستقدام',
-    customerName: 'Mohammed Ahmed Al-Otaibi',
-    customerNameAr: 'محمد أحمد العتيبي',
-    customerPhone: '0501234567',
-    customerId: '1023456789',
-    customerUuid: 'abc123-def456',
-    signDate: '2026-01-10',
-    startDate: '2026-01-12',
-    endDate: '2026-01-28',
-    remainingDays: 4,
-    status: 'expiring-soon',
-    totalAmount: 18000,
-    paidAmount: 18000,
-    workerName: 'Rosa Martinez',
-    workerNameAr: 'روزا مارتينيز',
-    workerNationality: 'Philippines',
-    workerNationalityAr: 'الفلبين',
-  },
-  {
-    id: '4',
-    contractId: 17155,
-    contractNumber: 763,
-    branchName: 'SIGMA Branch',
-    branchNameAr: 'فرع سيقما',
-    customerName: 'Fahd Saud Al-Maliki',
-    customerNameAr: 'فهد سعود المالكي',
-    customerPhone: '0559876543',
-    customerId: '1098765432',
-    customerUuid: 'xyz789-abc123',
-    signDate: '2025-12-01',
-    startDate: '2025-12-05',
-    endDate: '2026-03-05',
-    remainingDays: 40,
-    status: 'valid',
-    totalAmount: 20000,
-    paidAmount: 20000,
-    workerName: 'Ana Marcela',
-    workerNameAr: 'أنا مارسيلا',
-    workerNationality: 'Philippines',
-    workerNationalityAr: 'الفلبين',
-  },
-  {
-    id: '5',
-    contractId: 17055,
-    contractNumber: 762,
-    branchName: 'Sigma Competences Recruitment Office',
-    branchNameAr: 'سيقما الكفاءات للإستقدام',
-    customerName: 'Sara Khalid Al-Qahtani',
-    customerNameAr: 'سارة خالد القحطاني',
-    customerPhone: '0543219876',
-    customerId: '1012345678',
-    customerUuid: 'def456-ghi789',
-    signDate: '2025-11-15',
-    startDate: '2025-11-20',
-    endDate: '2026-01-20',
-    remainingDays: -4,
-    status: 'expired',
-    totalAmount: 14000,
-    paidAmount: 12000,
-    workerName: 'Layla Jones',
-    workerNameAr: 'ليلى جونز',
-    workerNationality: 'Kenya',
-    workerNationalityAr: 'كينيا',
-  },
-  {
-    id: '6',
-    contractId: 17044,
-    contractNumber: 761,
-    branchName: 'Sigma Competences Recruitment Office',
-    branchNameAr: 'سيقما الكفاءات للإستقدام',
-    customerName: 'Abdulrahman Mohammed Al-Shammari',
-    customerNameAr: 'عبدالرحمن محمد الشمري',
-    customerPhone: '0567891234',
-    customerId: '1087654321',
-    customerUuid: 'jkl012-mno345',
-    signDate: '2026-01-05',
-    startDate: '2026-01-08',
-    endDate: '2026-02-08',
-    remainingDays: 15,
-    status: 'valid',
-    totalAmount: 16000,
-    paidAmount: 16000,
-    workerName: 'Maria Lopez',
-    workerNameAr: 'ماريا لوبيز',
-    workerNationality: 'Philippines',
-    workerNationalityAr: 'الفلبين',
-  },
-  {
-    id: '7',
-    contractId: 17018,
-    contractNumber: 760,
-    branchName: 'SIGMA Branch',
-    branchNameAr: 'فرع سيقما',
-    customerName: 'Noura Ibrahim Al-Subaie',
-    customerNameAr: 'نورة إبراهيم السبيعي',
-    customerPhone: '0578901234',
-    customerId: '1076543210',
-    customerUuid: 'pqr678-stu901',
-    signDate: '2025-10-20',
-    startDate: '2025-10-25',
-    endDate: '2026-01-25',
-    remainingDays: 1,
-    status: 'expiring-soon',
-    totalAmount: 13500,
-    paidAmount: 13500,
-    workerName: 'Jane Doe',
-    workerNameAr: 'جين دو',
-    workerNationality: 'Indonesia',
-    workerNationalityAr: 'إندونيسيا',
-  },
-  {
-    id: '8',
-    contractId: 16878,
-    contractNumber: 759,
-    branchName: 'Sigma Competences Recruitment Office',
-    branchNameAr: 'سيقما الكفاءات للإستقدام',
-    customerName: 'Khalid Abdullah Al-Dosari',
-    customerNameAr: 'خالد عبدالله الدوسري',
-    customerPhone: '0589012345',
-    customerId: '1065432109',
-    customerUuid: 'vwx234-yza567',
-    signDate: '2025-09-10',
-    startDate: '2025-09-15',
-    endDate: '2025-12-15',
-    remainingDays: -40,
-    status: 'expired',
-    totalAmount: 17500,
-    paidAmount: 14000,
-    workerName: 'Anna Cruz',
-    workerNameAr: 'آنا كروز',
-    workerNationality: 'Philippines',
-    workerNationalityAr: 'الفلبين',
-  },
-  {
-    id: '9',
-    contractId: 16842,
-    contractNumber: 758,
-    branchName: 'Sigma Competences Recruitment Office',
-    branchNameAr: 'سيقما الكفاءات للإستقدام',
-    customerName: 'Hind Salman Al-Omari',
-    customerNameAr: 'هند سلمان العمري',
-    customerPhone: '0590123456',
-    customerId: '1054321098',
-    customerUuid: 'bcd890-efg123',
-    signDate: '2026-01-02',
-    startDate: '2026-01-05',
-    endDate: '2026-04-05',
-    remainingDays: 71,
-    status: 'valid',
-    totalAmount: 22000,
-    paidAmount: 22000,
-    workerName: 'Lisa Rivera',
-    workerNameAr: 'ليزا ريفيرا',
-    workerNationality: 'Philippines',
-    workerNationalityAr: 'الفلبين',
-  },
-  {
-    id: '10',
-    contractId: 16761,
-    contractNumber: 757,
-    branchName: 'SIGMA Branch',
-    branchNameAr: 'فرع سيقما',
-    customerName: 'Ahmed Ali Al-Zahrani',
-    customerNameAr: 'أحمد علي الزهراني',
-    customerPhone: '0512345678',
-    customerId: '1043210987',
-    customerUuid: 'hij456-klm789',
-    signDate: '2025-12-20',
-    startDate: '2025-12-25',
-    endDate: '2026-01-30',
-    remainingDays: 6,
-    status: 'expiring-soon',
-    totalAmount: 11000,
-    paidAmount: 11000,
-    workerName: 'Susan Lim',
-    workerNameAr: 'سوزان ليم',
-    workerNationality: 'Indonesia',
-    workerNationalityAr: 'إندونيسيا',
-  },
-];
-
 export default function CollectionRenewalPage() {
   const language = useAuthStore((state) => state.language);
   const isRTL = language === 'ar';
 
-  const contracts = useMemo(() => generateMockContracts(), []);
+  // Fetch contracts from API
+  const { contracts: apiContracts, isLoading } = useEmploymentOperatingContracts();
+
+  // Safely extract data from API response (handles wrapped responses)
+  const contractsData = useMemo((): EmploymentOperatingContract[] => {
+    console.log('API Response:', apiContracts);
+    if (!apiContracts) return [];
+    if (Array.isArray(apiContracts)) return apiContracts;
+    if (
+      typeof apiContracts === 'object' &&
+      'data' in apiContracts &&
+      Array.isArray((apiContracts as any).data)
+    ) {
+      return (apiContracts as any).data;
+    }
+    return [];
+  }, [apiContracts]);
+
+  // Map API data to internal RentalContract format
+  const contracts = useMemo((): RentalContract[] => {
+    const mapped = contractsData.map((contract): RentalContract => {
+      const startDate = contract.contractStartDate || new Date().toISOString();
+      const endDate = contract.contractEndDate || new Date().toISOString();
+      const daysRemaining = Math.floor(
+        (new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      );
+
+      // Determine status based on days remaining
+      let status: RentalContract['status'] = 'valid';
+      if (daysRemaining < 0) status = 'expired';
+      else if (daysRemaining <= 14) status = 'expiring-soon';
+
+      return {
+        id: String(contract.id),
+        contractId: contract.id,
+        contractNumber: 760 + contract.id,
+        branchName: 'Sigma Competences Recruitment Office',
+        branchNameAr: 'سيقما الكفاءات للإستقدام',
+        customerName: contract.customerNameAr || 'Unknown',
+        customerNameAr: contract.customerNameAr || 'غير معروف',
+        customerPhone: contract.mobile || '05xxxxxxxx',
+        customerId: contract.customerIdentiy || String(contract.customerId || 0),
+        customerUuid: `uuid-${contract.id}`,
+        signDate: startDate.split('T')[0],
+        startDate: startDate.split('T')[0],
+        endDate: endDate.split('T')[0],
+        remainingDays: daysRemaining,
+        status,
+        totalAmount: contract.totalCostWithTax || contract.cost || 0,
+        paidAmount: contract.cost || 0,
+        workerName: contract.jobName || undefined,
+        workerNameAr: contract.jobName || undefined,
+        workerNationality: undefined,
+        workerNationalityAr: undefined,
+      };
+    });
+    console.log('Mapped Contracts Count:', mapped.length);
+    console.log('Mapped Contracts Sample:', mapped.slice(0, 2));
+    return mapped;
+  }, [contractsData]);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -436,6 +265,16 @@ export default function CollectionRenewalPage() {
   const handleViewContract = (contract: RentalContract) => {
     setSelectedContract(contract);
   };
+
+  if (isLoading) {
+    return (
+      <div
+        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}
+      >
+        <Spin size="large" tip={language === 'ar' ? 'جاري التحميل...' : 'Loading...'} />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container} dir={isRTL ? 'rtl' : 'ltr'}>
