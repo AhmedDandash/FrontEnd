@@ -135,12 +135,24 @@ export default function Sidebar({
       ],
     },
     {
+      key: 'operation',
+      icon: <TeamOutlined />,
+      label: language === 'ar' ? 'العمليات' : 'Operations',
+      children: [
+        { key: '/operation/rent', label: language === 'ar' ? 'عمليات الإيجار' : 'Rent Operations' },
+        { key: '/operation/collection-renewal', label: language === 'ar' ? 'التحصيل والتجديد' : 'Collection & Renewal Operations' },
+      ],
+    },
+    {
       key: 'contracts',
       icon: <FileTextOutlined />,
       label: language === 'ar' ? 'العقود' : 'Contracts',
       children: [
         { key: '/contracts', label: language === 'ar' ? 'جميع العقود' : 'All Contracts' },
-        { key: '/contracts/rent', label: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts' },
+        {
+          key: '/contracts/rent',
+          label: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts',
+        },
         { key: '/contracts/delegates', label: language === 'ar' ? 'مندوبو العقود' : 'Delegates' },
         { key: '/contracts/penalties', label: language === 'ar' ? 'غرامات العقود' : 'Penalties' },
         { key: '/contracts/transmital', label: language === 'ar' ? 'نقل العقود' : 'Transfer' },
@@ -275,7 +287,10 @@ export default function Sidebar({
       icon: <SettingOutlined />,
       label: language === 'ar' ? 'الإعدادات' : 'Settings',
       children: [
-        {key: '/settings/general', label: language === 'ar' ? 'الإعدادات العامة' : 'General Settings' },
+        {
+          key: '/settings/general',
+          label: language === 'ar' ? 'الإعدادات العامة' : 'General Settings',
+        },
         { key: '/settings/users', label: language === 'ar' ? 'المستخدمين' : 'Users' },
         {
           key: '/settings/privileges',
