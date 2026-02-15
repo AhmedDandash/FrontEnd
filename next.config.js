@@ -6,17 +6,16 @@ const nextConfig = {
     optimizePackageImports: ['antd', '@ant-design/icons'],
   },
   async rewrites() {
-    // Only use proxy in development to bypass CORS
-    // In production, use direct API calls (requires proper CORS configuration on server)
-    if (process.env.NODE_ENV === 'development') {
-      return [
-        {
-          source: '/api/:path*',
-          destination: 'https://sigma26.runasp.net/api/:path*',
-        },
-      ];
-    }
-    return [];
+    // Use proxy to bypass CORS
+    // Backend URL can be configured via BACKEND_API_URL env variable
+    const backendUrl = process.env.BACKEND_API_URL || 'https://sigma26.runasp.net';
+
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
+      },
+    ];
   },
 };
 
