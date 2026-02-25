@@ -108,11 +108,11 @@ export default function Sidebar({
     {
       key: 'Workers',
       icon: <BarChartOutlined />,
-      label: language === 'ar' ? 'العمال' : 'Workers',
+      label: language === 'ar' ? 'العمالة' : 'Workers',
       children: [
         {
           key: '/applicants',
-          label: language === 'ar' ? 'العمال' : 'Workers',
+          label: language === 'ar' ? 'العمالة' : 'Workers',
         },
         {
           key: '/applicants/followup',

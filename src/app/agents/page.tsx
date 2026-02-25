@@ -47,6 +47,13 @@ import {
 import { useAuthStore } from '@/store/authStore';
 import { useAgents, useCreateAgent, useUpdateAgent, useDeleteAgent } from '@/hooks/api/useAgents';
 import type { Agent, CreateAgentDto, UpdateAgentDto } from '@/types/api.types';
+import {
+  AGENT_CONTRACT_TYPE,
+  NATIONALITIES,
+  getEnumLabel,
+  toSelectOptions,
+} from '@/constants/enums';
+import type { EnumOption } from '@/constants/enums';
 import styles from './Agents.module.css';
 
 export default function AgentsPage() {
@@ -68,27 +75,7 @@ export default function AgentsPage() {
   const { mutate: updateAgent, isPending: isUpdating } = useUpdateAgent();
   const { mutate: deleteAgent } = useDeleteAgent();
 
-  // Nationalities from the backend
-  const nationalities = [
-    { value: 359, label: 'Philippines', labelAr: 'الفلبين' },
-    { value: 360, label: 'Kenya', labelAr: 'كينيا' },
-    { value: 361, label: 'Uganda', labelAr: 'أوغندا' },
-    { value: 362, label: 'India', labelAr: 'الهند' },
-    { value: 363, label: 'Sudan', labelAr: 'السودان' },
-    { value: 364, label: 'Egypt', labelAr: 'مصر' },
-    { value: 365, label: 'Burundi', labelAr: 'بوروندي' },
-    { value: 366, label: 'Bangladesh', labelAr: 'بنغلاديش' },
-    { value: 367, label: 'Pakistan', labelAr: 'باكستان' },
-    { value: 701, label: 'Sri Lanka', labelAr: 'سريلانكا' },
-    { value: 731, label: 'Ethiopia', labelAr: 'إثيوبيا' },
-    { value: 771, label: 'Indonesia', labelAr: 'إندونيسيا' },
-  ];
-
-  // Contract types
-  const contractTypes = [
-    { value: 0, label: language === 'ar' ? 'توسط' : 'Mediation' },
-    { value: 1, label: language === 'ar' ? 'تشغيل' : 'Operation' },
-  ];
+  // Use NATIONALITIES and AGENT_CONTRACT_TYPE from enums
 
   const t = (key: string) => {
     const translations: { [key: string]: { ar: string; en: string } } = {
@@ -176,7 +163,7 @@ export default function AgentsPage() {
       const matchesType =
         selectedAgentType === 'all' ||
         (selectedAgentType === '0' && agent.contractType === 0) ||
-        (selectedAgentType === '1' && agent.contractType === 1);
+        (selectedAgentType === '1' && agent.contractType === 1); // 0=Mediation, 1=Operation (AGENT_CONTRACT_TYPE)
 
       return matchesSearch && matchesNationality && matchesType;
     });
@@ -261,14 +248,12 @@ export default function AgentsPage() {
 
   const getNationalityLabel = (nationalityId?: number | null) => {
     if (!nationalityId) return 'N/A';
-    const nat = nationalities.find((n) => n.value === nationalityId);
-    return language === 'ar' ? nat?.labelAr : nat?.label || String(nationalityId);
+    return getEnumLabel([...NATIONALITIES], nationalityId, language);
   };
 
   const getContractTypeLabel = (contractType?: number | null) => {
-    if (contractType === 0) return t('mediation');
-    if (contractType === 1) return t('operation');
-    return 'N/A';
+    if (contractType === null || contractType === undefined) return 'N/A';
+    return getEnumLabel([...AGENT_CONTRACT_TYPE], contractType, language);
   };
 
   const getActionMenu = (agent: Agent): MenuProps => ({
@@ -430,9 +415,9 @@ export default function AgentsPage() {
                   value={selectedNationalities}
                   onChange={setSelectedNationalities}
                   style={{ width: '100%' }}
-                  options={nationalities.map((n) => ({
+                  options={[...NATIONALITIES].map((n: EnumOption) => ({
                     value: String(n.value),
-                    label: language === 'ar' ? n.labelAr : n.label,
+                    label: language === 'ar' ? n.labelAr : n.labelEn,
                   }))}
                   allowClear
                   showSearch
@@ -448,8 +433,10 @@ export default function AgentsPage() {
                   style={{ width: '100%' }}
                   options={[
                     { value: 'all', label: t('all') },
-                    { value: '0', label: t('mediation') },
-                    { value: '1', label: t('operation') },
+                    ...[...AGENT_CONTRACT_TYPE].map((c) => ({
+                      value: String(c.value),
+                      label: language === 'ar' ? c.labelAr : c.labelEn,
+                    })),
                   ]}
                 />
               </Col>
@@ -653,10 +640,7 @@ export default function AgentsPage() {
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
-              <Form.Item
-                label={t('username')}
-                name="username"
-              >
+              <Form.Item label={t('username')} name="username">
                 <Input size="large" placeholder={t('username')} />
               </Form.Item>
             </Col>
@@ -667,9 +651,9 @@ export default function AgentsPage() {
                   placeholder={t('nationality')}
                   showSearch
                   optionFilterProp="label"
-                  options={nationalities.map((n) => ({
-                    value: n.value,
-                    label: language === 'ar' ? n.labelAr : n.label,
+                  options={[...NATIONALITIES].map((n: EnumOption) => ({
+                    value: String(n.value),
+                    label: language === 'ar' ? n.labelAr : n.labelEn,
                   }))}
                 />
               </Form.Item>
@@ -685,7 +669,11 @@ export default function AgentsPage() {
                 name="contractType"
                 rules={[{ required: true, message: 'Required' }]}
               >
-                <Select size="large" placeholder={t('contractType')} options={contractTypes} />
+                <Select
+                  size="large"
+                  placeholder={t('contractType')}
+                  options={toSelectOptions([...AGENT_CONTRACT_TYPE], language)}
+                />
               </Form.Item>
             </Col>
           </Row>

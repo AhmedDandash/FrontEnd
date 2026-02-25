@@ -38,6 +38,7 @@ import {
   IdcardOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
+import { NATIONALITIES, VISA_JOB_TYPES } from '@/constants/enums';
 import styles from './Visas.module.css';
 import type { Dayjs } from 'dayjs';
 
@@ -73,32 +74,26 @@ export default function VisasPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Mock data
-  const nationalities = [
-    { value: '359', label: 'Philippines', labelAr: 'الفلبين' },
-    { value: '360', label: 'Kenya', labelAr: 'كينيا' },
-    { value: '361', label: 'Uganda', labelAr: 'أوغندا' },
-    { value: '362', label: 'India', labelAr: 'الهند' },
-    { value: '363', label: 'Sudan', labelAr: 'السودان' },
-    { value: '364', label: 'Egypt', labelAr: 'مصر' },
-    { value: '365', label: 'Burundi', labelAr: 'بوروندي' },
-    { value: '366', label: 'Bangladesh', labelAr: 'بنغلاديش' },
-    { value: '367', label: 'Pakistan', labelAr: 'باكستان' },
-    { value: '701', label: 'Sri Lanka', labelAr: 'سريلانكا' },
-    { value: '731', label: 'Ethiopia', labelAr: 'إثيوبيا' },
-    { value: '771', label: 'Indonesia', labelAr: 'إندونيسيا' },
-  ];
+  // Nationality & job options derived from central enums
+  const nationalities = useMemo(
+    () =>
+      [...NATIONALITIES].map((n) => ({
+        value: String(n.value),
+        label: n.labelEn,
+        labelAr: n.labelAr,
+      })),
+    []
+  );
 
-  const jobs = [
-    { value: '1198', label: 'House Maid', labelAr: 'خادمة منزلية' },
-    { value: '1199', label: 'Driver', labelAr: 'سائق' },
-    { value: '1210', label: 'Household Waiter', labelAr: 'نادل منزلي' },
-    { value: '1212', label: 'Home Nurse', labelAr: 'ممرضة منزلية' },
-    { value: '1246', label: 'Cook', labelAr: 'طباخ' },
-    { value: '1293', label: 'Home Worker', labelAr: 'عامل منزلي' },
-    { value: '1568', label: 'Home Guard', labelAr: 'حارس منزلي' },
-    { value: '1602', label: 'Home Gardener', labelAr: 'مزارع منزلي' },
-  ];
+  const jobs = useMemo(
+    () =>
+      [...VISA_JOB_TYPES].map((j) => ({
+        value: String(j.value),
+        label: j.labelEn,
+        labelAr: j.labelAr,
+      })),
+    []
+  );
 
   const mockVisas: Visa[] = Array.from({ length: 689 }, (_, i) => {
     const issueDate = new Date(2025, 0, 1 + (i % 365));

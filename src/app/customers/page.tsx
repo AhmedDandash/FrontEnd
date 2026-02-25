@@ -46,6 +46,15 @@ import type {
   UpdateCustomerDto,
   CreateEmploymentOperatingContractDto,
 } from '@/types/api.types';
+import {
+  HOUSING_TYPE,
+  OPERATION_TYPE,
+  PAYMENT_METHOD,
+  PREVIOUS_EXPERIENCE,
+  MARKETER_SOURCE,
+  getEnumLabel,
+  toSelectOptions,
+} from '@/constants/enums';
 import styles from './Customers.module.css';
 
 export default function CustomersPage() {
@@ -371,17 +380,9 @@ export default function CustomersPage() {
     ],
   });
 
-  // Housing type mapping
-  const getHousingType = (type: string | number | null | undefined) => {
-    const housingTypes: { [key: string]: { ar: string; en: string } } = {
-      '1': { ar: 'شقة', en: 'Apartment' },
-      '2': { ar: 'فيلا', en: 'Villa' },
-      '3': { ar: 'منزل', en: 'House' },
-      '4': { ar: 'مجمع', en: 'Compound' },
-    };
-    const typeStr = String(type || '');
-    return housingTypes[typeStr]?.[language] || typeStr;
-  };
+  // Housing type mapping — backed by HOUSING_TYPE enum
+  const getHousingType = (type: string | number | null | undefined) =>
+    getEnumLabel([...HOUSING_TYPE], Number(type), language);
 
   // Nationality mapping
   const getNationality = (nationality: string | number | null | undefined) => {
@@ -719,12 +720,10 @@ export default function CustomersPage() {
             name="housingType"
             rules={[{ required: true, message: 'Please select housing type' }]}
           >
-            <Select placeholder={t('housingType')}>
-              <Select.Option value={1}>{getHousingType(1)}</Select.Option>
-              <Select.Option value={2}>{getHousingType(2)}</Select.Option>
-              <Select.Option value={3}>{getHousingType(3)}</Select.Option>
-              <Select.Option value={4}>{getHousingType(4)}</Select.Option>
-            </Select>
+            <Select
+              placeholder={t('housingType')}
+              options={toSelectOptions([...HOUSING_TYPE], language)}
+            />
           </Form.Item>
         </Form>
       </Modal>
@@ -777,33 +776,10 @@ export default function CustomersPage() {
                 label={language === 'ar' ? 'كيف وصلت لنا' : 'How did you reach us'}
                 name="marketerId"
               >
-                <Select placeholder={language === 'ar' ? 'اختر' : 'Select'}>
-                  <Select.Option value={167}>{language === 'ar' ? 'قوقل' : 'Google'}</Select.Option>
-                  <Select.Option value={168}>
-                    {language === 'ar' ? 'سناب شات' : 'Snapchat'}
-                  </Select.Option>
-                  <Select.Option value={169}>
-                    {language === 'ar' ? 'تويتر' : 'Twitter'}
-                  </Select.Option>
-                  <Select.Option value={170}>
-                    {language === 'ar' ? 'انستقرام' : 'Instagram'}
-                  </Select.Option>
-                  <Select.Option value={171}>
-                    {language === 'ar' ? 'مساند' : 'Musaned'}
-                  </Select.Option>
-                  <Select.Option value={172}>
-                    {language === 'ar' ? 'احد الاقارب والاصدقاء' : 'Relatives/Friends'}
-                  </Select.Option>
-                  <Select.Option value={173}>
-                    {language === 'ar' ? 'لوحة المحل' : 'Store Sign'}
-                  </Select.Option>
-                  <Select.Option value={174}>
-                    {language === 'ar' ? 'عميل سابق' : 'Previous Client'}
-                  </Select.Option>
-                  <Select.Option value={278}>
-                    {language === 'ar' ? 'تيك توك' : 'TikTok'}
-                  </Select.Option>
-                </Select>
+                <Select
+                  placeholder={language === 'ar' ? 'اختر' : 'Select'}
+                  options={toSelectOptions([...MARKETER_SOURCE], language)}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -837,12 +813,8 @@ export default function CustomersPage() {
               >
                 <Select
                   placeholder={language === 'ar' ? 'اختر نوع العملية' : 'Select operation type'}
-                >
-                  <Select.Option value={1}>{language === 'ar' ? 'مدة' : 'Duration'}</Select.Option>
-                  <Select.Option value={3}>
-                    {language === 'ar' ? 'نقل الخدمات' : 'Sponsorship Transfer'}
-                  </Select.Option>
-                </Select>
+                  options={toSelectOptions([...OPERATION_TYPE], language)}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -861,12 +833,8 @@ export default function CustomersPage() {
               >
                 <Select
                   placeholder={language === 'ar' ? 'اختر طريقة السداد' : 'Select payment method'}
-                >
-                  <Select.Option value={1}>{language === 'ar' ? 'نقدي' : 'Cash'}</Select.Option>
-                  <Select.Option value={2}>
-                    {language === 'ar' ? 'دفعات' : 'Installments'}
-                  </Select.Option>
-                </Select>
+                  options={toSelectOptions([...PAYMENT_METHOD], language)}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -958,17 +926,10 @@ export default function CustomersPage() {
                 label={language === 'ar' ? 'الخبرة السابقة' : 'Previous Experience'}
                 name="previousExperience"
               >
-                <Select placeholder={language === 'ar' ? 'اختر' : 'Select'}>
-                  <Select.Option value={0}>
-                    {language === 'ar' ? 'لا يهم' : 'Does not matter'}
-                  </Select.Option>
-                  <Select.Option value={1}>
-                    {language === 'ar' ? 'سبق له العمل' : 'Has worked before'}
-                  </Select.Option>
-                  <Select.Option value={2}>
-                    {language === 'ar' ? 'لم يسبق له العمل' : 'No prior work'}
-                  </Select.Option>
-                </Select>
+                <Select
+                  placeholder={language === 'ar' ? 'اختر' : 'Select'}
+                  options={toSelectOptions([...PREVIOUS_EXPERIENCE], language)}
+                />
               </Form.Item>
             </Col>
           </Row>

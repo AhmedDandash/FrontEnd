@@ -73,6 +73,15 @@ import {
 import { useAgents } from '@/hooks/api/useAgents';
 import { useJobs } from '@/hooks/api/useJobs';
 import type { Worker, WorkerDto } from '@/types/api.types';
+import {
+  GENDER,
+  MARITAL_STATUS,
+  RELIGION,
+  NATIONALITIES,
+  WORKER_CONTRACT_TYPE,
+  WORKER_SATUS,
+  toSelectOptions,
+} from '@/constants/enums';
 import styles from './Workers.module.css';
 import dayjs from 'dayjs';
 
@@ -1040,10 +1049,11 @@ export default function WorkersPage() {
                   onChange={(value) => setFilters({ ...filters, gender: value })}
                   style={{ width: '100%' }}
                   allowClear
-                >
-                  <Select.Option value="male">{t('male')}</Select.Option>
-                  <Select.Option value="female">{t('female')}</Select.Option>
-                </Select>
+                  options={toSelectOptions([...GENDER], language).map((o) => ({
+                    value: String(o.value),
+                    label: o.label,
+                  }))}
+                />
               </Col>
 
               <Col xs={24} md={6}>
@@ -1055,13 +1065,11 @@ export default function WorkersPage() {
                   onChange={(value) => setFilters({ ...filters, workerType: value })}
                   style={{ width: '100%' }}
                   allowClear
-                >
-                  <Select.Option value="1">{t('typeMediation')}</Select.Option>
-                  <Select.Option value="5">{t('typeTransfer')}</Select.Option>
-                  <Select.Option value="2">{t('typeVisit')}</Select.Option>
-                  <Select.Option value="3">{t('typeDuration')}</Select.Option>
-                  <Select.Option value="4">{t('typeTransferContract')}</Select.Option>
-                </Select>
+                  options={toSelectOptions([...WORKER_CONTRACT_TYPE], language).map((o) => ({
+                    value: String(o.value),
+                    label: o.label,
+                  }))}
+                />
               </Col>
 
               <Col xs={24} md={6}>
@@ -1073,16 +1081,11 @@ export default function WorkersPage() {
                   onChange={(value) => setFilters({ ...filters, status: value })}
                   style={{ width: '100%' }}
                   allowClear
-                >
-                  <Select.Option value="1">{t('statusReceived')}</Select.Option>
-                  <Select.Option value="2">{t('statusEscaped')}</Select.Option>
-                  <Select.Option value="3">{t('statusSick')}</Select.Option>
-                  <Select.Option value="4">{t('statusRefused')}</Select.Option>
-                  <Select.Option value="5">{t('statusReturnTravel')}</Select.Option>
-                  <Select.Option value="6">{t('statusSuspended')}</Select.Option>
-                  <Select.Option value="7">{t('statusFinalExit')}</Select.Option>
-                  <Select.Option value="8">{t('statusReturnWork')}</Select.Option>
-                </Select>
+                  options={toSelectOptions([...WORKER_SATUS], language).map((o) => ({
+                    value: String(o.value),
+                    label: o.label,
+                  }))}
+                />
               </Col>
 
               <Col xs={24} md={6}>
@@ -1094,10 +1097,10 @@ export default function WorkersPage() {
                   onChange={(value) => setFilters({ ...filters, religion: value })}
                   style={{ width: '100%' }}
                   allowClear
-                >
-                  <Select.Option value="1">{t('muslim')}</Select.Option>
-                  <Select.Option value="2">{t('nonMuslim')}</Select.Option>
-                </Select>
+                  options={toSelectOptions([...RELIGION], language)
+                    .filter((o) => o.value !== 0)
+                    .map((o) => ({ value: String(o.value), label: o.label }))}
+                />
               </Col>
 
               <Col xs={24} md={6}>
@@ -1649,10 +1652,11 @@ export default function WorkersPage() {
             </Col>
             <Col xs={24} md={6}>
               <Form.Item label={t('gender')} name="gender" rules={[{ required: true }]}>
-                <Select size="large" placeholder={t('gender')}>
-                  <Select.Option value={0}>{t('male')}</Select.Option>
-                  <Select.Option value={1}>{t('female')}</Select.Option>
-                </Select>
+                <Select
+                  size="large"
+                  placeholder={t('gender')}
+                  options={toSelectOptions([...GENDER], language)}
+                />
               </Form.Item>
             </Col>
             <Col xs={24} md={6}>
@@ -1667,10 +1671,11 @@ export default function WorkersPage() {
             </Col>
             <Col xs={24} md={6}>
               <Form.Item label={t('maritalStatus')} name="maritalStatus">
-                <Select size="large" placeholder={t('maritalStatus')}>
-                  <Select.Option value={0}>{t('single')}</Select.Option>
-                  <Select.Option value={1}>{t('married')}</Select.Option>
-                </Select>
+                <Select
+                  size="large"
+                  placeholder={t('maritalStatus')}
+                  options={toSelectOptions([...MARITAL_STATUS], language)}
+                />
               </Form.Item>
             </Col>
             <Col xs={24} md={6}>
@@ -1680,10 +1685,11 @@ export default function WorkersPage() {
             </Col>
             <Col xs={24} md={6}>
               <Form.Item label={t('religion')} name="religion">
-                <Select size="large" placeholder={t('religion')}>
-                  <Select.Option value={1}>{t('muslim')}</Select.Option>
-                  <Select.Option value={2}>{t('nonMuslim')}</Select.Option>
-                </Select>
+                <Select
+                  size="large"
+                  placeholder={t('religion')}
+                  options={toSelectOptions([...RELIGION], language).filter((o) => o.value !== 0)}
+                />
               </Form.Item>
             </Col>
             <Col xs={24} md={6}>
@@ -1693,15 +1699,10 @@ export default function WorkersPage() {
                   placeholder={t('nationality')}
                   showSearch
                   optionFilterProp="label"
-                  options={[
-                    { value: 359, label: language === 'ar' ? 'الفلبين' : 'Philippines' },
-                    { value: 360, label: language === 'ar' ? 'كينيا' : 'Kenya' },
-                    { value: 361, label: language === 'ar' ? 'أوغندا' : 'Uganda' },
-                    { value: 362, label: language === 'ar' ? 'الهند' : 'India' },
-                    { value: 367, label: language === 'ar' ? 'باكستان' : 'Pakistan' },
-                    { value: 731, label: language === 'ar' ? 'أثيوبيا' : 'Ethiopia' },
-                    { value: 771, label: language === 'ar' ? 'أندونيسيا' : 'Indonesia' },
-                  ]}
+                  options={[...NATIONALITIES].map((n) => ({
+                    value: n.value,
+                    label: language === 'ar' ? n.labelAr : n.labelEn,
+                  }))}
                 />
               </Form.Item>
             </Col>
@@ -1789,17 +1790,11 @@ export default function WorkersPage() {
             </Col>
             <Col xs={24} md={8}>
               <Form.Item label={t('workerType')} name="workerType">
-                <Select size="large" placeholder={t('workerType')}>
-                  <Select.Option value={1}>
-                    {language === 'ar' ? 'التوسط' : t('typeMediation')}
-                  </Select.Option>
-                  <Select.Option value={2}>
-                    {language === 'ar' ? 'التشغيل' : 'Rent/Operation'}
-                  </Select.Option>
-                  <Select.Option value={3}>
-                    {language === 'ar' ? 'نقل الكفالة' : 'Sponsorship Transfer'}
-                  </Select.Option>
-                </Select>
+                <Select
+                  size="large"
+                  placeholder={t('workerType')}
+                  options={toSelectOptions([...WORKER_CONTRACT_TYPE], language)}
+                />
               </Form.Item>
             </Col>
             <Col xs={24} md={8}>
@@ -1827,16 +1822,11 @@ export default function WorkersPage() {
             </Col>
             <Col xs={24} md={8}>
               <Form.Item label={t('workerStatus')} name="workerSatus">
-                <Select size="large" placeholder={t('workerStatus')}>
-                  <Select.Option value={1}>{t('tabTrial')}</Select.Option>
-                  <Select.Option value={2}>{t('tabAvailable')}</Select.Option>
-                  <Select.Option value={3}>{t('tabUnderProcedure')}</Select.Option>
-                  <Select.Option value={4}>{t('tabBackOut')}</Select.Option>
-                  <Select.Option value={5}>{t('tabInsideKingdom')}</Select.Option>
-                  <Select.Option value={6}>{t('tabDeported')}</Select.Option>
-                  {/* <Select.Option value={7}>{t('statusFinalExit')}</Select.Option> */}
-                  <Select.Option value={8}>{t('statusReturnWork')}</Select.Option>
-                </Select>
+                <Select
+                  size="large"
+                  placeholder={t('workerStatus')}
+                  options={toSelectOptions([...WORKER_SATUS], language)}
+                />
               </Form.Item>
             </Col>
           </Row>

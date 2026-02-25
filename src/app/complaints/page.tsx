@@ -17,7 +17,7 @@ import {
   Spin,
   Dropdown,
 } from 'antd';
-import type { MenuProps } from 'antd';
+import type { FormInstance, MenuProps } from 'antd';
 import {
   SearchOutlined,
   UserOutlined,
@@ -38,6 +38,10 @@ import {
   useUpdateComplaint,
   useDeleteComplaint,
 } from '@/hooks/api/useComplaints';
+import { useCustomers } from '@/hooks/api/useCustomers';
+import { useWorkers } from '@/hooks/api/useWorkers';
+import { useAgents } from '@/hooks/api/useAgents';
+import { useEmploymentOperatingContracts } from '@/hooks/api/useEmploymentOperatingContracts';
 import {
   COMPLAINT_TYPE,
   COMPLAINT_FROM,
@@ -50,6 +54,215 @@ import type { Complaint, CreateComplaintDto, UpdateComplaintDto } from '@/types/
 import styles from './Complaints.module.css';
 
 const { TextArea } = Input;
+
+// complaintFrom values:
+// 1 = من العميل  → show Customer only
+// 5 = من العامل  → show Worker + WorkerLocation
+// 2,3,4,6        → show ContractType + ContractId + WorkerLocation
+const CUSTOMER_FROM = 1;
+const WORKER_FROM = 5;
+const CONTRACT_SOURCES = [2, 3, 4, 6]; // Agent, Embassy, Ministry, Contract Complaint
+
+interface ComplaintFormProps {
+  form: FormInstance;
+  language: 'ar' | 'en';
+  isArabic: boolean;
+  t: (key: string) => string;
+}
+
+function ComplaintForm({ form, language, isArabic, t }: ComplaintFormProps) {
+  const complaintFromValue = Form.useWatch('complaintFrom', form);
+
+  const showCustomer = complaintFromValue === CUSTOMER_FROM;
+  const showWorker = complaintFromValue === WORKER_FROM;
+  const showAgent = complaintFromValue === 2; // من الوكيل
+  const showContract = CONTRACT_SOURCES.includes(complaintFromValue);
+  const showWorkerLocation = showWorker || showContract;
+
+  // API data
+  const { customers = [], isLoading: loadingCustomers } = useCustomers();
+  const { data: workers = [], isLoading: loadingWorkers } = useWorkers();
+  const { data: agents = [], isLoading: loadingAgents } = useAgents();
+  const { contracts = [], isLoading: loadingContracts } = useEmploymentOperatingContracts();
+
+  // Build select options
+  const customerOptions = (customers as any[]).map((c) => ({
+    value: c.id,
+    label: (isArabic ? c.arabicName : c.englishName) || c.arabicName || c.englishName || `#${c.id}`,
+  }));
+
+  const workerOptions = (workers as any[]).map((w) => ({
+    value: w.id,
+    label: (isArabic ? w.fullNameAr : w.fullNameEn) || w.fullNameAr || w.fullNameEn || `#${w.id}`,
+  }));
+
+  const agentOptions = (agents as any[]).map((a) => ({
+    value: a.id,
+    label:
+      (isArabic ? a.agentNameAr : a.agentNameEn) || a.agentNameAr || a.agentNameEn || `#${a.id}`,
+  }));
+
+  const contractsArray: any[] = Array.isArray(contracts)
+    ? contracts
+    : Array.isArray((contracts as any)?.data)
+      ? (contracts as any).data
+      : [];
+
+  const contractOptions = contractsArray.map((c) => ({
+    value: c.id,
+    label: c.customerNameAr ? `#${c.id} – ${c.customerNameAr}` : `#${c.id}`,
+  }));
+
+  return (
+    <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
+      <Row gutter={[16, 0]}>
+        {/* Complaint Type */}
+        <Col xs={24} md={12}>
+          <Form.Item
+            name="type"
+            label={t('complaintType')}
+            rules={[{ required: true, message: isArabic ? 'مطلوب' : 'Required' }]}
+          >
+            <Select
+              placeholder={t('complaintType')}
+              options={toSelectOptions([...COMPLAINT_TYPE], language)}
+            />
+          </Form.Item>
+        </Col>
+
+        {/* Complaint From */}
+        <Col xs={24} md={12}>
+          <Form.Item
+            name="complaintFrom"
+            label={t('complaintFrom')}
+            rules={[{ required: true, message: isArabic ? 'مطلوب' : 'Required' }]}
+          >
+            <Select
+              placeholder={t('complaintFrom')}
+              options={toSelectOptions([...COMPLAINT_FROM], language)}
+            />
+          </Form.Item>
+        </Col>
+
+        {/* Customer – visible only when complaintFrom = 1 */}
+        {showCustomer && (
+          <Col xs={24}>
+            <Form.Item name="customerId" label={isArabic ? 'العميل' : 'Customer'}>
+              <Select
+                showSearch
+                allowClear
+                loading={loadingCustomers}
+                placeholder={isArabic ? 'اختر العميل' : 'Select customer'}
+                options={customerOptions}
+                filterOption={(input, option) =>
+                  String(option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+          </Col>
+        )}
+
+        {/* Worker – visible only when complaintFrom = 5 */}
+        {showWorker && (
+          <Col xs={24}>
+            <Form.Item name="workerId" label={isArabic ? 'العامل' : 'Worker'}>
+              <Select
+                showSearch
+                allowClear
+                loading={loadingWorkers}
+                placeholder={isArabic ? 'اختر العامل' : 'Select worker'}
+                options={workerOptions}
+                filterOption={(input, option) =>
+                  String(option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+          </Col>
+        )}
+
+        {/* Agent – visible when complaintFrom = 2 (من الوكيل) */}
+        {showAgent && (
+          <Col xs={24}>
+            <Form.Item name="agentId" label={isArabic ? 'الوكيل' : 'Agent'}>
+              <Select
+                showSearch
+                allowClear
+                loading={loadingAgents}
+                placeholder={isArabic ? 'اختر الوكيل' : 'Select agent'}
+                options={agentOptions}
+                filterOption={(input, option) =>
+                  String(option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+          </Col>
+        )}
+
+        {/* Contract Type + Contract – visible for Agent/Embassy/Ministry/Contract */}
+        {showContract && (
+          <>
+            <Col xs={24} md={12}>
+              <Form.Item name="contractType" label={t('contractType')}>
+                <Select
+                  placeholder={t('contractType')}
+                  options={toSelectOptions([...CONTRACT_TYPE], language)}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item name="contractId" label={isArabic ? 'العقد' : 'Contract'}>
+                <Select
+                  showSearch
+                  allowClear
+                  loading={loadingContracts}
+                  placeholder={isArabic ? 'اختر العقد' : 'Select contract'}
+                  options={contractOptions}
+                  filterOption={(input, option) =>
+                    String(option?.label ?? '')
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                />
+              </Form.Item>
+            </Col>
+          </>
+        )}
+
+        {/* Worker Location – visible for Worker and Contract sources */}
+        {showWorkerLocation && (
+          <Col xs={24} md={12}>
+            <Form.Item name="workerLocation" label={t('workerLocation')}>
+              <Select
+                placeholder={t('workerLocation')}
+                options={toSelectOptions([...WORKER_LOCATION], language)}
+                allowClear
+              />
+            </Form.Item>
+          </Col>
+        )}
+
+        {/* Notes */}
+        <Col xs={24} md={12}>
+          <Form.Item name="notesAr" label={t('notesAr')}>
+            <TextArea rows={3} placeholder={t('notesAr')} />
+          </Form.Item>
+        </Col>
+        <Col xs={24} md={12}>
+          <Form.Item name="notesEn" label={t('notesEn')}>
+            <TextArea rows={3} placeholder={t('notesEn')} />
+          </Form.Item>
+        </Col>
+      </Row>
+    </Form>
+  );
+}
 
 export default function ComplaintsPage() {
   const { language } = useAuthStore();
@@ -610,77 +823,7 @@ export default function ComplaintsPage() {
         width={700}
         destroyOnClose
       >
-        <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
-          <Row gutter={[16, 0]}>
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="type"
-                label={t('complaintType')}
-                rules={[{ required: true, message: isArabic ? 'مطلوب' : 'Required' }]}
-              >
-                <Select
-                  placeholder={t('complaintType')}
-                  options={toSelectOptions([...COMPLAINT_TYPE], language)}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="complaintFrom"
-                label={t('complaintFrom')}
-                rules={[{ required: true, message: isArabic ? 'مطلوب' : 'Required' }]}
-              >
-                <Select
-                  placeholder={t('complaintFrom')}
-                  options={toSelectOptions([...COMPLAINT_FROM], language)}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item name="contractType" label={t('contractType')}>
-                <Select
-                  placeholder={t('contractType')}
-                  options={toSelectOptions([...CONTRACT_TYPE], language)}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item name="workerLocation" label={t('workerLocation')}>
-                <Select
-                  placeholder={t('workerLocation')}
-                  options={toSelectOptions([...WORKER_LOCATION], language)}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={8}>
-              <Form.Item name="customerId" label={t('customerId')}>
-                <Input type="number" placeholder={t('customerId')} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={8}>
-              <Form.Item name="workerId" label={t('workerId')}>
-                <Input type="number" placeholder={t('workerId')} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={8}>
-              <Form.Item name="contractId" label={t('contractId')}>
-                <Input type="number" placeholder={t('contractId')} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item name="notesAr" label={t('notesAr')}>
-                <TextArea rows={3} placeholder={t('notesAr')} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item name="notesEn" label={t('notesEn')}>
-                <TextArea rows={3} placeholder={t('notesEn')} />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
+        <ComplaintForm form={form} language={language} isArabic={isArabic} t={t} />
       </Modal>
     </div>
   );

@@ -47,6 +47,7 @@ import {
   useDeleteMedicalExamination,
 } from '@/hooks/api/useWorkers';
 import type { Worker } from '@/types/api.types';
+import { MEDICAL_STATUS, WORKER_SATUS, toSelectOptions } from '@/constants/enums';
 import styles from './WorkersFollowup.module.css';
 import dayjs from 'dayjs';
 
@@ -702,16 +703,11 @@ export default function WorkersFollowupPage() {
                   onChange={(value) => setFilters({ ...filters, status: value })}
                   style={{ width: '100%' }}
                   allowClear
-                >
-                  <Select.Option value="1">{t('statusReceived')}</Select.Option>
-                  <Select.Option value="2">{t('statusEscaped')}</Select.Option>
-                  <Select.Option value="3">{t('statusSick')}</Select.Option>
-                  <Select.Option value="4">{t('statusRefused')}</Select.Option>
-                  <Select.Option value="5">{t('statusReturnTravel')}</Select.Option>
-                  <Select.Option value="6">{t('statusSuspended')}</Select.Option>
-                  <Select.Option value="7">{t('statusFinalExit')}</Select.Option>
-                  <Select.Option value="8">{t('statusReturnWork')}</Select.Option>
-                </Select>
+                  options={toSelectOptions([...WORKER_SATUS], language).map((o) => ({
+                    value: String(o.value),
+                    label: o.label,
+                  }))}
+                />
               </Col>
 
               <Col xs={24} md={6}>
@@ -825,11 +821,8 @@ export default function WorkersFollowupPage() {
               onChange={(value) => setExamFormData({ ...examFormData, medicalStatus: value })}
               style={{ width: '100%' }}
               size="large"
-            >
-              <Select.Option value={0}>{t('medicalStatusPending')}</Select.Option>
-              <Select.Option value={1}>{t('medicalStatusPassed')}</Select.Option>
-              <Select.Option value={2}>{t('medicalStatusFailed')}</Select.Option>
-            </Select>
+              options={toSelectOptions([...MEDICAL_STATUS], language)}
+            />
           </div>
 
           <div>

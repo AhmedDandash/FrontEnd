@@ -32,6 +32,7 @@ import {
 } from '@ant-design/icons';
 import { usePrivileges } from '@/hooks/api/usePrivileges';
 import { CreateRoleDto, UpdateRoleDto } from '@/types/api.types';
+import { PRIVILEGE_TYPE } from '@/constants/enums';
 import styles from './Privileges.module.css';
 
 const { Title, Text } = Typography;
@@ -443,13 +444,13 @@ export default function PrivilegesPage() {
                   allowClear
                   onClear={() => handleApplyFilters(filters.name, undefined)}
                 >
-                  <Select.Option value={0}>
+                  <Select.Option value={PRIVILEGE_TYPE[0].value}>
                     <Space>
                       <TeamOutlined />
                       {t.employees}
                     </Space>
                   </Select.Option>
-                  <Select.Option value={1}>
+                  <Select.Option value={PRIVILEGE_TYPE[1].value}>
                     <Space>
                       <UserOutlined />
                       {t.agent}
@@ -545,13 +546,13 @@ export default function PrivilegesPage() {
             initialValue={0}
           >
             <Select size="large" placeholder={t.selectType}>
-              <Select.Option value={0}>
+              <Select.Option value={PRIVILEGE_TYPE[0].value}>
                 <Space>
                   <TeamOutlined />
                   {t.employees}
                 </Space>
               </Select.Option>
-              <Select.Option value={1}>
+              <Select.Option value={PRIVILEGE_TYPE[1].value}>
                 <Space>
                   <UserOutlined />
                   {t.agent}

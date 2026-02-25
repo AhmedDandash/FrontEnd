@@ -67,6 +67,7 @@ export const COMPLAINT_TYPE = [
 // ==================== Complaint From ====================
 // مصدر الشكوى
 export const COMPLAINT_FROM = [
+  { value: 1, labelAr: 'من العميل', labelEn: 'From Customer' },
   { value: 5, labelAr: 'من العامل', labelEn: 'From Worker' },
   { value: 2, labelAr: 'من الوكيل', labelEn: 'From Agent' },
   { value: 3, labelAr: 'من السفارة', labelEn: 'From Embassy' },
@@ -86,8 +87,8 @@ export const WORKER_LOCATION = [
 // نوع العقد
 export const CONTRACT_TYPE = [
   { value: 1, labelAr: 'عقد استقدام', labelEn: 'Recruitment Contract' },
-  { value: 2, labelAr: 'عقد تأجير', labelEn: 'Rent Contract' },
-  { value: 3, labelAr: 'نقل كفالة', labelEn: 'Sponsorship Transfer' },
+  { value: 2, labelAr: 'عقد تشغيل', labelEn: 'Rent Contract' },
+  { value: 3, labelAr: 'عقد توسط', labelEn: 'Mediation Contract' },
 ] as const;
 
 // ==================== Authorization System ====================
@@ -128,6 +129,7 @@ export const HOUSING_TYPE = [
   { value: 1, labelAr: 'شقة', labelEn: 'Apartment' },
   { value: 2, labelAr: 'فيلا', labelEn: 'Villa' },
   { value: 3, labelAr: 'دور', labelEn: 'Floor' },
+  { value: 4, labelAr: 'مجمع', labelEn: 'Compound' },
 ] as const;
 
 // ==================== Worker Status ====================
@@ -179,9 +181,8 @@ export const PRIVILEGE_TYPE = [
 // ==================== Agent Contract Type ====================
 // نوع عقد الوكيل
 export const AGENT_CONTRACT_TYPE = [
-  { value: 0, labelAr: 'غير محدد', labelEn: 'Not Specified' },
-  { value: 1, labelAr: 'حصري', labelEn: 'Exclusive' },
-  { value: 2, labelAr: 'غير حصري', labelEn: 'Non-Exclusive' },
+  { value: 0, labelAr: 'توسط', labelEn: 'Mediation' },
+  { value: 1, labelAr: 'تشغيل', labelEn: 'Operation' },
 ] as const;
 
 // ==================== Organization Type ====================
@@ -225,4 +226,91 @@ export const NATIONALITIES = [
   { value: 731, labelAr: 'أثيوبيا', labelEn: 'Ethiopia' },
   { value: 771, labelAr: 'أندونيسيا', labelEn: 'Indonesia' },
   { value: 839, labelAr: 'اليمن', labelEn: 'Yemen' },
+] as const;
+
+// ==================== Operation Type ====================
+// نوع العملية (في عقد التشغيل)
+export const OPERATION_TYPE = [
+  { value: 1, labelAr: 'مدة', labelEn: 'Duration' },
+  { value: 3, labelAr: 'نقل الخدمات', labelEn: 'Sponsorship Transfer' },
+] as const;
+
+// ==================== Payment Method ====================
+// طريقة السداد
+export const PAYMENT_METHOD = [
+  { value: 1, labelAr: 'نقدي', labelEn: 'Cash' },
+  { value: 2, labelAr: 'دفعات', labelEn: 'Installments' },
+] as const;
+
+// ==================== Medical Status ====================
+// الحالة الطبية
+export const MEDICAL_STATUS = [
+  { value: 0, labelAr: 'قيد الانتظار', labelEn: 'Pending' },
+  { value: 1, labelAr: 'ناجح', labelEn: 'Passed' },
+  { value: 2, labelAr: 'راسب', labelEn: 'Failed' },
+] as const;
+
+// ==================== Worker Workflow Status ====================
+// حالة العامل (حالة سير العمل)
+// Note: API field is 'workerSatus' (typo preserved from backend)
+export const WORKER_SATUS = [
+  { value: 1, labelAr: 'مرحلة التجربة', labelEn: 'Trial' },
+  { value: 2, labelAr: 'متاح', labelEn: 'Available' },
+  { value: 3, labelAr: 'تحت الإجراء', labelEn: 'Under Procedure' },
+  { value: 4, labelAr: 'انسحاب', labelEn: 'Back Out' },
+  { value: 5, labelAr: 'داخل المملكة', labelEn: 'Inside Kingdom' },
+  { value: 6, labelAr: 'مرحّل', labelEn: 'Deported' },
+  { value: 7, labelAr: 'خروج نهائي', labelEn: 'Final Exit' },
+  { value: 8, labelAr: 'عودة للعمل', labelEn: 'Return to Work' },
+] as const;
+
+// ==================== Worker Contract Type ====================
+// نوع عقد العامل (حقل workerType في نموذج إضافة عامل)
+export const WORKER_CONTRACT_TYPE = [
+  { value: 1, labelAr: 'التوسط', labelEn: 'Mediation' },
+  { value: 2, labelAr: 'التشغيل', labelEn: 'Operation/Rent' },
+  { value: 3, labelAr: 'نقل الكفالة', labelEn: 'Sponsorship Transfer' },
+] as const;
+
+// ==================== Marketer Source ====================
+// مصدر التسويق (كيف وصل إلينا العميل)
+export const MARKETER_SOURCE = [
+  { value: 167, labelAr: 'قوقل', labelEn: 'Google' },
+  { value: 168, labelAr: 'سناب شات', labelEn: 'Snapchat' },
+  { value: 169, labelAr: 'تويتر', labelEn: 'Twitter' },
+  { value: 170, labelAr: 'انستقرام', labelEn: 'Instagram' },
+  { value: 171, labelAr: 'مساند', labelEn: 'Musaned' },
+  { value: 172, labelAr: 'أقارب وأصدقاء', labelEn: 'Relatives & Friends' },
+  { value: 173, labelAr: 'لوحة المحل', labelEn: 'Store Sign' },
+  { value: 174, labelAr: 'عميل سابق', labelEn: 'Previous Client' },
+  { value: 278, labelAr: 'تيك توك', labelEn: 'TikTok' },
+] as const;
+
+// ==================== Contract Category ====================
+// تصنيف العقد
+// TODO: Verify actual numeric values from backend documentation
+export const CONTRACT_CATEGORY = [
+  { value: 1, labelAr: 'فئة أولى', labelEn: 'Category 1' },
+  { value: 2, labelAr: 'فئة ثانية', labelEn: 'Category 2' },
+] as const;
+
+// ==================== Labor Management ====================
+// إدارة العمالة
+// TODO: Verify actual numeric values from backend documentation
+export const LABOR_MANAGEMENT = [
+  { value: 1, labelAr: 'إدارة مباشرة', labelEn: 'Direct Management' },
+  { value: 2, labelAr: 'إدارة غير مباشرة', labelEn: 'Indirect Management' },
+] as const;
+
+// ==================== Visa Job Types ====================
+// أنواع المهن في التأشيرات (وظائف العمالة المنزلية)
+export const VISA_JOB_TYPES = [
+  { value: 1198, labelAr: 'خادمة منزلية', labelEn: 'House Maid' },
+  { value: 1199, labelAr: 'سائق', labelEn: 'Driver' },
+  { value: 1210, labelAr: 'نادل منزلي', labelEn: 'Household Waiter' },
+  { value: 1212, labelAr: 'ممرضة منزلية', labelEn: 'Home Nurse' },
+  { value: 1246, labelAr: 'طباخ', labelEn: 'Cook' },
+  { value: 1293, labelAr: 'عامل منزلي', labelEn: 'Home Worker' },
+  { value: 1568, labelAr: 'حارس منزلي', labelEn: 'Home Guard' },
+  { value: 1602, labelAr: 'مزارع منزلي', labelEn: 'Home Gardener' },
 ] as const;

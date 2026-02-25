@@ -211,10 +211,12 @@ export default function MediationOffersPage() {
 
   // Job select options from API
   const jobOptions = useMemo(() => {
-    return (jobs as any[]).map((j: any) => ({
-      value: j.id,
-      label: isArabic ? j.jobNameAr : j.jobNameEn || j.jobNameAr || `#${j.id}`,
-    }));
+    return (jobs as any[])
+      .filter((j: any) => j.isActive) // Ensure only active jobs are included
+      .map((j: any) => ({
+        value: j.id,
+        label: isArabic ? j.jobNameAr : j.jobNameEn || j.jobNameAr || `#${j.id}`,
+      }));
   }, [jobs, isArabic]);
 
   // Branch select options from API
