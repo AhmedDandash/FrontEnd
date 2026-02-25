@@ -231,7 +231,7 @@ export default function Sidebar({
       children: [
         {
           key: '/offers/mediation',
-          label: language === 'ar' ? 'عروض الوساطة' : 'Mediation Offers',
+          label: language === 'ar' ? 'عروض واسعار التوسط الوساطة' : 'Mediation Offers',
         },
         { key: '/offers/rent', label: language === 'ar' ? 'عروض الإيجار' : 'Rent Offers' },
         {

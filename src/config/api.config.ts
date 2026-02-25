@@ -121,4 +121,32 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `/api/EmploymentOperatingContract/${id}`,
     END_CONTRACT: '/api/EmploymentOperatingContract/EndContract',
   },
+
+  // Complaint
+  COMPLAINT: {
+    GET_ALL: '/api/Complaint',
+    GET_BY_ID: (id: number) => `/api/Complaint/${id}`,
+    CREATE: '/api/Complaint',
+    UPDATE: (id: number) => `/api/Complaint/${id}`,
+    DELETE: (id: number) => `/api/Complaint/${id}`,
+  },
+
+  // Nationality (General Options)
+  NATIONALITY: {
+    GET_ALL: '/api/Nationality/GetAllNationality',
+    GET_BY_ID: (id: number) => `/api/Nationality/GetByIdNationality/${id}`,
+    CREATE: '/api/Nationality/CreateNationality',
+    UPDATE: (id: number) => `/api/Nationality/UpdateNationality/${id}`,
+    DELETE: (id: number) => `/api/Nationality/DeleteNationality/${id}`,
+  },
+
+  // Mediation Contract Offer
+  MEDIATION_CONTRACT_OFFER: {
+    GET_SUMMARY: '/api/MediationContractOffer/GetSummeryOffer',
+    GET_ALL: '/api/MediationContractOffer/GetAllOffer',
+    GET_BY_ID: (id: number) => `/api/MediationContractOffer/GetOfferById/${id}`,
+    CREATE: '/api/MediationContractOffer/CreateOffer',
+    UPDATE: (id: number) => `/api/MediationContractOffer/UpdateOffer/${id}`,
+    DELETE: (id: number) => `/api/MediationContractOffer/DeleteOffer/${id}`,
+  },
 } as const;

@@ -2,7 +2,22 @@
 
 import React, { useState, useMemo } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { Input, Select, DatePicker, Statistic, Row, Col, Badge, Empty, Pagination } from 'antd';
+import {
+  Input,
+  Select,
+  Statistic,
+  Row,
+  Col,
+  Badge,
+  Empty,
+  Pagination,
+  Button,
+  Modal,
+  Form,
+  Spin,
+  Dropdown,
+} from 'antd';
+import type { MenuProps } from 'antd';
 import {
   SearchOutlined,
   UserOutlined,
@@ -10,306 +25,55 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   FileTextOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  MoreOutlined,
+  ExclamationCircleOutlined,
+  WarningOutlined,
 } from '@ant-design/icons';
+import {
+  useComplaints,
+  useCreateComplaint,
+  useUpdateComplaint,
+  useDeleteComplaint,
+} from '@/hooks/api/useComplaints';
+import {
+  COMPLAINT_TYPE,
+  COMPLAINT_FROM,
+  WORKER_LOCATION,
+  CONTRACT_TYPE,
+  getEnumLabel,
+  toSelectOptions,
+} from '@/constants/enums';
+import type { Complaint, CreateComplaintDto, UpdateComplaintDto } from '@/types/api.types';
 import styles from './Complaints.module.css';
 
-const { RangePicker } = DatePicker;
-
-interface Complaint {
-  id: number;
-  sequenceNumber: number;
-  customerNameAr: string;
-  customerNameEn: string;
-  applicantNameAr: string;
-  applicantNameEn: string;
-  contractType: 'recruitment' | 'rent' | 'sponsorship-transfer';
-  status: 'open' | 'closed' | 'pending';
-  complaintFrom: 'customer' | 'worker' | 'agent' | 'embassy' | 'ministry';
-  workerLocation: 'accommodation' | 'customer-home';
-  issueState: 'opened' | 'closed';
-  notes: string;
-  updates: string;
-  finishNotes: string;
-  createdByEmployee: string;
-  finishedByEmployee: string;
-  nationality: string;
-  visaNumber: string;
-  agentName: string;
-  creationDate: string;
-  endServiceDate: string;
-  updateDate: string;
-  idNumber: string;
-}
+const { TextArea } = Input;
 
 export default function ComplaintsPage() {
   const { language } = useAuthStore();
   const isArabic = language === 'ar';
+
+  // API hooks
+  const { data: complaints = [], isLoading } = useComplaints();
+  const createMutation = useCreateComplaint();
+  const updateMutation = useUpdateComplaint();
+  const deleteMutation = useDeleteComplaint();
 
   // State
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [contractTypeFilter, setContractTypeFilter] = useState<string>('all');
   const [complaintFromFilter, setComplaintFromFilter] = useState<string>('all');
-  const [issueStateFilter, setIssueStateFilter] = useState<string>('all');
-  const [nationalityFilter, setNationalityFilter] = useState<string>('all');
+  const [workerLocationFilter, setWorkerLocationFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [creationDateRange, setCreationDateRange] = useState<[string, string] | null>(null);
-  const [updateDateRange, setUpdateDateRange] = useState<[string, string] | null>(null);
 
-  // Mock data
-  const mockComplaints: Complaint[] = [
-    {
-      id: 7999,
-      sequenceNumber: 1,
-      customerNameAr: 'ردينه حسن علي الرميلي',
-      customerNameEn: 'Radina Hassan Ali Al-Rumaili',
-      applicantNameAr: 'ديرارتو سلطان محمد',
-      applicantNameEn: 'DERARTU SULTAN MUHAMMED',
-      contractType: 'recruitment',
-      status: 'closed',
-      complaintFrom: 'customer',
-      workerLocation: 'customer-home',
-      issueState: 'closed',
-      notes: 'طالبه مترجمه من امس وللأن محد تواصل معاها',
-      updates: '',
-      finishNotes: 'تم الترجمه',
-      createdByEmployee: 'عبدالرحمن مسعد',
-      finishedByEmployee: 'عبدالرحمن مسعد',
-      nationality: 'Ethiopia',
-      visaNumber: 'V2024001',
-      agentName: 'ALHABESHI INTERNATIONAL SERVICES INC.',
-      creationDate: '2026-01-13',
-      endServiceDate: '2026-01-13',
-      updateDate: '2026-01-13',
-      idNumber: '1234567890',
-    },
-    {
-      id: 7995,
-      sequenceNumber: 2,
-      customerNameAr: 'جميله احمد عبدالرزاق هوساوى',
-      customerNameEn: 'Jamila Ahmed Abdul-Razzaq Housawi',
-      applicantNameAr: 'فاطمة علي محمد',
-      applicantNameEn: 'FATIMA ALI MOHAMMED',
-      contractType: 'recruitment',
-      status: 'closed',
-      complaintFrom: 'customer',
-      workerLocation: 'accommodation',
-      issueState: 'closed',
-      notes: 'العاملة ترفض العمل',
-      updates: '',
-      finishNotes: 'تم الحل',
-      createdByEmployee: 'سهام عبدالله الحربي',
-      finishedByEmployee: 'سهام عبدالله الحربي',
-      nationality: 'Philippines',
-      visaNumber: 'V2024002',
-      agentName: 'MARAFE INTL MANPOWER SERVICES INC.',
-      creationDate: '2026-01-13',
-      endServiceDate: '2026-01-13',
-      updateDate: '2026-01-13',
-      idNumber: '2345678901',
-    },
-    {
-      id: 7993,
-      sequenceNumber: 3,
-      customerNameAr: 'ردينه حسن علي الرميلي',
-      customerNameEn: 'Radina Hassan Ali Al-Rumaili',
-      applicantNameAr: 'ديرارتو سلطان محمد',
-      applicantNameEn: 'DERARTU SULTAN MUHAMMED',
-      contractType: 'recruitment',
-      status: 'closed',
-      complaintFrom: 'customer',
-      workerLocation: 'customer-home',
-      issueState: 'closed',
-      notes: 'تبغا مترجمه',
-      updates: '',
-      finishNotes: 'تم التواصل',
-      createdByEmployee: 'محمد ايمن فتحي عبد الوهاب',
-      finishedByEmployee: 'محمد ايمن فتحي عبد الوهاب',
-      nationality: 'Ethiopia',
-      visaNumber: 'V2024003',
-      agentName: 'ALHABESHI INTERNATIONAL SERVICES INC.',
-      creationDate: '2026-01-12',
-      endServiceDate: '2026-01-12',
-      updateDate: '2026-01-12',
-      idNumber: '3456789012',
-    },
-    {
-      id: 7992,
-      sequenceNumber: 4,
-      customerNameAr: 'لولو محمد احمد البيتي',
-      customerNameEn: 'Lulu Mohammed Ahmed Al-Bayti',
-      applicantNameAr: 'جيتو موسيسا نادي',
-      applicantNameEn: 'JITU MOSISA NADI',
-      contractType: 'recruitment',
-      status: 'closed',
-      complaintFrom: 'customer',
-      workerLocation: 'customer-home',
-      issueState: 'closed',
-      notes: 'تحتاج مترجمه',
-      updates: '',
-      finishNotes: 'تم التواصل والترجمه',
-      createdByEmployee: 'نادر بن احمد جابر الحربي',
-      finishedByEmployee: 'نادر بن احمد جابر الحربي',
-      nationality: 'Ethiopia',
-      visaNumber: 'V2024004',
-      agentName: 'ALHABESHI INTERNATIONAL SERVICES INC.',
-      creationDate: '2026-01-12',
-      endServiceDate: '2026-01-12',
-      updateDate: '2026-01-12',
-      idNumber: '4567890123',
-    },
-    {
-      id: 7985,
-      sequenceNumber: 5,
-      customerNameAr: 'منيرة سعد عبدالله القحطاني',
-      customerNameEn: 'Munira Saad Abdullah Al-Qahtani',
-      applicantNameAr: 'سارة أحمد علي',
-      applicantNameEn: 'SARAH AHMED ALI',
-      contractType: 'sponsorship-transfer',
-      status: 'open',
-      complaintFrom: 'worker',
-      workerLocation: 'accommodation',
-      issueState: 'opened',
-      notes: 'العاملة تريد تغيير الكفيل',
-      updates: 'جاري التواصل مع العاملة',
-      finishNotes: '',
-      createdByEmployee: 'اسماء الكيال',
-      finishedByEmployee: '',
-      nationality: 'Kenya',
-      visaNumber: 'V2024005',
-      agentName: 'EAMAL SOLUTIONS LIMITED',
-      creationDate: '2026-01-11',
-      endServiceDate: '',
-      updateDate: '2026-01-12',
-      idNumber: '5678901234',
-    },
-    {
-      id: 7980,
-      sequenceNumber: 6,
-      customerNameAr: 'خالد محمد سعيد الزهراني',
-      customerNameEn: 'Khalid Mohammed Saeed Al-Zahrani',
-      applicantNameAr: 'ماريا جوزيف رودريجيز',
-      applicantNameEn: 'MARIA JOSEPH RODRIGUEZ',
-      contractType: 'rent',
-      status: 'pending',
-      complaintFrom: 'agent',
-      workerLocation: 'customer-home',
-      issueState: 'opened',
-      notes: 'مشكلة في الراتب',
-      updates: 'تم التواصل مع المكتب',
-      finishNotes: '',
-      createdByEmployee: 'سلطان الشمري',
-      finishedByEmployee: '',
-      nationality: 'Philippines',
-      visaNumber: 'V2024006',
-      agentName: 'MARAFE INTL MANPOWER SERVICES INC.',
-      creationDate: '2026-01-10',
-      endServiceDate: '',
-      updateDate: '2026-01-11',
-      idNumber: '6789012345',
-    },
-    {
-      id: 7975,
-      sequenceNumber: 7,
-      customerNameAr: 'نورة عبدالله محمد الغامدي',
-      customerNameEn: 'Noura Abdullah Mohammed Al-Ghamdi',
-      applicantNameAr: 'عائشة محمود حسن',
-      applicantNameEn: 'AISHA MAHMOUD HASSAN',
-      contractType: 'recruitment',
-      status: 'open',
-      complaintFrom: 'customer',
-      workerLocation: 'customer-home',
-      issueState: 'opened',
-      notes: 'العاملة لا تجيد الطبخ',
-      updates: 'جاري التدريب',
-      finishNotes: '',
-      createdByEmployee: 'اصالة عبدالله عبد العزيز الزهراني',
-      finishedByEmployee: '',
-      nationality: 'Sudan',
-      visaNumber: 'V2024007',
-      agentName: 'ALHABESHI INTERNATIONAL SERVICES INC.',
-      creationDate: '2026-01-09',
-      endServiceDate: '',
-      updateDate: '2026-01-10',
-      idNumber: '7890123456',
-    },
-    {
-      id: 7970,
-      sequenceNumber: 8,
-      customerNameAr: 'فهد صالح عبدالرحمن العتيبي',
-      customerNameEn: 'Fahad Saleh Abdul-Rahman Al-Otaibi',
-      applicantNameAr: 'راجيش كومار باتيل',
-      applicantNameEn: 'RAJESH KUMAR PATEL',
-      contractType: 'recruitment',
-      status: 'closed',
-      complaintFrom: 'embassy',
-      workerLocation: 'accommodation',
-      issueState: 'closed',
-      notes: 'مشكلة في الإقامة',
-      updates: 'تم حل المشكلة',
-      finishNotes: 'تم تجديد الإقامة',
-      createdByEmployee: 'عمر محمد احمد بوبكر',
-      finishedByEmployee: 'عمر محمد احمد بوبكر',
-      nationality: 'India',
-      visaNumber: 'V2024008',
-      agentName: 'AL ARHAM HR SERVICES PVT LTD',
-      creationDate: '2026-01-08',
-      endServiceDate: '2026-01-09',
-      updateDate: '2026-01-09',
-      idNumber: '8901234567',
-    },
-    {
-      id: 7965,
-      sequenceNumber: 9,
-      customerNameAr: 'سارة فيصل محمد الدوسري',
-      customerNameEn: 'Sarah Faisal Mohammed Al-Dosari',
-      applicantNameAr: 'نيلوم بينتا راهمان',
-      applicantNameEn: 'NELUM BINTA RAHMAN',
-      contractType: 'recruitment',
-      status: 'pending',
-      complaintFrom: 'customer',
-      workerLocation: 'customer-home',
-      issueState: 'opened',
-      notes: 'العاملة تطلب إجازة',
-      updates: 'جاري الترتيب',
-      finishNotes: '',
-      createdByEmployee: 'نداء خالد محمد نائل احمد طاهر',
-      finishedByEmployee: '',
-      nationality: 'Bangladesh',
-      visaNumber: 'V2024009',
-      agentName: 'WELCOME ENTERPRISES',
-      creationDate: '2026-01-07',
-      endServiceDate: '',
-      updateDate: '2026-01-08',
-      idNumber: '9012345678',
-    },
-    {
-      id: 7960,
-      sequenceNumber: 10,
-      customerNameAr: 'عبدالعزيز ناصر سعد الشهري',
-      customerNameEn: 'Abdul-Aziz Nasser Saad Al-Shahri',
-      applicantNameAr: 'محمد رضوان أحمد',
-      applicantNameEn: 'MOHAMMED RIDWAN AHMED',
-      contractType: 'sponsorship-transfer',
-      status: 'open',
-      complaintFrom: 'ministry',
-      workerLocation: 'accommodation',
-      issueState: 'opened',
-      notes: 'مطلوب تحديث البيانات',
-      updates: 'تم إرسال المستندات',
-      finishNotes: '',
-      createdByEmployee: 'مهند احمد مساعد المحضار',
-      finishedByEmployee: '',
-      nationality: 'Pakistan',
-      visaNumber: 'V2024010',
-      agentName: 'LARKANA OVERSEAS',
-      creationDate: '2026-01-06',
-      endServiceDate: '',
-      updateDate: '2026-01-07',
-      idNumber: '0123456789',
-    },
-  ];
+  // Modal state
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingComplaint, setEditingComplaint] = useState<Complaint | null>(null);
+  const [form] = Form.useForm();
 
   // Translations
   const t = (key: string): string => {
@@ -323,44 +87,31 @@ export default function ComplaintsPage() {
         search: 'بحث...',
         status: 'الحالة',
         all: 'الكل',
-        open: 'مفتوحة',
-        closed: 'مغلقة',
-        pending: 'معلقة',
         contractType: 'نوع العقد',
-        recruitment: 'عقد استقدام',
-        rent: 'عقد تأجير',
-        sponsorshipTransfer: 'نقل كفالة',
         complaintFrom: 'الشكوى من',
-        customer: 'العميل',
-        worker: 'العامل',
-        agent: 'الوكيل',
-        embassy: 'السفارة',
-        ministry: 'الوزارة',
-        issueState: 'حالة المشكلة',
-        opened: 'مفتوحة',
-        nationality: 'الجنسية',
-        creationDateRange: 'تاريخ الإنشاء',
-        updateDateRange: 'تاريخ التحديث',
+        complaintType: 'نوع الشكوى',
+        workerLocation: 'موقع العامل',
         complaintNumber: 'رقم الشكوى',
         customerName: 'اسم العميل',
-        applicantName: 'اسم العامل',
+        workerName: 'اسم العامل',
         notes: 'الملاحظات',
-        updates: 'التحديثات',
-        finishNotes: 'ملاحظات الإغلاق',
-        createdBy: 'تم الإنشاء بواسطة',
-        finishedBy: 'تم الإغلاق بواسطة',
-        visaNumber: 'رقم التأشيرة',
-        agentName: 'اسم الوكيل',
-        creationDate: 'تاريخ الإنشاء',
-        endServiceDate: 'تاريخ إنهاء الخدمة',
-        updateDate: 'تاريخ التحديث',
-        workerLocation: 'موقع العامل',
-        accommodation: 'في السكن',
-        customerHome: 'عند العميل',
-        viewDetails: 'عرض التفاصيل',
+        notesAr: 'الملاحظات بالعربي',
+        notesEn: 'الملاحظات بالإنجليزي',
         noComplaints: 'لا توجد شكاوى',
         of: 'من',
         items: 'عنصر',
+        addComplaint: 'إضافة شكوى',
+        editComplaint: 'تعديل الشكوى',
+        save: 'حفظ',
+        cancel: 'إلغاء',
+        edit: 'تعديل',
+        delete: 'حذف',
+        confirmDelete: 'هل أنت متأكد من حذف هذه الشكوى؟',
+        deleteTitle: 'حذف الشكوى',
+        customerId: 'رقم العميل',
+        workerId: 'رقم العامل',
+        contractId: 'رقم العقد',
+        loading: 'جاري التحميل...',
       },
       en: {
         complaintsManagement: 'Complaints Management',
@@ -371,44 +122,31 @@ export default function ComplaintsPage() {
         search: 'Search...',
         status: 'Status',
         all: 'All',
-        open: 'Open',
-        closed: 'Closed',
-        pending: 'Pending',
         contractType: 'Contract Type',
-        recruitment: 'Recruitment Contract',
-        rent: 'Rent Contract',
-        sponsorshipTransfer: 'Sponsorship Transfer',
         complaintFrom: 'Complaint From',
-        customer: 'Customer',
-        worker: 'Worker',
-        agent: 'Agent',
-        embassy: 'Embassy',
-        ministry: 'Ministry',
-        issueState: 'Issue State',
-        opened: 'Opened',
-        nationality: 'Nationality',
-        creationDateRange: 'Creation Date',
-        updateDateRange: 'Update Date',
+        complaintType: 'Complaint Type',
+        workerLocation: 'Worker Location',
         complaintNumber: 'Complaint Number',
         customerName: 'Customer Name',
-        applicantName: 'Applicant Name',
+        workerName: 'Worker Name',
         notes: 'Notes',
-        updates: 'Updates',
-        finishNotes: 'Finish Notes',
-        createdBy: 'Created By',
-        finishedBy: 'Finished By',
-        visaNumber: 'Visa Number',
-        agentName: 'Agent Name',
-        creationDate: 'Creation Date',
-        endServiceDate: 'End Service Date',
-        updateDate: 'Update Date',
-        workerLocation: 'Worker Location',
-        accommodation: 'In Accommodation',
-        customerHome: 'At Customer Home',
-        viewDetails: 'View Details',
+        notesAr: 'Notes (Arabic)',
+        notesEn: 'Notes (English)',
         noComplaints: 'No complaints found',
         of: 'of',
         items: 'items',
+        addComplaint: 'Add Complaint',
+        editComplaint: 'Edit Complaint',
+        save: 'Save',
+        cancel: 'Cancel',
+        edit: 'Edit',
+        delete: 'Delete',
+        confirmDelete: 'Are you sure you want to delete this complaint?',
+        deleteTitle: 'Delete Complaint',
+        customerId: 'Customer ID',
+        workerId: 'Worker ID',
+        contractId: 'Contract ID',
+        loading: 'Loading...',
       },
     };
     return translations[language][key] || key;
@@ -416,45 +154,31 @@ export default function ComplaintsPage() {
 
   // Filtered data
   const filteredComplaints = useMemo(() => {
-    return mockComplaints.filter((complaint) => {
+    return complaints.filter((complaint) => {
       const matchesSearch =
         !searchTerm ||
         complaint.id.toString().includes(searchTerm) ||
-        complaint.customerNameAr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        complaint.customerNameEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        complaint.applicantNameAr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        complaint.applicantNameEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        complaint.notes.toLowerCase().includes(searchTerm.toLowerCase());
+        (complaint.customerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (complaint.workerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (complaint.notesAr || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (complaint.notesEn || '').toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus = statusFilter === 'all' || complaint.status === statusFilter;
+      const matchesStatus = statusFilter === 'all' || complaint.status?.toString() === statusFilter;
       const matchesContractType =
-        contractTypeFilter === 'all' || complaint.contractType === contractTypeFilter;
+        contractTypeFilter === 'all' || complaint.contractType?.toString() === contractTypeFilter;
       const matchesComplaintFrom =
-        complaintFromFilter === 'all' || complaint.complaintFrom === complaintFromFilter;
-      const matchesIssueState =
-        issueStateFilter === 'all' || complaint.issueState === issueStateFilter;
-      const matchesNationality =
-        nationalityFilter === 'all' || complaint.nationality === nationalityFilter;
-
-      const matchesCreationDate =
-        !creationDateRange ||
-        (new Date(complaint.creationDate) >= new Date(creationDateRange[0]) &&
-          new Date(complaint.creationDate) <= new Date(creationDateRange[1]));
-
-      const matchesUpdateDate =
-        !updateDateRange ||
-        (new Date(complaint.updateDate) >= new Date(updateDateRange[0]) &&
-          new Date(complaint.updateDate) <= new Date(updateDateRange[1]));
+        complaintFromFilter === 'all' ||
+        complaint.complaintFrom?.toString() === complaintFromFilter;
+      const matchesWorkerLocation =
+        workerLocationFilter === 'all' ||
+        complaint.workerLocation?.toString() === workerLocationFilter;
 
       return (
         matchesSearch &&
         matchesStatus &&
         matchesContractType &&
         matchesComplaintFrom &&
-        matchesIssueState &&
-        matchesNationality &&
-        matchesCreationDate &&
-        matchesUpdateDate
+        matchesWorkerLocation
       );
     });
   }, [
@@ -462,11 +186,8 @@ export default function ComplaintsPage() {
     statusFilter,
     contractTypeFilter,
     complaintFromFilter,
-    issueStateFilter,
-    nationalityFilter,
-    creationDateRange,
-    updateDateRange,
-    mockComplaints,
+    workerLocationFilter,
+    complaints,
   ]);
 
   // Pagination
@@ -477,21 +198,21 @@ export default function ComplaintsPage() {
 
   // Statistics
   const statistics = useMemo(() => {
-    const total = mockComplaints.length;
-    const open = mockComplaints.filter((c) => c.status === 'open').length;
-    const closed = mockComplaints.filter((c) => c.status === 'closed').length;
-    const pending = mockComplaints.filter((c) => c.status === 'pending').length;
+    const total = complaints.length;
+    const open = complaints.filter((c) => c.status === 1).length;
+    const closed = complaints.filter((c) => c.status === 2).length;
+    const pending = complaints.filter((c) => c.status === 3).length;
     return { total, open, closed, pending };
-  }, [mockComplaints]);
+  }, [complaints]);
 
   // Get status badge
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { color: string; icon: React.ReactNode; text: string }> = {
-      open: { color: '#faad14', icon: <ClockCircleOutlined />, text: t('open') },
-      closed: { color: '#00aa64', icon: <CheckCircleOutlined />, text: t('closed') },
-      pending: { color: '#8c0000', icon: <ClockCircleOutlined />, text: t('pending') },
+  const getStatusBadge = (status: number | null | undefined) => {
+    const statusConfig: Record<number, { color: string; icon: React.ReactNode; text: string }> = {
+      1: { color: '#faad14', icon: <ClockCircleOutlined />, text: isArabic ? 'مفتوحة' : 'Open' },
+      2: { color: '#00aa64', icon: <CheckCircleOutlined />, text: isArabic ? 'مغلقة' : 'Closed' },
+      3: { color: '#8c0000', icon: <WarningOutlined />, text: isArabic ? 'معلقة' : 'Pending' },
     };
-    const config = statusConfig[status] || statusConfig.open;
+    const config = statusConfig[status || 1] || statusConfig[1];
     return (
       <span className={styles.statusBadge} style={{ backgroundColor: config.color }}>
         {config.icon} {config.text}
@@ -499,11 +220,127 @@ export default function ComplaintsPage() {
     );
   };
 
+  // Modal handlers
+  const handleAdd = () => {
+    setEditingComplaint(null);
+    form.resetFields();
+    setIsModalVisible(true);
+  };
+
+  const handleEdit = (complaint: Complaint) => {
+    setEditingComplaint(complaint);
+    form.setFieldsValue({
+      type: complaint.type,
+      complaintFrom: complaint.complaintFrom,
+      customerId: complaint.customerId,
+      workerId: complaint.workerId,
+      workerLocation: complaint.workerLocation,
+      contractType: complaint.contractType,
+      contractId: complaint.contractId,
+      notesAr: complaint.notesAr,
+      notesEn: complaint.notesEn,
+    });
+    setIsModalVisible(true);
+  };
+
+  const handleDelete = (complaint: Complaint) => {
+    Modal.confirm({
+      title: t('deleteTitle'),
+      icon: <ExclamationCircleOutlined />,
+      content: t('confirmDelete'),
+      okText: t('delete'),
+      cancelText: t('cancel'),
+      okButtonProps: { danger: true },
+      onOk: () => deleteMutation.mutate(complaint.id),
+    });
+  };
+
+  const handleModalSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      if (editingComplaint) {
+        const dto: UpdateComplaintDto = values;
+        updateMutation.mutate(
+          { id: editingComplaint.id, data: dto },
+          {
+            onSuccess: () => {
+              setIsModalVisible(false);
+              form.resetFields();
+              setEditingComplaint(null);
+            },
+          }
+        );
+      } else {
+        const dto: CreateComplaintDto = values;
+        createMutation.mutate(dto, {
+          onSuccess: () => {
+            setIsModalVisible(false);
+            form.resetFields();
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Validation failed:', error);
+    }
+  };
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
+    form.resetFields();
+    setEditingComplaint(null);
+  };
+
+  // Action menu for each complaint card
+  const getActionMenu = (complaint: Complaint): MenuProps => ({
+    items: [
+      {
+        key: 'edit',
+        label: t('edit'),
+        icon: <EditOutlined />,
+        onClick: () => handleEdit(complaint),
+      },
+      { type: 'divider' as const },
+      {
+        key: 'delete',
+        label: t('delete'),
+        icon: <DeleteOutlined />,
+        danger: true,
+        onClick: () => handleDelete(complaint),
+      },
+    ],
+  });
+
+  if (isLoading) {
+    return (
+      <div
+        className={styles.container}
+        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+      >
+        <Spin size="large" tip={t('loading')} />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
-        <h1 className={styles.title}>{t('complaintsManagement')}</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <FileTextOutlined style={{ fontSize: 28, color: '#fff' }} />
+            <h1 className={styles.title}>{t('complaintsManagement')}</h1>
+          </div>
+          <Button
+            type="primary"
+            size="large"
+            icon={<PlusOutlined />}
+            onClick={handleAdd}
+            loading={createMutation.isPending}
+            style={{ background: '#00aa64', borderColor: '#00aa64', borderRadius: 8 }}
+          >
+            {t('addComplaint')}
+          </Button>
+        </div>
       </div>
 
       {/* Statistics */}
@@ -559,7 +396,10 @@ export default function ComplaintsPage() {
               placeholder={t('search')}
               prefix={<SearchOutlined />}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               allowClear
             />
           </Col>
@@ -568,12 +408,15 @@ export default function ComplaintsPage() {
             <Select
               style={{ width: '100%' }}
               value={statusFilter}
-              onChange={setStatusFilter}
+              onChange={(v) => {
+                setStatusFilter(v);
+                setCurrentPage(1);
+              }}
               options={[
                 { label: t('all'), value: 'all' },
-                { label: t('open'), value: 'open' },
-                { label: t('closed'), value: 'closed' },
-                { label: t('pending'), value: 'pending' },
+                { label: isArabic ? 'مفتوحة' : 'Open', value: '1' },
+                { label: isArabic ? 'مغلقة' : 'Closed', value: '2' },
+                { label: isArabic ? 'معلقة' : 'Pending', value: '3' },
               ]}
             />
           </Col>
@@ -582,12 +425,16 @@ export default function ComplaintsPage() {
             <Select
               style={{ width: '100%' }}
               value={contractTypeFilter}
-              onChange={setContractTypeFilter}
+              onChange={(v) => {
+                setContractTypeFilter(v);
+                setCurrentPage(1);
+              }}
               options={[
                 { label: t('all'), value: 'all' },
-                { label: t('recruitment'), value: 'recruitment' },
-                { label: t('rent'), value: 'rent' },
-                { label: t('sponsorshipTransfer'), value: 'sponsorship-transfer' },
+                ...toSelectOptions([...CONTRACT_TYPE], language).map((o) => ({
+                  ...o,
+                  value: o.value.toString(),
+                })),
               ]}
             />
           </Col>
@@ -596,79 +443,35 @@ export default function ComplaintsPage() {
             <Select
               style={{ width: '100%' }}
               value={complaintFromFilter}
-              onChange={setComplaintFromFilter}
+              onChange={(v) => {
+                setComplaintFromFilter(v);
+                setCurrentPage(1);
+              }}
               options={[
                 { label: t('all'), value: 'all' },
-                { label: t('customer'), value: 'customer' },
-                { label: t('worker'), value: 'worker' },
-                { label: t('agent'), value: 'agent' },
-                { label: t('embassy'), value: 'embassy' },
-                { label: t('ministry'), value: 'ministry' },
+                ...toSelectOptions([...COMPLAINT_FROM], language).map((o) => ({
+                  ...o,
+                  value: o.value.toString(),
+                })),
               ]}
             />
           </Col>
           <Col xs={24} md={8}>
-            <label className={styles.filterLabel}>{t('issueState')}</label>
+            <label className={styles.filterLabel}>{t('workerLocation')}</label>
             <Select
               style={{ width: '100%' }}
-              value={issueStateFilter}
-              onChange={setIssueStateFilter}
+              value={workerLocationFilter}
+              onChange={(v) => {
+                setWorkerLocationFilter(v);
+                setCurrentPage(1);
+              }}
               options={[
                 { label: t('all'), value: 'all' },
-                { label: t('opened'), value: 'opened' },
-                { label: t('closed'), value: 'closed' },
+                ...toSelectOptions([...WORKER_LOCATION], language).map((o) => ({
+                  ...o,
+                  value: o.value.toString(),
+                })),
               ]}
-            />
-          </Col>
-          <Col xs={24} md={8}>
-            <label className={styles.filterLabel}>{t('nationality')}</label>
-            <Select
-              style={{ width: '100%' }}
-              value={nationalityFilter}
-              onChange={setNationalityFilter}
-              showSearch
-              options={[
-                { label: t('all'), value: 'all' },
-                { label: 'Philippines', value: 'Philippines' },
-                { label: 'Kenya', value: 'Kenya' },
-                { label: 'Ethiopia', value: 'Ethiopia' },
-                { label: 'India', value: 'India' },
-                { label: 'Sudan', value: 'Sudan' },
-                { label: 'Bangladesh', value: 'Bangladesh' },
-                { label: 'Pakistan', value: 'Pakistan' },
-              ]}
-            />
-          </Col>
-          <Col xs={24} md={12}>
-            <label className={styles.filterLabel}>{t('creationDateRange')}</label>
-            <RangePicker
-              style={{ width: '100%' }}
-              onChange={(dates) => {
-                if (dates && dates[0] && dates[1]) {
-                  setCreationDateRange([
-                    dates[0].format('YYYY-MM-DD'),
-                    dates[1].format('YYYY-MM-DD'),
-                  ]);
-                } else {
-                  setCreationDateRange(null);
-                }
-              }}
-            />
-          </Col>
-          <Col xs={24} md={12}>
-            <label className={styles.filterLabel}>{t('updateDateRange')}</label>
-            <RangePicker
-              style={{ width: '100%' }}
-              onChange={(dates) => {
-                if (dates && dates[0] && dates[1]) {
-                  setUpdateDateRange([
-                    dates[0].format('YYYY-MM-DD'),
-                    dates[1].format('YYYY-MM-DD'),
-                  ]);
-                } else {
-                  setUpdateDateRange(null);
-                }
-              }}
             />
           </Col>
         </Row>
@@ -679,19 +482,27 @@ export default function ComplaintsPage() {
         {paginatedComplaints.length === 0 ? (
           <Empty description={t('noComplaints')} />
         ) : (
-          paginatedComplaints.map((complaint) => (
+          paginatedComplaints.map((complaint, index) => (
             <div key={complaint.id} className={styles.complaintCard}>
               {/* Status Banner */}
-              {complaint.status === 'closed' && (
+              {complaint.status === 2 && (
                 <div className={styles.statusBanner}>{getStatusBadge(complaint.status)}</div>
               )}
 
               <div className={styles.cardContent}>
                 {/* Left Section - Complaint Number */}
                 <div className={styles.numberSection}>
-                  <div className={styles.sequenceNumber}>{complaint.sequenceNumber}</div>
+                  <div className={styles.sequenceNumber}>
+                    {(currentPage - 1) * pageSize + index + 1}
+                  </div>
                   <div className={styles.complaintNumber}>#{complaint.id}</div>
-                  <div className={styles.dateText}>{complaint.creationDate}</div>
+                  <div className={styles.dateText}>
+                    {complaint.createdAt
+                      ? new Date(complaint.createdAt).toLocaleDateString(
+                          isArabic ? 'ar-SA' : 'en-US'
+                        )
+                      : ''}
+                  </div>
                 </div>
 
                 {/* Middle Section - Details */}
@@ -703,7 +514,7 @@ export default function ComplaintsPage() {
                         <div>
                           <div className={styles.infoLabel}>{t('customerName')}</div>
                           <div className={styles.infoValue}>
-                            {isArabic ? complaint.customerNameAr : complaint.customerNameEn}
+                            {complaint.customerName || (isArabic ? 'غير محدد' : 'N/A')}
                           </div>
                         </div>
                       </div>
@@ -712,9 +523,9 @@ export default function ComplaintsPage() {
                       <div className={styles.infoItem}>
                         <UserOutlined className={styles.icon} />
                         <div>
-                          <div className={styles.infoLabel}>{t('applicantName')}</div>
+                          <div className={styles.infoLabel}>{t('workerName')}</div>
                           <div className={styles.infoValue}>
-                            {isArabic ? complaint.applicantNameAr : complaint.applicantNameEn}
+                            {complaint.workerName || (isArabic ? 'غير محدد' : 'N/A')}
                           </div>
                         </div>
                       </div>
@@ -724,49 +535,42 @@ export default function ComplaintsPage() {
                         <MessageOutlined className={styles.icon} />
                         <div>
                           <div className={styles.infoLabel}>{t('notes')}</div>
-                          <div className={styles.infoValue}>{complaint.notes}</div>
+                          <div className={styles.infoValue}>
+                            {(isArabic ? complaint.notesAr : complaint.notesEn) ||
+                              complaint.notesAr ||
+                              complaint.notesEn ||
+                              (isArabic ? 'لا توجد ملاحظات' : 'No notes')}
+                          </div>
                         </div>
                       </div>
                     </Col>
-                    {complaint.updates && (
-                      <Col xs={24}>
-                        <div className={styles.infoItem}>
-                          <MessageOutlined className={styles.icon} />
-                          <div>
-                            <div className={styles.infoLabel}>{t('updates')}</div>
-                            <div className={styles.infoValue}>{complaint.updates}</div>
-                          </div>
-                        </div>
-                      </Col>
-                    )}
-                    {complaint.finishNotes && (
-                      <Col xs={24}>
-                        <div className={styles.finishNotesSection}>
-                          <CheckCircleOutlined className={styles.icon} />
-                          <div>
-                            <div className={styles.infoLabel}>{t('finishNotes')}</div>
-                            <div className={styles.infoValue}>{complaint.finishNotes}</div>
-                          </div>
-                        </div>
-                      </Col>
-                    )}
                   </Row>
                 </div>
 
-                {/* Right Section - Status & Tags */}
+                {/* Right Section - Status & Tags & Actions */}
                 <div className={styles.statusSection}>
-                  {complaint.status !== 'closed' && getStatusBadge(complaint.status)}
+                  {complaint.status !== 2 && getStatusBadge(complaint.status)}
                   <div className={styles.tags}>
-                    {/* <Badge
-                      count={t(complaint.contractType.replace('-', ''))}
+                    <Badge
+                      count={getEnumLabel([...CONTRACT_TYPE], complaint.contractType, language)}
                       style={{ backgroundColor: '#003366' }}
                     />
                     <Badge
-                      count={t(complaint.complaintFrom)}
+                      count={getEnumLabel([...COMPLAINT_FROM], complaint.complaintFrom, language)}
                       style={{ backgroundColor: '#505050' }}
-                    /> */}
-                    <Badge count={complaint.nationality} style={{ backgroundColor: '#00478C' }} />
+                    />
+                    <Badge
+                      count={getEnumLabel([...WORKER_LOCATION], complaint.workerLocation, language)}
+                      style={{ backgroundColor: '#00478C' }}
+                    />
                   </div>
+                  <Dropdown menu={getActionMenu(complaint)} trigger={['click']}>
+                    <Button
+                      type="text"
+                      icon={<MoreOutlined style={{ fontSize: 18 }} />}
+                      style={{ marginTop: 8 }}
+                    />
+                  </Dropdown>
                 </div>
               </div>
             </div>
@@ -793,6 +597,91 @@ export default function ComplaintsPage() {
           />
         </div>
       )}
+
+      {/* Add/Edit Modal */}
+      <Modal
+        title={editingComplaint ? t('editComplaint') : t('addComplaint')}
+        open={isModalVisible}
+        onOk={handleModalSubmit}
+        onCancel={handleModalCancel}
+        okText={t('save')}
+        cancelText={t('cancel')}
+        confirmLoading={createMutation.isPending || updateMutation.isPending}
+        width={700}
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
+          <Row gutter={[16, 0]}>
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="type"
+                label={t('complaintType')}
+                rules={[{ required: true, message: isArabic ? 'مطلوب' : 'Required' }]}
+              >
+                <Select
+                  placeholder={t('complaintType')}
+                  options={toSelectOptions([...COMPLAINT_TYPE], language)}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="complaintFrom"
+                label={t('complaintFrom')}
+                rules={[{ required: true, message: isArabic ? 'مطلوب' : 'Required' }]}
+              >
+                <Select
+                  placeholder={t('complaintFrom')}
+                  options={toSelectOptions([...COMPLAINT_FROM], language)}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item name="contractType" label={t('contractType')}>
+                <Select
+                  placeholder={t('contractType')}
+                  options={toSelectOptions([...CONTRACT_TYPE], language)}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item name="workerLocation" label={t('workerLocation')}>
+                <Select
+                  placeholder={t('workerLocation')}
+                  options={toSelectOptions([...WORKER_LOCATION], language)}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item name="customerId" label={t('customerId')}>
+                <Input type="number" placeholder={t('customerId')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item name="workerId" label={t('workerId')}>
+                <Input type="number" placeholder={t('workerId')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item name="contractId" label={t('contractId')}>
+                <Input type="number" placeholder={t('contractId')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item name="notesAr" label={t('notesAr')}>
+                <TextArea rows={3} placeholder={t('notesAr')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item name="notesEn" label={t('notesEn')}>
+                <TextArea rows={3} placeholder={t('notesEn')} />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
     </div>
   );
 }

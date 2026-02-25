@@ -80,6 +80,7 @@ out
 
 # Output folder
 output/
+zz/
 
 # Nuxt.js build / generate output
 .nuxt

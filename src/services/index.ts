@@ -12,3 +12,6 @@ export { UserService } from './user.service';
 export { RecruitmentRequestService } from './recruitment-request.service';
 export { EmploymentContractOfferService } from './employment-contract-offer.service';
 export { EmploymentOperatingContractService } from './employment-operating-contract.service';
+export { ComplaintService } from './complaint.service';
+export { NationalityService } from './nationality.service';
+export { MediationContractOfferService } from './mediation-contract-offer.service';

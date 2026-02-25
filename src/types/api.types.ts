@@ -712,3 +712,150 @@ export interface EndContractDto {
   endDate?: string | null;
   reason?: string | null;
 }
+
+// ==================== Complaint Types ====================
+export interface Complaint {
+  id: number;
+  type?: number | null;
+  complaintFrom?: number | null;
+  customerId?: number | null;
+  workerId?: number | null;
+  workerLocation?: number | null;
+  contractType?: number | null;
+  contractId?: number | null;
+  notesAr?: string | null;
+  notesEn?: string | null;
+  createdAt?: string | null;
+  createdBy?: number | null;
+  updatedAt?: string | null;
+  updatedBy?: number | null;
+  // Read-only joined fields from API response
+  customerName?: string | null;
+  workerName?: string | null;
+  status?: number | null;
+}
+
+export interface CreateComplaintDto {
+  type?: number | null;
+  complaintFrom?: number | null;
+  customerId?: number | null;
+  workerId?: number | null;
+  workerLocation?: number | null;
+  contractType?: number | null;
+  contractId?: number | null;
+  notesAr?: string | null;
+  notesEn?: string | null;
+}
+
+export interface UpdateComplaintDto {
+  type?: number | null;
+  complaintFrom?: number | null;
+  customerId?: number | null;
+  workerId?: number | null;
+  workerLocation?: number | null;
+  contractType?: number | null;
+  contractId?: number | null;
+  notesAr?: string | null;
+  notesEn?: string | null;
+}
+
+// ==================== Nationality Extended Types ====================
+export interface NationalityExtended {
+  id: number;
+  nationalityId?: number | null;
+  authorizationSystem?: number | null;
+  ticketPrice?: number | null;
+  headerFile?: string | null;
+  isActive?: boolean | null;
+  createdAt?: string | null;
+  createdBy?: number | null;
+  updatedAt?: string | null;
+  updatedBy?: number | null;
+  // Joined fields
+  nationalityNameAr?: string | null;
+  nationalityNameEn?: string | null;
+}
+
+export interface CreateNationalityDto {
+  nationalityId?: number | null;
+  nationalityNameAr?: string | null;
+  nationalityNameEn?: string | null;
+  authorizationSystem?: number | null;
+  ticketPrice?: number | null;
+  headerFile?: string | null;
+  isActive?: boolean | null;
+}
+
+export interface UpdateNationalityDto {
+  nationalityId?: number | null;
+  nationalityNameAr?: string | null;
+  nationalityNameEn?: string | null;
+  authorizationSystem?: number | null;
+  ticketPrice?: number | null;
+  headerFile?: string | null;
+  isActive?: boolean | null;
+}
+
+// ==================== Mediation Contract Offer Types ====================
+export interface MediationContractOffer {
+  id: number;
+  nationalityId?: number | null;
+  jobId?: number | null;
+  branchId?: number | null;
+  workerType?: number | null;
+  age?: number | null;
+  religion?: number | null;
+  previousExperience?: number | null;
+  agentId?: number | null;
+  salary?: number | null;
+  localCost?: number | null;
+  taxLocalCost?: number | null;
+  agentCostSAR?: number | null;
+  // Read-only joined fields
+  nationalityName?: string | null;
+  jobName?: string | null;
+  branchName?: string | null;
+  agentName?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface CreateMediationContractOfferDto {
+  nationalityId?: number | null;
+  jobId?: number | null;
+  branchId?: number | null;
+  workerType?: number | null;
+  age?: number | null;
+  religion?: number | null;
+  previousExperience?: number | null;
+  agentId?: number | null;
+  salary?: number | null;
+  localCost?: number | null;
+  taxLocalCost?: number | null;
+  agentCostSAR?: number | null;
+}
+
+export interface UpdateMediationContractOfferDto {
+  nationalityId?: number | null;
+  jobId?: number | null;
+  branchId?: number | null;
+  workerType?: number | null;
+  age?: number | null;
+  religion?: number | null;
+  previousExperience?: number | null;
+  agentId?: number | null;
+  salary?: number | null;
+  localCost?: number | null;
+  taxLocalCost?: number | null;
+  agentCostSAR?: number | null;
+}
+
+export interface MediationContractOfferSummary {
+  nationalityId?: number | null;
+  nationalityName?: string | null;
+  jobId?: number | null;
+  jobName?: string | null;
+  branchId?: number | null;
+  branchName?: string | null;
+  offersCount?: number | null;
+}
