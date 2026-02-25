@@ -778,8 +778,6 @@ export interface NationalityExtended {
 
 export interface CreateNationalityDto {
   nationalityId?: number | null;
-  nationalityNameAr?: string | null;
-  nationalityNameEn?: string | null;
   authorizationSystem?: number | null;
   ticketPrice?: number | null;
   headerFile?: string | null;
@@ -788,8 +786,6 @@ export interface CreateNationalityDto {
 
 export interface UpdateNationalityDto {
   nationalityId?: number | null;
-  nationalityNameAr?: string | null;
-  nationalityNameEn?: string | null;
   authorizationSystem?: number | null;
   ticketPrice?: number | null;
   headerFile?: string | null;

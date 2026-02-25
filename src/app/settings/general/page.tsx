@@ -267,16 +267,19 @@ export default function GeneralSettingsPage() {
       align: 'center',
     },
     {
-      title: isRTL ? 'اسم الجنسية (عربي)' : 'Nationality (Arabic)',
-      dataIndex: 'nationalityNameAr',
-      key: 'nationalityNameAr',
+      title: isRTL ? 'اسم الجنسية' : 'Nationality Name',
+      dataIndex: 'nationalityId',
+      key: 'nationalityName',
       ellipsis: true,
-    },
-    {
-      title: isRTL ? 'اسم الجنسية (إنجليزي)' : 'Nationality (English)',
-      dataIndex: 'nationalityNameEn',
-      key: 'nationalityNameEn',
-      ellipsis: true,
+      render: (natId: number | null | undefined) => {
+        const natsArray = [...NATIONALITIES] as {
+          value: number;
+          labelAr: string;
+          labelEn: string;
+        }[];
+        const entry = natsArray.find((n) => n.value === natId);
+        return entry ? (isRTL ? entry.labelAr : entry.labelEn) : (natId ?? '-');
+      },
     },
     {
       title: isRTL ? 'نظام التفويض' : 'Authorization System',
@@ -380,13 +383,7 @@ export default function GeneralSettingsPage() {
   const handleNatCreateSubmit = async () => {
     try {
       const values = await natCreateForm.validateFields();
-      const natEntry = NATIONALITIES.find((n) => n.value === values.nationalityId);
-      const enriched: CreateNationalityDto = {
-        ...values,
-        nationalityNameAr: natEntry?.labelAr ?? null,
-        nationalityNameEn: natEntry?.labelEn ?? null,
-      };
-      await createNatMutation.mutateAsync(enriched);
+      await createNatMutation.mutateAsync(values as CreateNationalityDto);
       setIsNatCreateOpen(false);
       natCreateForm.resetFields();
     } catch (error) {
@@ -398,14 +395,9 @@ export default function GeneralSettingsPage() {
     if (!selectedNationality) return;
     try {
       const values = await natEditForm.validateFields();
-      const natEntry = NATIONALITIES.find((n) => n.value === values.nationalityId);
       await updateNatMutation.mutateAsync({
         id: selectedNationality.id,
-        data: {
-          ...values,
-          nationalityNameAr: natEntry?.labelAr ?? null,
-          nationalityNameEn: natEntry?.labelEn ?? null,
-        } as UpdateNationalityDto,
+        data: values as UpdateNationalityDto,
       });
       setIsNatEditOpen(false);
       setSelectedNationality(null);
@@ -488,16 +480,7 @@ export default function GeneralSettingsPage() {
         }
         bordered={false}
         className={styles.jobCard}
-        extra={
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleNatCreate}
-            style={{ background: '#00aa64', borderColor: '#00aa64' }}
-          >
-            {isRTL ? 'إضافة جنسية' : 'Add Nationality'}
-          </Button>
-        }
+      
       >
         {isNatLoading ? (
           <div className={styles.loadingContainer}>
@@ -1192,24 +1175,27 @@ export default function GeneralSettingsPage() {
                 </div>
               </Col>
 
-              <Col span={12}>
+              <Col span={24}>
                 <div className={styles.viewModalField}>
                   <div className={styles.viewModalFieldLabel}>
-                    {isRTL ? 'الجنسية (عربي)' : 'Nationality (Arabic)'}
+                    {isRTL ? 'الجنسية' : 'Nationality'}
                   </div>
                   <div className={styles.viewModalFieldValue}>
-                    {selectedNationality.nationalityNameAr || '-'}
-                  </div>
-                </div>
-              </Col>
-
-              <Col span={12}>
-                <div className={styles.viewModalField}>
-                  <div className={styles.viewModalFieldLabel}>
-                    {isRTL ? 'الجنسية (إنجليزي)' : 'Nationality (English)'}
-                  </div>
-                  <div className={styles.viewModalFieldValue}>
-                    {selectedNationality.nationalityNameEn || '-'}
+                    {(() => {
+                      const natsArray = [...NATIONALITIES] as {
+                        value: number;
+                        labelAr: string;
+                        labelEn: string;
+                      }[];
+                      const entry = natsArray.find(
+                        (n) => n.value === selectedNationality.nationalityId
+                      );
+                      return entry
+                        ? isRTL
+                          ? entry.labelAr
+                          : entry.labelEn
+                        : (selectedNationality.nationalityId ?? '-');
+                    })()}
                   </div>
                 </div>
               </Col>
