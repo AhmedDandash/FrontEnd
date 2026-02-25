@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Layout, Badge, Dropdown, Avatar, Button } from 'antd';
 import {
   MenuUnfoldOutlined,
@@ -16,6 +16,8 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useAuth } from '@/hooks/useAuth';
 import Image from 'next/image';
+import { useQuery } from '@tanstack/react-query';
+import { UserService } from '@/services/user.service';
 import styles from './Header.module.css';
 
 const { Header: AntHeader } = Layout;
@@ -31,6 +33,34 @@ export default function Header({ collapsed, onToggleSidebar, onToggleMobileDrawe
   const language = useAuthStore((state) => state.language);
   const setLanguage = useAuthStore((state) => state.setLanguage);
   const { logout } = useAuth();
+
+  // User info from store
+  const userId = useAuthStore((state) => state.userId);
+  const storedUsername = useAuthStore((state) => state.username);
+  const setUsername = useAuthStore((state) => state.setUsername);
+
+  // Fetch user details from API when userId is available
+  const { data: userDetail, isLoading: isUserLoading } = useQuery({
+    queryKey: ['currentUser', userId],
+    queryFn: () => UserService.getById(userId!),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
+  });
+
+  // Cache the fetched name in the store so it survives navigation
+  useEffect(() => {
+    if (userDetail) {
+      const displayName = userDetail.fullName || userDetail.username || null;
+      if (displayName) setUsername(displayName);
+    }
+  }, [userDetail, setUsername]);
+
+  const displayName =
+    userDetail?.fullName ||
+    userDetail?.username ||
+    storedUsername ||
+    (language === 'ar' ? 'المستخدم' : 'User');
 
   const handleLanguageChange = (lang: 'ar' | 'en') => {
     setLanguage(lang);
@@ -130,6 +160,7 @@ export default function Header({ collapsed, onToggleSidebar, onToggleMobileDrawe
 
   return (
     <AntHeader className={styles.header}>
+      {/* Left: toggle buttons */}
       <div className={styles.headerLeft}>
         {/* Desktop Toggle */}
         <Button
@@ -146,13 +177,21 @@ export default function Header({ collapsed, onToggleSidebar, onToggleMobileDrawe
           onClick={onToggleMobileDrawer}
           className={`${styles.toggleBtn} ${styles.mobileOnly}`}
         />
-
-        {/* Mobile Logo */}
-        <div className={`${styles.mobileLogo} ${styles.mobileOnly}`}>
-          <Image src="/images/logo.png" alt="Logo" width={32} height={32} />
-        </div>
       </div>
 
+      {/* Center: Logo (visible on all screen sizes) */}
+      <div className={styles.headerCenter}>
+        <Image
+          src="/images/logo.png"
+          alt="Logo"
+          width={170}
+          height={46}
+          className={styles.headerLogo}
+          priority
+        />
+      </div>
+
+      {/* Right: language, notifications, user */}
       <div className={styles.headerRight}>
         {/* Language Switcher */}
         <div className={styles.langSwitcher}>
@@ -169,7 +208,7 @@ export default function Header({ collapsed, onToggleSidebar, onToggleMobileDrawe
         {/* Notifications */}
         <Dropdown
           menu={{ items: notificationItems }}
-          placement="bottomRight"
+          placement={language === 'ar' ? 'bottomLeft' : 'bottomRight'}
           trigger={['click']}
           classNames={{ root: styles.notificationDropdown }}
         >
@@ -179,12 +218,19 @@ export default function Header({ collapsed, onToggleSidebar, onToggleMobileDrawe
         </Dropdown>
 
         {/* User Menu */}
-        <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
+        <Dropdown
+          menu={{ items: userMenuItems }}
+          placement={language === 'ar' ? 'bottomLeft' : 'bottomRight'}
+          trigger={['click']}
+        >
           <div className={styles.userInfo}>
             <Avatar icon={<UserOutlined />} className={styles.avatar} />
-            <span className={`${styles.userName} ${styles.desktopOnly}`}>
-              {language === 'ar' ? 'أحمد محمد' : 'Ahmed Mohamed'}
-            </span>
+            {/* Username: shows skeleton while loading, then displays fetched name */}
+            {isUserLoading && userId ? (
+              <span className={`${styles.userNameSkeleton} ${styles.desktopOnly}`} />
+            ) : (
+              <span className={`${styles.userName} ${styles.desktopOnly}`}>{displayName}</span>
+            )}
           </div>
         </Dropdown>
       </div>

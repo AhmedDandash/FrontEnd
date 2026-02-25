@@ -26,6 +26,33 @@ export class AuthService {
         const userData = responseData?.user;
         if (userData) {
           localStorage.setItem('user', JSON.stringify(userData));
+          // Cache user ID and username for header display
+          if (userData.id) {
+            localStorage.setItem('userId', String(userData.id));
+          }
+          if (userData.username || userData.fullName) {
+            localStorage.setItem('username', userData.username || userData.fullName);
+          }
+        }
+
+        // Fallback: decode the JWT payload to get user claims
+        if (!responseData?.user?.id) {
+          try {
+            const payloadBase64 = tokenValue.split('.')[1];
+            const payload = JSON.parse(atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/')));
+            const claimId =
+              payload?.nameid ||
+              payload?.sub ||
+              payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+            const claimName =
+              payload?.unique_name ||
+              payload?.name ||
+              payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+            if (claimId) localStorage.setItem('userId', String(claimId));
+            if (claimName) localStorage.setItem('username', claimName);
+          } catch {
+            // JWT decode failed — not fatal
+          }
         }
       } else {
         console.error('No token found in response data');
@@ -56,6 +83,8 @@ export class AuthService {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
         sessionStorage.clear();
 
         // Best-effort clear of legacy non-HttpOnly cookie (refresh cookie is HttpOnly)

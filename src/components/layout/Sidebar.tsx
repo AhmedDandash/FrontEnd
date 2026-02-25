@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Drawer, Badge } from 'antd';
@@ -135,25 +135,6 @@ export default function Sidebar({
       ],
     },
     {
-      key: 'operation',
-      icon: <TeamOutlined />,
-      label: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts',
-      children: [
-        {
-          key: '/operation/rent',
-          label: language === 'ar' ? 'عقود التشغيل ' : 'Operation Contracts',
-        },
-        {
-          key: '/operation/collection-renewal',
-          label: language === 'ar' ? 'التحصيل والتجديد' : 'Collection & Renewal Operations',
-        },
-        {
-          key: '/operation/rent-prices-offers',
-          label: language === 'ar' ? 'أسعار وعروض التشغيل' : 'Rent Prices & Offers',
-        },
-      ],
-    },
-    {
       key: 'contracts',
       icon: <FileTextOutlined />,
       label: language === 'ar' ? 'العقود' : 'Contracts',
@@ -173,6 +154,25 @@ export default function Sidebar({
         {
           key: '/contracts/collection-renewal',
           label: language === 'ar' ? 'التحصيل والتجديد' : 'Collection & Renewal',
+        },
+        /* ───── Operation submenu (moved from top-level) ───── */
+        {
+          key: 'contracts-operation',
+          label: language === 'ar' ? 'عقود التشغيل' : 'Operation',
+          children: [
+            {
+              key: '/contracts/operation/rent',
+              label: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts',
+            },
+            {
+              key: '/contracts/operation/collection-renewal',
+              label: language === 'ar' ? 'التحصيل والتجديد' : 'Collection & Renewal Operations',
+            },
+            {
+              key: '/contracts/operation/rent-prices-offers',
+              label: language === 'ar' ? 'أسعار وعروض التشغيل' : 'Rent Prices & Offers',
+            },
+          ],
         },
       ],
     },

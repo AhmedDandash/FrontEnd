@@ -23,6 +23,8 @@ import {
   Divider,
   Switch,
   Avatar,
+  Upload,
+  message,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -444,6 +446,10 @@ export default function WorkersPage() {
   }>({});
   const [form] = Form.useForm();
   const [medicalExamForm] = Form.useForm();
+  /** Base64 string of the worker's uploaded image */
+  const [workerImageBase64, setWorkerImageBase64] = useState<string | null>(null);
+  /** Preview URL for the image (same as base64, used for display) */
+  const [workerImagePreview, setWorkerImagePreview] = useState<string | null>(null);
 
   const t = (key: keyof typeof translations.en) => {
     const lang = translations[language];
@@ -584,11 +590,18 @@ export default function WorkersPage() {
     setIsModalOpen(false);
     setEditingWorkerId(null);
     form.resetFields();
+    setWorkerImageBase64(null);
+    setWorkerImagePreview(null);
   };
 
   // Populate form when editing worker details are loaded
   useEffect(() => {
     if (editingWorker) {
+      // Pre-load existing image for editing
+      if (editingWorker.uploadimage) {
+        setWorkerImageBase64(editingWorker.uploadimage);
+        setWorkerImagePreview(editingWorker.uploadimage);
+      }
       form.setFieldsValue({
         ...editingWorker,
         birthDate: editingWorker.birthDate ? dayjs(editingWorker.birthDate) : undefined,
@@ -617,6 +630,8 @@ export default function WorkersPage() {
       agentId: restValues.agentId ? Number(restValues.agentId) : undefined,
       workerType: restValues.workerType ? Number(restValues.workerType) : undefined,
       workerSatus: restValues.workerSatus ? Number(restValues.workerSatus) : undefined,
+      // Include the Base64-encoded image (Option A: store directly in uploadimage field)
+      uploadimage: workerImageBase64 || undefined,
     };
 
     if (editingWorkerId !== null) {
@@ -1634,6 +1649,82 @@ export default function WorkersPage() {
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit} className={styles.modalForm}>
           <Divider titlePlacement="left">{t('personalDetails')}</Divider>
+
+          {/* ── Image Upload ── */}
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            {workerImagePreview ? (
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <Image
+                  src={workerImagePreview}
+                  alt="worker"
+                  width={120}
+                  height={120}
+                  style={{ borderRadius: '50%', objectFit: 'cover', border: '3px solid #003366' }}
+                  preview={{ mask: <EyeOutlined /> }}
+                />
+              </div>
+            ) : (
+              <Avatar
+                size={120}
+                icon={<UserOutlined />}
+                style={{ backgroundColor: '#003366', marginBottom: 8 }}
+              />
+            )}
+            <div style={{ marginTop: 12 }}>
+              <Upload
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                showUploadList={false}
+                beforeUpload={(file) => {
+                  const isImage = file.type.startsWith('image/');
+                  if (!isImage) {
+                    message.error(
+                      language === 'ar'
+                        ? 'الرجاء اختيار صورة صالحة'
+                        : 'Please select a valid image file'
+                    );
+                    return false;
+                  }
+                  const isLt5M = file.size / 1024 / 1024 < 5;
+                  if (!isLt5M) {
+                    message.error(
+                      language === 'ar'
+                        ? 'يجب أن يكون حجم الصورة أقل من 5 ميجابايت'
+                        : 'Image must be less than 5 MB'
+                    );
+                    return false;
+                  }
+                  // Convert to Base64 and store
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    const base64 = e.target?.result as string;
+                    setWorkerImageBase64(base64);
+                    setWorkerImagePreview(base64);
+                  };
+                  reader.readAsDataURL(file);
+                  return false; // Prevent auto-upload
+                }}
+              >
+                <Button icon={<UploadOutlined />} size="small">
+                  {language === 'ar' ? 'رفع صورة العامل' : t('uploadImage')}
+                </Button>
+              </Upload>
+              {workerImagePreview && (
+                <Button
+                  type="link"
+                  danger
+                  size="small"
+                  style={{ marginTop: 4, display: 'block', margin: '4px auto 0' }}
+                  onClick={() => {
+                    setWorkerImageBase64(null);
+                    setWorkerImagePreview(null);
+                  }}
+                >
+                  {language === 'ar' ? 'إزالة الصورة' : 'Remove image'}
+                </Button>
+              )}
+            </div>
+          </div>
+
           <Row gutter={16}>
             <Col xs={24} md={8}>
               <Form.Item label={t('fullNameAr')} name="fullNameAr" rules={[{ required: true }]}>

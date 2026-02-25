@@ -276,6 +276,7 @@ export interface UpdateRoleDto {
 // ==================== User Types ====================
 export interface User {
   id: number;
+  fullName?: string | null;
   username?: string | null;
   isActive?: boolean;
   roles?: string[] | null;

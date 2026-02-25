@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: 72px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -15,12 +15,31 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  flex: 1;
+}
+
+/* Centered logo section */
+.headerCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.headerLogo {
+  display: block;
+  height: 46px;
+  width: auto;
+  max-width: 170px;
+  object-fit: contain;
 }
 
 .headerRight {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .toggleBtn {
@@ -38,8 +57,7 @@
 }
 
 .mobileLogo {
-  display: flex;
-  align-items: center;
+  display: none;
 }
 
 .langSwitcher {
@@ -94,6 +112,25 @@
   color: var(--gray-900, #111827);
 }
 
+.userNameSkeleton {
+  width: 80px;
+  height: 16px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 /* Notification Dropdown */
 .notificationItem {
   padding: 8px 0;
@@ -136,10 +173,16 @@
 @media (max-width: 768px) {
   .header {
     padding: 0 16px !important;
+    height: 68px;
   }
 
   .headerRight {
     gap: 8px;
+  }
+
+  .headerLogo {
+    max-width: 120px;
+    height: 38px;
   }
 
   .desktopOnly {
@@ -155,15 +198,6 @@
   }
 }
 
-/* RTL Support */
-[dir='rtl'] .headerLeft {
-  flex-direction: row-reverse;
-}
-
-[dir='rtl'] .headerRight {
-  flex-direction: row-reverse;
-}
-
-[dir='rtl'] .userInfo {
-  flex-direction: row-reverse;
-}
+/* RTL note:
+   Keep default section alignment so left/right zones stay attached to the edges.
+   Overriding these to flex-start/flex-end in RTL shifts controls toward center. */
