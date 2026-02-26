@@ -129,6 +129,10 @@ export const API_ENDPOINTS = {
     CREATE: '/api/Complaint',
     UPDATE: (id: number) => `/api/Complaint/${id}`,
     DELETE: (id: number) => `/api/Complaint/${id}`,
+    FINISH: '/api/Complaint/FinishComplaint',
+    HOLD: (id: number) => `/api/Complaint/HoldComplaint/${id}`,
+    ADD_ISSUE: '/api/Complaint/AddIssue',
+    GET_ISSUE: (id: number) => `/api/Complaint/GetIssueById/${id}`,
   },
 
   // Nationality (General Options)

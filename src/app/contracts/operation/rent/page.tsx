@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -153,7 +153,7 @@ export default function RentContractsPage() {
         customerId: contract.customerId || 0,
         contractNumber: `R${2024000 + contract.id}`,
         customerName: contract.customerNameAr || 'Unknown',
-        customerNameAr: contract.customerNameAr || 'ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ',
+        customerNameAr: contract.customerNameAr || 'غير معروف',
         customerPhone: contract.mobile || '05xxxxxxxx',
         status,
         startDate,
@@ -165,15 +165,15 @@ export default function RentContractsPage() {
           (contract.totalCostWithTax || contract.cost || 0) - totalCollected
         ),
         workerName: contract.jobName || 'Unknown',
-        workerNameAr: contract.jobName || 'ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ',
+        workerNameAr: contract.jobName || 'غير معروف',
         nationality: 'Unknown',
-        nationalityAr: 'ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ',
+        nationalityAr: 'غير معروف',
         profession: contract.jobName || 'Unknown',
-        professionAr: contract.jobName || 'ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ',
+        professionAr: contract.jobName || 'غير معروف',
         agent: 'Unknown',
-        agentAr: 'ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ',
+        agentAr: 'غير معروف',
         branch: 'Sigma Recruitment Office',
-        branchAr: 'Ø³ÙŠØ¬Ù…Ø§ Ø§Ù„ÙƒÙØ§Ø¡Ø§Øª Ù„Ù„Ø§Ø³ØªÙ‚Ø¯Ø§Ù…',
+        branchAr: 'سيجما الكفاءات للاستقدام',
         renewalCount: 0,
         daysRemaining,
         createdAt: contract.createdAt || new Date().toISOString(),
@@ -192,56 +192,56 @@ export default function RentContractsPage() {
 
   // Translations
   const t = {
-    pageTitle: language === 'ar' ? 'Ø¹Ù‚ÙˆØ¯ Ø§Ù„ØªØ´ØºÙŠÙ„' : 'Operation Contracts',
+    pageTitle: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts',
     pageSubtitle:
-      language === 'ar' ? 'Ø¥Ø¯Ø§Ø±Ø© Ø¬Ù…ÙŠØ¹ Ø¹Ù‚ÙˆØ¯ ØªØ´ØºÙŠÙ„ Ø§Ù„Ø¹Ù…Ø§Ù„Ø©' : 'Manage all operation worker contracts',
-    addContract: language === 'ar' ? 'Ø¥Ø¶Ø§ÙØ© Ø¹Ù‚Ø¯' : 'Add Contract',
-    exportExcel: language === 'ar' ? 'ØªØµØ¯ÙŠØ± Ø¥ÙƒØ³Ù„' : 'Export Excel',
-    print: language === 'ar' ? 'Ø·Ø¨Ø§Ø¹Ø©' : 'Print',
+      language === 'ar' ? 'إدارة جميع عقود تشغيل العمالة' : 'Manage all operation worker contracts',
+    addContract: language === 'ar' ? 'إضافة عقد' : 'Add Contract',
+    exportExcel: language === 'ar' ? 'تصدير إكسل' : 'Export Excel',
+    print: language === 'ar' ? 'طباعة' : 'Print',
     search:
       language === 'ar'
-        ? 'Ø¨Ø­Ø« Ø¨Ø±Ù‚Ù… Ø§Ù„Ø¹Ù‚Ø¯ Ø£Ùˆ Ø§Ø³Ù… Ø§Ù„Ø¹Ù…ÙŠÙ„...'
+        ? 'بحث برقم العقد أو اسم العميل...'
         : 'Search by contract number or customer name...',
-    allStatuses: language === 'ar' ? 'Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª' : 'All Statuses',
-    active: language === 'ar' ? 'Ù†Ø´Ø·' : 'Active',
-    pending: language === 'ar' ? 'Ù…Ø¹Ù„Ù‚' : 'Pending',
-    expired: language === 'ar' ? 'Ù…Ù†ØªÙ‡ÙŠ' : 'Expired',
-    renewed: language === 'ar' ? 'Ù…ØªØ¬Ø¯Ø¯' : 'Renewed',
-    cancelled: language === 'ar' ? 'Ù…Ù„ØºÙ‰' : 'Cancelled',
-    allNationalities: language === 'ar' ? 'Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¬Ù†Ø³ÙŠØ§Øª' : 'All Nationalities',
-    dateRange: language === 'ar' ? 'Ù†Ø·Ø§Ù‚ Ø§Ù„ØªØ§Ø±ÙŠØ®' : 'Date Range',
-    startDate: language === 'ar' ? 'ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©' : 'Start Date',
-    endDate: language === 'ar' ? 'ØªØ§Ø±ÙŠØ® Ø§Ù„Ù†Ù‡Ø§ÙŠØ©' : 'End Date',
-    totalContracts: language === 'ar' ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¹Ù‚ÙˆØ¯' : 'Total Contracts',
-    activeContracts: language === 'ar' ? 'Ø¹Ù‚ÙˆØ¯ Ù†Ø´Ø·Ø©' : 'Active Contracts',
-    expiringContracts: language === 'ar' ? 'Ø¹Ù‚ÙˆØ¯ Ù‚Ø±Ø¨ Ø§Ù„Ø§Ù†ØªÙ‡Ø§Ø¡' : 'Expiring Soon',
-    totalRevenue: language === 'ar' ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯Ø§Øª' : 'Total Revenue',
-    contractNumber: language === 'ar' ? 'Ø±Ù‚Ù… Ø§Ù„Ø¹Ù‚Ø¯' : 'Contract Number',
-    customer: language === 'ar' ? 'Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'Customer',
-    worker: language === 'ar' ? 'Ø§Ù„Ø¹Ø§Ù…Ù„' : 'Worker',
-    status: language === 'ar' ? 'Ø§Ù„Ø­Ø§Ù„Ø©' : 'Status',
-    monthlyRent: language === 'ar' ? 'Ø§Ù„Ø¥ÙŠØ¬Ø§Ø± Ø§Ù„Ø´Ù‡Ø±ÙŠ' : 'Monthly Rent',
-    collected: language === 'ar' ? 'Ø§Ù„Ù…Ø­ØµÙ„' : 'Collected',
-    remaining: language === 'ar' ? 'Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ' : 'Remaining',
-    nationality: language === 'ar' ? 'Ø§Ù„Ø¬Ù†Ø³ÙŠØ©' : 'Nationality',
-    profession: language === 'ar' ? 'Ø§Ù„Ù…Ù‡Ù†Ø©' : 'Profession',
-    renewals: language === 'ar' ? 'Ø§Ù„ØªØ¬Ø¯ÙŠØ¯Ø§Øª' : 'Renewals',
-    daysLeft: language === 'ar' ? 'Ø§Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…ØªØ¨Ù‚ÙŠØ©' : 'Days Left',
-    viewDetails: language === 'ar' ? 'Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„' : 'View Details',
-    edit: language === 'ar' ? 'ØªØ¹Ø¯ÙŠÙ„' : 'Edit',
-    delete: language === 'ar' ? 'Ø­Ø°Ù' : 'Delete',
-    noResults: language === 'ar' ? 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬' : 'No results found',
-    phone: language === 'ar' ? 'Ø§Ù„Ù‡Ø§ØªÙ' : 'Phone',
-    addNote: language === 'ar' ? 'Ø¥Ø¶Ø§ÙØ© Ù…Ù„Ø§Ø­Ø¸Ø©' : 'Add Note',
-    addComplaint: language === 'ar' ? 'Ø¥Ø¶Ø§ÙØ© Ø´ÙƒÙˆÙ‰' : 'Add Complaint',
-    addContact: language === 'ar' ? 'Ø¥Ø¶Ø§ÙØ© Ø§ØªØµØ§Ù„' : 'Add Contact',
-    collectPayment: language === 'ar' ? 'ØªØ­ØµÙŠÙ„ Ø¯ÙØ¹Ø©' : 'Collect Payment',
-    renewContract: language === 'ar' ? 'ØªØ¬Ø¯ÙŠØ¯ Ø§Ù„Ø¹Ù‚Ø¯' : 'Renew Contract',
-    releaseWorker: language === 'ar' ? 'ØªØ­Ø±ÙŠØ± Ø§Ù„Ø¹Ø§Ù…Ù„' : 'Release Worker',
-    transferWorker: language === 'ar' ? 'Ù†Ù‚Ù„ Ø§Ù„Ø¹Ø§Ù…Ù„' : 'Transfer Worker',
-    cancel: language === 'ar' ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel',
-    followUpStatus: language === 'ar' ? 'Ø­Ø§Ù„Ø© Ø§Ù„Ù…ØªØ§Ø¨Ø¹Ø©' : 'Follow-up Status',
-    refresh: language === 'ar' ? 'ØªØ­Ø¯ÙŠØ«' : 'Refresh',
+    allStatuses: language === 'ar' ? 'جميع الحالات' : 'All Statuses',
+    active: language === 'ar' ? 'نشط' : 'Active',
+    pending: language === 'ar' ? 'معلق' : 'Pending',
+    expired: language === 'ar' ? 'منتهي' : 'Expired',
+    renewed: language === 'ar' ? 'متجدد' : 'Renewed',
+    cancelled: language === 'ar' ? 'ملغى' : 'Cancelled',
+    allNationalities: language === 'ar' ? 'جميع الجنسيات' : 'All Nationalities',
+    dateRange: language === 'ar' ? 'نطاق التاريخ' : 'Date Range',
+    startDate: language === 'ar' ? 'تاريخ البداية' : 'Start Date',
+    endDate: language === 'ar' ? 'تاريخ النهاية' : 'End Date',
+    totalContracts: language === 'ar' ? 'إجمالي العقود' : 'Total Contracts',
+    activeContracts: language === 'ar' ? 'عقود نشطة' : 'Active Contracts',
+    expiringContracts: language === 'ar' ? 'عقود قرب الانتهاء' : 'Expiring Soon',
+    totalRevenue: language === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue',
+    contractNumber: language === 'ar' ? 'رقم العقد' : 'Contract Number',
+    customer: language === 'ar' ? 'العميل' : 'Customer',
+    worker: language === 'ar' ? 'العامل' : 'Worker',
+    status: language === 'ar' ? 'الحالة' : 'Status',
+    monthlyRent: language === 'ar' ? 'الإيجار الشهري' : 'Monthly Rent',
+    collected: language === 'ar' ? 'المحصل' : 'Collected',
+    remaining: language === 'ar' ? 'المتبقي' : 'Remaining',
+    nationality: language === 'ar' ? 'الجنسية' : 'Nationality',
+    profession: language === 'ar' ? 'المهنة' : 'Profession',
+    renewals: language === 'ar' ? 'التجديدات' : 'Renewals',
+    daysLeft: language === 'ar' ? 'الأيام المتبقية' : 'Days Left',
+    viewDetails: language === 'ar' ? 'عرض التفاصيل' : 'View Details',
+    edit: language === 'ar' ? 'تعديل' : 'Edit',
+    delete: language === 'ar' ? 'حذف' : 'Delete',
+    noResults: language === 'ar' ? 'لا توجد نتائج' : 'No results found',
+    phone: language === 'ar' ? 'الهاتف' : 'Phone',
+    addNote: language === 'ar' ? 'إضافة ملاحظة' : 'Add Note',
+    addComplaint: language === 'ar' ? 'إضافة شكوى' : 'Add Complaint',
+    addContact: language === 'ar' ? 'إضافة اتصال' : 'Add Contact',
+    collectPayment: language === 'ar' ? 'تحصيل دفعة' : 'Collect Payment',
+    renewContract: language === 'ar' ? 'تجديد العقد' : 'Renew Contract',
+    releaseWorker: language === 'ar' ? 'تحرير العامل' : 'Release Worker',
+    transferWorker: language === 'ar' ? 'نقل العامل' : 'Transfer Worker',
+    cancel: language === 'ar' ? 'إلغاء' : 'Cancel',
+    followUpStatus: language === 'ar' ? 'حالة المتابعة' : 'Follow-up Status',
+    refresh: language === 'ar' ? 'تحديث' : 'Refresh',
   };
 
   // Filter contracts (including by customer ID if provided)
@@ -447,7 +447,7 @@ export default function RentContractsPage() {
                   {contract.renewalCount > 0 && (
                     <Tag color="cyan" className={styles.renewalTag}>
                       <ReloadOutlined /> {contract.renewalCount}{' '}
-                      {language === 'ar' ? 'ØªØ¬Ø¯ÙŠØ¯' : 'Renewals'}
+                      {language === 'ar' ? 'تجديد' : 'Renewals'}
                     </Tag>
                   )}
                 </div>
@@ -550,7 +550,7 @@ export default function RentContractsPage() {
                   <CalendarOutlined />
                   <span>{formatDate(contract.startDate)}</span>
                 </div>
-                <span className={styles.dateSeparator}>â†’</span>
+                <span className={styles.dateSeparator}>→</span>
                 <div className={styles.dateItem}>
                   <CalendarOutlined />
                   <span>{formatDate(contract.endDate)}</span>
@@ -670,7 +670,7 @@ export default function RentContractsPage() {
       <div
         style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}
       >
-        <Spin size="large" tip={language === 'ar' ? 'Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ù…ÙŠÙ„...' : 'Loading...'} />
+        <Spin size="large" tip={language === 'ar' ? 'جاري التحميل...' : 'Loading...'} />
       </div>
     );
   }
@@ -766,11 +766,11 @@ export default function RentContractsPage() {
             <UserOutlined style={{ color: '#1890ff' }} />
             <span>
               {language === 'ar'
-                ? `Ø¹Ø±Ø¶ Ø¹Ù‚ÙˆØ¯ Ø§Ù„Ø¹Ù…ÙŠÙ„ Ø±Ù‚Ù…: ${customerId}`
+                ? `عرض عقود العميل رقم: ${customerId}`
                 : `Showing contracts for Customer ID: ${customerId}`}
             </span>
-            <Button type="link" size="small" onClick={() => router.push('/contracts/operation/rent')}>
-              {language === 'ar' ? 'Ø¹Ø±Ø¶ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¹Ù‚ÙˆØ¯' : 'Show All Contracts'}
+            <Button type="link" size="small" onClick={() => router.push('/operation/rent')}>
+              {language === 'ar' ? 'عرض جميع العقود' : 'Show All Contracts'}
             </Button>
           </div>
         </Card>
@@ -814,10 +814,10 @@ export default function RentContractsPage() {
               size="large"
               options={[
                 { value: 'all', label: t.allNationalities },
-                { value: 'Philippines', label: language === 'ar' ? 'Ø§Ù„ÙÙ„Ø¨ÙŠÙ†' : 'Philippines' },
-                { value: 'India', label: language === 'ar' ? 'Ø§Ù„Ù‡Ù†Ø¯' : 'India' },
-                { value: 'Indonesia', label: language === 'ar' ? 'Ø¥Ù†Ø¯ÙˆÙ†ÙŠØ³ÙŠØ§' : 'Indonesia' },
-                { value: 'Bangladesh', label: language === 'ar' ? 'Ø¨Ù†ØºÙ„Ø§Ø¯ÙŠØ´' : 'Bangladesh' },
+                { value: 'Philippines', label: language === 'ar' ? 'الفلبين' : 'Philippines' },
+                { value: 'India', label: language === 'ar' ? 'الهند' : 'India' },
+                { value: 'Indonesia', label: language === 'ar' ? 'إندونيسيا' : 'Indonesia' },
+                { value: 'Bangladesh', label: language === 'ar' ? 'بنغلاديش' : 'Bangladesh' },
               ]}
             />
           </Col>
@@ -838,7 +838,7 @@ export default function RentContractsPage() {
       <div className={styles.resultsInfo}>
         <span>
           {language === 'ar'
-            ? `Ø¹Ø±Ø¶ ${filteredContracts.length} Ù…Ù† ${allContracts.length} Ø¹Ù‚Ø¯`
+            ? `عرض ${filteredContracts.length} من ${allContracts.length} عقد`
             : `Showing ${filteredContracts.length} of ${allContracts.length} contracts`}
         </span>
       </div>
@@ -864,7 +864,7 @@ export default function RentContractsPage() {
         }}
         footer={
           <Button type="primary" onClick={() => setShowDetailsModal(false)}>
-            {language === 'ar' ? 'Ø¥ØºÙ„Ø§Ù‚' : 'Close'}
+            {language === 'ar' ? 'إغلاق' : 'Close'}
           </Button>
         }
         width={650}
@@ -970,4 +970,3 @@ export default function RentContractsPage() {
     </div>
   );
 }
-

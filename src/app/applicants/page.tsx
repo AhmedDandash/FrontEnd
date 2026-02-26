@@ -82,6 +82,8 @@ import {
   NATIONALITIES,
   WORKER_CONTRACT_TYPE,
   WORKER_SATUS,
+  MEDICAL_STATUS,
+  getEnumLabel,
   toSelectOptions,
 } from '@/constants/enums';
 import styles from './Workers.module.css';
@@ -557,8 +559,8 @@ export default function WorkersPage() {
   const stats = useMemo(() => {
     return {
       total: filteredWorkers.length,
-      male: filteredWorkers.filter((w) => w.gender === 0).length,
-      female: filteredWorkers.filter((w) => w.gender === 1).length,
+      male: filteredWorkers.filter((w) => w.gender === GENDER[0].value).length,
+      female: filteredWorkers.filter((w) => w.gender === GENDER[1].value).length,
       experienced: filteredWorkers.filter((w) => w.hasExperience).length,
     };
   }, [filteredWorkers]);
@@ -755,8 +757,8 @@ export default function WorkersPage() {
   };
 
   // Gender helper
-  const getGenderLabel = (g?: number | null) => (g === 1 ? t('female') : t('male'));
-  const getMaritalLabel = (m?: number | null) => (m === 1 ? t('married') : t('single'));
+  const getGenderLabel = (g?: number | null) => getEnumLabel(GENDER, g, language);
+  const getMaritalLabel = (m?: number | null) => getEnumLabel(MARITAL_STATUS, m, language);
 
   // Action menu
   const getActionMenu = (worker: Worker): MenuProps => ({
@@ -1009,19 +1011,10 @@ export default function WorkersPage() {
                   allowClear
                   showSearch
                   optionFilterProp="label"
-                  options={[
-                    { value: '359', label: language === 'ar' ? 'الفلبين' : 'Philippines' },
-                    { value: '360', label: language === 'ar' ? 'كينيا' : 'Kenya' },
-                    { value: '361', label: language === 'ar' ? 'أوغندا' : 'Uganda' },
-                    { value: '362', label: language === 'ar' ? 'الهند' : 'India' },
-                    { value: '363', label: language === 'ar' ? 'السودان' : 'Sudan' },
-                    { value: '364', label: language === 'ar' ? 'مصر' : 'Egypt' },
-                    { value: '366', label: language === 'ar' ? 'بنجلادش' : 'Bangladesh' },
-                    { value: '367', label: language === 'ar' ? 'باكستان' : 'Pakistan' },
-                    { value: '731', label: language === 'ar' ? 'أثيوبيا' : 'Ethiopia' },
-                    { value: '771', label: language === 'ar' ? 'أندونيسيا' : 'Indonesia' },
-                    { value: '839', label: language === 'ar' ? 'اليمن' : 'Yemen' },
-                  ]}
+                  options={toSelectOptions([...NATIONALITIES], language).map((o) => ({
+                    value: String(o.value),
+                    label: o.label,
+                  }))}
                 />
               </Col>
 
@@ -1252,7 +1245,9 @@ export default function WorkersPage() {
                     <Avatar
                       size={100}
                       icon={<UserOutlined />}
-                      style={{ backgroundColor: worker.gender === 1 ? '#f472b6' : '#003366' }}
+                      style={{
+                        backgroundColor: worker.gender === GENDER[1].value ? '#f472b6' : '#003366',
+                      }}
                     />
                   )}
                 </div>
@@ -1311,12 +1306,9 @@ export default function WorkersPage() {
                       <span className={styles.detailValue}>
                         {(() => {
                           const exam = medicalExaminations.find((e) => e.workerId === worker.id);
-                          const statusMap: Record<number, string> = {
-                            0: language === 'ar' ? 'قيد الانتظار' : 'Pending',
-                            1: language === 'ar' ? 'ناجح' : 'Passed',
-                            2: language === 'ar' ? 'راسب' : 'Failed',
-                          };
-                          return exam ? statusMap[exam.medicalStatus] || 'N/A' : 'N/A';
+                          return exam
+                            ? getEnumLabel(MEDICAL_STATUS, exam.medicalStatus, language)
+                            : 'N/A';
                         })()}
                       </span>
                     </div>
@@ -1327,8 +1319,8 @@ export default function WorkersPage() {
                 <div className={styles.workerBadges}>
                   {worker.gender !== undefined && worker.gender !== null && (
                     <Tag
-                      color={worker.gender === 0 ? 'blue' : 'pink'}
-                      icon={worker.gender === 0 ? <ManOutlined /> : <WomanOutlined />}
+                      color={worker.gender === GENDER[0].value ? 'blue' : 'pink'}
+                      icon={worker.gender === GENDER[0].value ? <ManOutlined /> : <WomanOutlined />}
                     >
                       {getGenderLabel(worker.gender)}
                     </Tag>
@@ -1438,7 +1430,10 @@ export default function WorkersPage() {
                 <Avatar
                   size={150}
                   icon={<UserOutlined />}
-                  style={{ backgroundColor: viewingWorker?.gender === 1 ? '#f472b6' : '#003366' }}
+                  style={{
+                    backgroundColor:
+                      viewingWorker?.gender === GENDER[1].value ? '#f472b6' : '#003366',
+                  }}
                 />
               )}
               <h2 style={{ margin: '12px 0 4px', color: '#003366' }}>
@@ -1483,11 +1478,9 @@ export default function WorkersPage() {
                 {viewingWorker?.childrenCount ?? '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('religion')}>
-                {viewingWorker?.religion === 1
-                  ? t('muslim')
-                  : viewingWorker?.religion === 2
-                    ? t('nonMuslim')
-                    : viewingWorker?.religion || '-'}
+                {viewingWorker?.religion
+                  ? getEnumLabel(RELIGION, viewingWorker.religion, language)
+                  : '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('nationality')}>
                 {viewingWorker?.nationalityId || '-'}
@@ -1562,19 +1555,9 @@ export default function WorkersPage() {
                 {viewingWorker?.userName || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('workerType')}>
-                {viewingWorker?.workerType === 1
-                  ? language === 'ar'
-                    ? 'التوسط'
-                    : t('typeMediation')
-                  : viewingWorker?.workerType === 2
-                    ? language === 'ar'
-                      ? 'التشغيل'
-                      : 'Rent/Operation'
-                    : viewingWorker?.workerType === 3
-                      ? language === 'ar'
-                        ? 'نقل الكفالة'
-                        : 'Sponsorship Transfer'
-                      : '-'}
+                {viewingWorker?.workerType
+                  ? getEnumLabel(WORKER_CONTRACT_TYPE, viewingWorker.workerType, language)
+                  : '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('boxNumber')}>
                 {viewingWorker?.boxNumber || '-'}
@@ -2000,9 +1983,11 @@ export default function WorkersPage() {
             rules={[{ required: true, message: 'Please select medical status' }]}
           >
             <Select size="large" placeholder={t('medicalStatus')}>
-              <Select.Option value={0}>{t('medicalStatusPending')}</Select.Option>
-              <Select.Option value={1}>{t('medicalStatusPassed')}</Select.Option>
-              <Select.Option value={2}>{t('medicalStatusFailed')}</Select.Option>
+              {toSelectOptions([...MEDICAL_STATUS], language).map((o) => (
+                <Select.Option key={o.value} value={o.value}>
+                  {o.label}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 

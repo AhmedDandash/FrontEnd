@@ -28,6 +28,7 @@ import {
   CalendarOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
+import { NATIONALITIES } from '@/constants/enums';
 import styles from './Assignment.module.css';
 
 interface AssignmentRequest {
@@ -73,18 +74,11 @@ export default function AgentAssignmentPage() {
     { value: 'a219da74', label: 'MARAFE INTL MANPOWER SERVICES', labelAr: 'مرافي للخدمات' },
   ];
 
-  const nationalities = [
-    { value: '359', label: 'Philippines', labelAr: 'الفلبين' },
-    { value: '360', label: 'Kenya', labelAr: 'كينيا' },
-    { value: '361', label: 'Uganda', labelAr: 'أوغندا' },
-    { value: '362', label: 'India', labelAr: 'الهند' },
-    { value: '363', label: 'Sudan', labelAr: 'السودان' },
-    { value: '364', label: 'Egypt', labelAr: 'مصر' },
-    { value: '366', label: 'Bangladesh', labelAr: 'بنغلاديش' },
-    { value: '701', label: 'Sri Lanka', labelAr: 'سريلانكا' },
-    { value: '731', label: 'Ethiopia', labelAr: 'إثيوبيا' },
-    { value: '771', label: 'Indonesia', labelAr: 'إندونيسيا' },
-  ];
+  const nationalities = NATIONALITIES.map((n) => ({
+    value: String(n.value),
+    label: n.labelEn,
+    labelAr: n.labelAr,
+  }));
 
   // Mock data for assignments
   const allAssignments: AssignmentRequest[] = Array.from({ length: 56 }, (_, i) => ({

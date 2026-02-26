@@ -184,8 +184,8 @@ export default function Header({ collapsed, onToggleSidebar, onToggleMobileDrawe
         <Image
           src="/images/logo.png"
           alt="Logo"
-          width={170}
-          height={46}
+          width={200}
+          height={56}
           className={styles.headerLogo}
           priority
         />

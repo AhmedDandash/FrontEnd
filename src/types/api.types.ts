@@ -733,6 +733,12 @@ export interface Complaint {
   // Read-only joined fields from API response
   customerName?: string | null;
   workerName?: string | null;
+  contractNumber?: string | null;
+  // Status fields from API (no single status field)
+  isFinish?: boolean | null;
+  finishNote?: string | null;
+  ishold?: boolean | null;
+  /** @deprecated Derived from isFinish/ishold for UI compatibility */
   status?: number | null;
 }
 
@@ -758,6 +764,36 @@ export interface UpdateComplaintDto {
   contractId?: number | null;
   notesAr?: string | null;
   notesEn?: string | null;
+}
+
+export interface FinishComplaintDto {
+  id: number;
+  note?: string | null;
+}
+
+export interface HoldComplaintDto {
+  id: number;
+}
+
+export interface AddIssueDto {
+  complaintId: number;
+  incomingNumber?: string | null;
+  submissionAuthority?: number | null;
+  transactionDate?: string | null;
+  attachmentFile?: File | string | null;
+}
+
+export interface ComplaintIssue {
+  id: number;
+  complaintParentId?: number | null;
+  incomingNumber?: string | null;
+  submissionAuthority?: number | null;
+  transactionDate?: string | null;
+  attachmentFile?: string | null;
+  attachmentFile2?: string | null;
+  status?: number | null;
+  createdAt?: string | null;
+  createdBy?: number | null;
 }
 
 // ==================== Nationality Extended Types ====================

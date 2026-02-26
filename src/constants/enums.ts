@@ -313,4 +313,31 @@ export const VISA_JOB_TYPES = [
   { value: 1293, labelAr: 'عامل منزلي', labelEn: 'Home Worker' },
   { value: 1568, labelAr: 'حارس منزلي', labelEn: 'Home Guard' },
   { value: 1602, labelAr: 'مزارع منزلي', labelEn: 'Home Gardener' },
+  { value: 1522, labelAr: 'صانع قهوة منزلي', labelEn: 'Home Coffee Maker' },
+  { value: 1616, labelAr: 'مدير منزلي', labelEn: 'House Manager' },
+] as const;
+
+// ==================== Complaint Status ====================
+// حالة الشكوى
+export const COMPLAINT_STATUS = [
+  { value: 1, labelAr: 'مفتوحة', labelEn: 'Open' },
+  { value: 2, labelAr: 'مغلقة', labelEn: 'Closed' },
+  { value: 3, labelAr: 'معلقة', labelEn: 'On Hold' },
+] as const;
+
+// ==================== Submission Authority (Issue) ====================
+// جهة التقديم (القضية)
+export const SUBMISSION_AUTHORITY = [
+  { value: 1, labelAr: 'اللجان العمالية', labelEn: 'Labor Committees' },
+  { value: 2, labelAr: 'وحدة الدعم والحماية', labelEn: 'Support & Protection Unit' },
+  { value: 3, labelAr: 'مكتب العمل', labelEn: 'Labor Office' },
+  { value: 4, labelAr: 'الشرطة', labelEn: 'Police' },
+  { value: 5, labelAr: 'السفارة', labelEn: 'Embassy' },
+] as const;
+
+// ==================== Issue Status (Open/Closed) ====================
+// حالة القضية (مفتوحة/مغلقة)
+export const ISSUE_STATUS = [
+  { value: 1, labelAr: 'مفتوحة', labelEn: 'Open' },
+  { value: 2, labelAr: 'مغلقة', labelEn: 'Closed' },
 ] as const;

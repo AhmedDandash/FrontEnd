@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useMemo } from 'react';
 import { useAuthStore } from '@/store/authStore';
@@ -8,7 +8,6 @@ import {
   Statistic,
   Row,
   Col,
-  Badge,
   Empty,
   Pagination,
   Button,
@@ -16,6 +15,13 @@ import {
   Form,
   Spin,
   Dropdown,
+  Tabs,
+  DatePicker,
+  Tooltip,
+  Divider,
+  Tag,
+  List,
+  Upload,
 } from 'antd';
 import type { FormInstance, MenuProps } from 'antd';
 import {
@@ -31,12 +37,20 @@ import {
   MoreOutlined,
   ExclamationCircleOutlined,
   WarningOutlined,
+  PauseCircleOutlined,
+  FileAddOutlined,
+  EyeOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
 import {
   useComplaints,
   useCreateComplaint,
   useUpdateComplaint,
   useDeleteComplaint,
+  useFinishComplaint,
+  useHoldComplaint,
+  useAddIssue,
+  useComplaintIssues,
 } from '@/hooks/api/useComplaints';
 import { useCustomers } from '@/hooks/api/useCustomers';
 import { useWorkers } from '@/hooks/api/useWorkers';
@@ -45,23 +59,41 @@ import { useEmploymentOperatingContracts } from '@/hooks/api/useEmploymentOperat
 import {
   COMPLAINT_TYPE,
   COMPLAINT_FROM,
+  COMPLAINT_STATUS,
   WORKER_LOCATION,
   CONTRACT_TYPE,
+  SUBMISSION_AUTHORITY,
+  ISSUE_STATUS,
   getEnumLabel,
   toSelectOptions,
 } from '@/constants/enums';
-import type { Complaint, CreateComplaintDto, UpdateComplaintDto } from '@/types/api.types';
+import type {
+  Complaint,
+  CreateComplaintDto,
+  UpdateComplaintDto,
+  FinishComplaintDto,
+  AddIssueDto,
+} from '@/types/api.types';
 import styles from './Complaints.module.css';
 
 const { TextArea } = Input;
 
-// complaintFrom values:
+// Derive a numeric status from the boolean flags returned by the API
+const getComplaintStatus = (complaint: Complaint): number => {
+  if (complaint.isFinish) return COMPLAINT_STATUS[1].value; // 2 = Closed
+  if (complaint.ishold) return COMPLAINT_STATUS[2].value;  // 3 = On Hold
+  return COMPLAINT_STATUS[0].value;                        // 1 = Open
+};
+
+// complaintFrom values (derived from COMPLAINT_FROM enum):
 // 1 = من العميل  → show Customer only
 // 5 = من العامل  → show Worker + WorkerLocation
 // 2,3,4,6        → show ContractType + ContractId + WorkerLocation
-const CUSTOMER_FROM = 1;
-const WORKER_FROM = 5;
-const CONTRACT_SOURCES = [2, 3, 4, 6]; // Agent, Embassy, Ministry, Contract Complaint
+const CUSTOMER_FROM = COMPLAINT_FROM.find((o) => o.labelEn === 'From Customer')!.value; // 1
+const WORKER_FROM = COMPLAINT_FROM.find((o) => o.labelEn === 'From Worker')!.value; // 5
+const CONTRACT_SOURCES = COMPLAINT_FROM.filter(
+  (o) => !['From Customer', 'From Worker'].includes(o.labelEn)
+).map((o) => o.value); // [2, 3, 4, 6]
 
 interface ComplaintFormProps {
   form: FormInstance;
@@ -75,9 +107,10 @@ function ComplaintForm({ form, language, isArabic, t }: ComplaintFormProps) {
 
   const showCustomer = complaintFromValue === CUSTOMER_FROM;
   const showWorker = complaintFromValue === WORKER_FROM;
-  const showAgent = complaintFromValue === 2; // من الوكيل
+  const showAgent =
+    complaintFromValue === COMPLAINT_FROM.find((o) => o.labelEn === 'From Agent')?.value; // من الوكيل
   const showContract = CONTRACT_SOURCES.includes(complaintFromValue);
-  const showWorkerLocation = showWorker || showContract;
+  const showWorkerLocation = showWorker || showContract || showCustomer;
 
   // API data
   const { customers = [], isLoading: loadingCustomers } = useCustomers();
@@ -98,8 +131,7 @@ function ComplaintForm({ form, language, isArabic, t }: ComplaintFormProps) {
 
   const agentOptions = (agents as any[]).map((a) => ({
     value: a.id,
-    label:
-      (isArabic ? a.agentNameAr : a.agentNameEn) || a.agentNameAr || a.agentNameEn || `#${a.id}`,
+    label: (isArabic ? a.agentName : a.agentName) || a.agentName || a.agentName || `#${a.id}`,
   }));
 
   const contractsArray: any[] = Array.isArray(contracts)
@@ -110,7 +142,7 @@ function ComplaintForm({ form, language, isArabic, t }: ComplaintFormProps) {
 
   const contractOptions = contractsArray.map((c) => ({
     value: c.id,
-    label: c.customerNameAr ? `#${c.id} – ${c.customerNameAr}` : `#${c.id}`,
+    label: c.customerName ? `#${c.id} – ${c.customerName}` : `#${c.id}`,
   }));
 
   return (
@@ -125,7 +157,7 @@ function ComplaintForm({ form, language, isArabic, t }: ComplaintFormProps) {
           >
             <Select
               placeholder={t('complaintType')}
-              options={toSelectOptions([...COMPLAINT_TYPE], language)}
+              options={toSelectOptions(COMPLAINT_TYPE, language)}
             />
           </Form.Item>
         </Col>
@@ -139,14 +171,14 @@ function ComplaintForm({ form, language, isArabic, t }: ComplaintFormProps) {
           >
             <Select
               placeholder={t('complaintFrom')}
-              options={toSelectOptions([...COMPLAINT_FROM], language)}
+              options={toSelectOptions(COMPLAINT_FROM, language)}
             />
           </Form.Item>
         </Col>
 
         {/* Customer – visible only when complaintFrom = 1 */}
         {showCustomer && (
-          <Col xs={24}>
+          <Col xs={24} md={12}>
             <Form.Item name="customerId" label={isArabic ? 'العميل' : 'Customer'}>
               <Select
                 showSearch
@@ -164,9 +196,9 @@ function ComplaintForm({ form, language, isArabic, t }: ComplaintFormProps) {
           </Col>
         )}
 
-        {/* Worker – visible only when complaintFrom = 5 */}
-        {showWorker && (
-          <Col xs={24}>
+        {/* Worker – visible when complaintFrom = Customer (1) or Worker (5) */}
+        {(showCustomer || showWorker) && (
+          <Col xs={24} md={12}>
             <Form.Item name="workerId" label={isArabic ? 'العامل' : 'Worker'}>
               <Select
                 showSearch
@@ -174,6 +206,26 @@ function ComplaintForm({ form, language, isArabic, t }: ComplaintFormProps) {
                 loading={loadingWorkers}
                 placeholder={isArabic ? 'اختر العامل' : 'Select worker'}
                 options={workerOptions}
+                filterOption={(input, option) =>
+                  String(option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+          </Col>
+        )}
+
+        {/* Customer – also visible when complaintFrom = Worker (5) */}
+        {showWorker && (
+          <Col xs={24} md={12}>
+            <Form.Item name="customerId" label={isArabic ? 'العميل' : 'Customer'}>
+              <Select
+                showSearch
+                allowClear
+                loading={loadingCustomers}
+                placeholder={isArabic ? 'اختر العميل' : 'Select customer'}
+                options={customerOptions}
                 filterOption={(input, option) =>
                   String(option?.label ?? '')
                     .toLowerCase()
@@ -211,7 +263,7 @@ function ComplaintForm({ form, language, isArabic, t }: ComplaintFormProps) {
               <Form.Item name="contractType" label={t('contractType')}>
                 <Select
                   placeholder={t('contractType')}
-                  options={toSelectOptions([...CONTRACT_TYPE], language)}
+                  options={toSelectOptions(CONTRACT_TYPE, language)}
                   allowClear
                 />
               </Form.Item>
@@ -241,7 +293,7 @@ function ComplaintForm({ form, language, isArabic, t }: ComplaintFormProps) {
             <Form.Item name="workerLocation" label={t('workerLocation')}>
               <Select
                 placeholder={t('workerLocation')}
-                options={toSelectOptions([...WORKER_LOCATION], language)}
+                options={toSelectOptions(WORKER_LOCATION, language)}
                 allowClear
               />
             </Form.Item>
@@ -273,6 +325,9 @@ export default function ComplaintsPage() {
   const createMutation = useCreateComplaint();
   const updateMutation = useUpdateComplaint();
   const deleteMutation = useDeleteComplaint();
+  const finishMutation = useFinishComplaint();
+  const holdMutation = useHoldComplaint();
+  const addIssueMutation = useAddIssue();
 
   // State
   const [searchTerm, setSearchTerm] = useState('');
@@ -280,6 +335,7 @@ export default function ComplaintsPage() {
   const [contractTypeFilter, setContractTypeFilter] = useState<string>('all');
   const [complaintFromFilter, setComplaintFromFilter] = useState<string>('all');
   const [workerLocationFilter, setWorkerLocationFilter] = useState<string>('all');
+  const [typeTabFilter, setTypeTabFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -287,6 +343,20 @@ export default function ComplaintsPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingComplaint, setEditingComplaint] = useState<Complaint | null>(null);
   const [form] = Form.useForm();
+
+  // Finish modal state
+  const [isFinishModalVisible, setIsFinishModalVisible] = useState(false);
+  const [finishingComplaint, setFinishingComplaint] = useState<Complaint | null>(null);
+  const [finishForm] = Form.useForm();
+
+  // Add Issue modal state
+  const [isIssueModalVisible, setIsIssueModalVisible] = useState(false);
+  const [issueComplaint, setIssueComplaint] = useState<Complaint | null>(null);
+  const [issueForm] = Form.useForm();
+
+  // View Details modal state
+  const [isViewModalVisible, setIsViewModalVisible] = useState(false);
+  const [viewingComplaint, setViewingComplaint] = useState<Complaint | null>(null);
 
   // Translations
   const t = (key: string): string => {
@@ -325,6 +395,28 @@ export default function ComplaintsPage() {
         workerId: 'رقم العامل',
         contractId: 'رقم العقد',
         loading: 'جاري التحميل...',
+        finishComplaint: 'إنهاء الشكوى',
+        finishNotes: 'ملاحظات الإنهاء',
+        finishNotesEn: 'ملاحظات الإنهاء بالإنجليزي',
+        finish: 'إنهاء',
+        holdComplaint: 'تعليق الشكوى',
+        confirmHold: 'هل أنت متأكد من تعليق هذه الشكوى؟',
+        addIssue: 'إضافة قضية',
+        issueNumber: 'رقم الوارد',
+        submissionAuthority: 'جهة التقديم',
+        transactionDate: 'تاريخ المعاملة',
+        attachment: 'مرفق',
+        attachment2: 'مرفق 2',
+        viewDetails: 'عرض التفاصيل',
+        complaintDetails: 'تفاصيل الشكوى',
+        issues: 'القضايا',
+        noIssues: 'لا توجد قضايا',
+        complaintFinished: 'تم إنهاء الشكوى',
+        allTab: 'الكل',
+        complaintsTab: 'قضايا',
+        transactionsTab: 'معاملات',
+        createdAt: 'تاريخ الإنشاء',
+        close: 'إغلاق',
       },
       en: {
         complaintsManagement: 'Complaints Management',
@@ -360,6 +452,28 @@ export default function ComplaintsPage() {
         workerId: 'Worker ID',
         contractId: 'Contract ID',
         loading: 'Loading...',
+        finishComplaint: 'Finish Complaint',
+        finishNotes: 'Finish Notes',
+        finishNotesEn: 'Finish Notes (English)',
+        finish: 'Finish',
+        holdComplaint: 'Hold Complaint',
+        confirmHold: 'Are you sure you want to put this complaint on hold?',
+        addIssue: 'Add Issue',
+        issueNumber: 'Incoming Number',
+        submissionAuthority: 'Submission Authority',
+        transactionDate: 'Transaction Date',
+        attachment: 'Attachment',
+        attachment2: 'Attachment 2',
+        viewDetails: 'View Details',
+        complaintDetails: 'Complaint Details',
+        issues: 'Issues',
+        noIssues: 'No issues found',
+        complaintFinished: 'Complaint Finished',
+        allTab: 'All',
+        complaintsTab: 'Cases',
+        transactionsTab: 'Transactions',
+        createdAt: 'Created At',
+        close: 'Close',
       },
     };
     return translations[language][key] || key;
@@ -376,7 +490,7 @@ export default function ComplaintsPage() {
         (complaint.notesAr || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (complaint.notesEn || '').toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus = statusFilter === 'all' || complaint.status?.toString() === statusFilter;
+      const matchesStatus = statusFilter === 'all' || getComplaintStatus(complaint).toString() === statusFilter;
       const matchesContractType =
         contractTypeFilter === 'all' || complaint.contractType?.toString() === contractTypeFilter;
       const matchesComplaintFrom =
@@ -386,12 +500,17 @@ export default function ComplaintsPage() {
         workerLocationFilter === 'all' ||
         complaint.workerLocation?.toString() === workerLocationFilter;
 
+      // Tab filter by complaint type
+      const matchesTypeTab =
+        typeTabFilter === 'all' || complaint.type?.toString() === typeTabFilter;
+
       return (
         matchesSearch &&
         matchesStatus &&
         matchesContractType &&
         matchesComplaintFrom &&
-        matchesWorkerLocation
+        matchesWorkerLocation &&
+        matchesTypeTab
       );
     });
   }, [
@@ -400,6 +519,7 @@ export default function ComplaintsPage() {
     contractTypeFilter,
     complaintFromFilter,
     workerLocationFilter,
+    typeTabFilter,
     complaints,
   ]);
 
@@ -412,23 +532,25 @@ export default function ComplaintsPage() {
   // Statistics
   const statistics = useMemo(() => {
     const total = complaints.length;
-    const open = complaints.filter((c) => c.status === 1).length;
-    const closed = complaints.filter((c) => c.status === 2).length;
-    const pending = complaints.filter((c) => c.status === 3).length;
+    const open = complaints.filter((c) => !c.isFinish && !c.ishold).length;
+    const closed = complaints.filter((c) => c.isFinish === true).length;
+    const pending = complaints.filter((c) => c.ishold === true && c.isFinish !== true).length;
     return { total, open, closed, pending };
   }, [complaints]);
 
-  // Get status badge
-  const getStatusBadge = (status: number | null | undefined) => {
-    const statusConfig: Record<number, { color: string; icon: React.ReactNode; text: string }> = {
-      1: { color: '#faad14', icon: <ClockCircleOutlined />, text: isArabic ? 'مفتوحة' : 'Open' },
-      2: { color: '#00aa64', icon: <CheckCircleOutlined />, text: isArabic ? 'مغلقة' : 'Closed' },
-      3: { color: '#8c0000', icon: <WarningOutlined />, text: isArabic ? 'معلقة' : 'Pending' },
+  // Get status badge derived from isFinish / ishold boolean fields
+  const getStatusBadge = (complaint: Complaint) => {
+    const status = getComplaintStatus(complaint);
+    const statusConfig: Record<number, { color: string; icon: React.ReactNode }> = {
+      [COMPLAINT_STATUS[0].value]: { color: '#faad14', icon: <ClockCircleOutlined /> }, // Open
+      [COMPLAINT_STATUS[1].value]: { color: '#00aa64', icon: <CheckCircleOutlined /> }, // Closed
+      [COMPLAINT_STATUS[2].value]: { color: '#8c0000', icon: <WarningOutlined /> }, // On Hold
     };
-    const config = statusConfig[status || 1] || statusConfig[1];
+    const config = statusConfig[status] || statusConfig[COMPLAINT_STATUS[0].value];
+    const text = getEnumLabel(COMPLAINT_STATUS, status, language);
     return (
       <span className={styles.statusBadge} style={{ backgroundColor: config.color }}>
-        {config.icon} {config.text}
+        {config.icon} {text}
       </span>
     );
   };
@@ -503,15 +625,133 @@ export default function ComplaintsPage() {
     setEditingComplaint(null);
   };
 
+  // Finish complaint handlers
+  const handleFinish = (complaint: Complaint) => {
+    setFinishingComplaint(complaint);
+    finishForm.resetFields();
+    setIsFinishModalVisible(true);
+  };
+
+  const handleFinishSubmit = async () => {
+    try {
+      const values = await finishForm.validateFields();
+      if (!finishingComplaint) return;
+      const dto: FinishComplaintDto = {
+        id: finishingComplaint.id,
+        note: values.note || null,
+      };
+      finishMutation.mutate(dto, {
+        onSuccess: () => {
+          setIsFinishModalVisible(false);
+          finishForm.resetFields();
+          setFinishingComplaint(null);
+        },
+      });
+    } catch (error) {
+      console.error('Validation failed:', error);
+    }
+  };
+
+  // Hold complaint handler
+  const handleHold = (complaint: Complaint) => {
+    Modal.confirm({
+      title: t('holdComplaint'),
+      icon: <PauseCircleOutlined style={{ color: '#8c0000' }} />,
+      content: t('confirmHold'),
+      okText: t('holdComplaint'),
+      cancelText: t('cancel'),
+      okButtonProps: { style: { background: '#8c0000', borderColor: '#8c0000' } },
+      onOk: () => holdMutation.mutate(complaint.id),
+    });
+  };
+
+  // Add Issue handlers
+  const handleAddIssue = (complaint: Complaint) => {
+    setIssueComplaint(complaint);
+    issueForm.resetFields();
+    setIsIssueModalVisible(true);
+  };
+
+  const handleIssueSubmit = async () => {
+    try {
+      const values = await issueForm.validateFields();
+      if (!issueComplaint) return;
+      const dto: AddIssueDto = {
+        complaintId: issueComplaint.id,
+        incomingNumber: values.incomingNumber || null,
+        submissionAuthority: values.submissionAuthority ?? null,
+        transactionDate: values.transactionDate
+          ? values.transactionDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+          : null,
+        attachmentFile: values.attachmentFile?.[0]?.originFileObj || null,
+      };
+      addIssueMutation.mutate(dto, {
+        onSuccess: () => {
+          setIsIssueModalVisible(false);
+          issueForm.resetFields();
+          setIssueComplaint(null);
+        },
+      });
+    } catch (error) {
+      console.error('Validation failed:', error);
+    }
+  };
+
+  // View Details handler
+  const handleViewDetails = (complaint: Complaint) => {
+    setViewingComplaint(complaint);
+    setIsViewModalVisible(true);
+  };
+
   // Action menu for each complaint card
-  const getActionMenu = (complaint: Complaint): MenuProps => ({
-    items: [
+  const getActionMenu = (complaint: Complaint): MenuProps => {
+    const isClosed = complaint.isFinish === true;
+    const isOpen = !isClosed && !complaint.ishold;
+
+    const items: MenuProps['items'] = [
       {
-        key: 'edit',
-        label: t('edit'),
-        icon: <EditOutlined />,
-        onClick: () => handleEdit(complaint),
+        key: 'view',
+        label: t('viewDetails'),
+        icon: <EyeOutlined />,
+        onClick: () => handleViewDetails(complaint),
       },
+    ];
+
+    if (!isClosed) {
+      items.push(
+        { type: 'divider' as const },
+        {
+          key: 'edit',
+          label: t('edit'),
+          icon: <EditOutlined />,
+          onClick: () => handleEdit(complaint),
+        },
+        {
+          key: 'finish',
+          label: t('finishComplaint'),
+          icon: <CheckCircleOutlined style={{ color: '#00aa64' }} />,
+          onClick: () => handleFinish(complaint),
+        }
+      );
+
+      if (isOpen) {
+        items.push({
+          key: 'hold',
+          label: t('holdComplaint'),
+          icon: <PauseCircleOutlined style={{ color: '#8c0000' }} />,
+          onClick: () => handleHold(complaint),
+        });
+      }
+
+      items.push({
+        key: 'addIssue',
+        label: t('addIssue'),
+        icon: <FileAddOutlined style={{ color: '#1890ff' }} />,
+        onClick: () => handleAddIssue(complaint),
+      });
+    }
+
+    items.push(
       { type: 'divider' as const },
       {
         key: 'delete',
@@ -519,9 +759,11 @@ export default function ComplaintsPage() {
         icon: <DeleteOutlined />,
         danger: true,
         onClick: () => handleDelete(complaint),
-      },
-    ],
-  });
+      }
+    );
+
+    return { items };
+  };
 
   if (isLoading) {
     return (
@@ -593,12 +835,30 @@ export default function ComplaintsPage() {
             <Statistic
               title={t('pendingComplaints')}
               value={statistics.pending}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#00478C' }}
+              prefix={<PauseCircleOutlined />}
+              valueStyle={{ color: '#8c0000' }}
             />
           </div>
         </Col>
       </Row>
+
+      {/* Type Tabs */}
+      <div className={styles.filtersCard} style={{ marginBottom: 16 }}>
+        <Tabs
+          activeKey={typeTabFilter}
+          onChange={(key) => {
+            setTypeTabFilter(key);
+            setCurrentPage(1);
+          }}
+          items={[
+            { key: 'all', label: t('allTab') },
+            ...COMPLAINT_TYPE.map((ct) => ({
+              key: ct.value.toString(),
+              label: isArabic ? ct.labelAr : ct.labelEn,
+            })),
+          ]}
+        />
+      </div>
 
       {/* Filters */}
       <div className={styles.filtersCard}>
@@ -627,9 +887,10 @@ export default function ComplaintsPage() {
               }}
               options={[
                 { label: t('all'), value: 'all' },
-                { label: isArabic ? 'مفتوحة' : 'Open', value: '1' },
-                { label: isArabic ? 'مغلقة' : 'Closed', value: '2' },
-                { label: isArabic ? 'معلقة' : 'Pending', value: '3' },
+                ...toSelectOptions(COMPLAINT_STATUS, language).map((o) => ({
+                  ...o,
+                  value: o.value.toString(),
+                })),
               ]}
             />
           </Col>
@@ -644,7 +905,7 @@ export default function ComplaintsPage() {
               }}
               options={[
                 { label: t('all'), value: 'all' },
-                ...toSelectOptions([...CONTRACT_TYPE], language).map((o) => ({
+                ...toSelectOptions(CONTRACT_TYPE, language).map((o) => ({
                   ...o,
                   value: o.value.toString(),
                 })),
@@ -662,7 +923,7 @@ export default function ComplaintsPage() {
               }}
               options={[
                 { label: t('all'), value: 'all' },
-                ...toSelectOptions([...COMPLAINT_FROM], language).map((o) => ({
+                ...toSelectOptions(COMPLAINT_FROM, language).map((o) => ({
                   ...o,
                   value: o.value.toString(),
                 })),
@@ -680,7 +941,7 @@ export default function ComplaintsPage() {
               }}
               options={[
                 { label: t('all'), value: 'all' },
-                ...toSelectOptions([...WORKER_LOCATION], language).map((o) => ({
+                ...toSelectOptions(WORKER_LOCATION, language).map((o) => ({
                   ...o,
                   value: o.value.toString(),
                 })),
@@ -695,99 +956,172 @@ export default function ComplaintsPage() {
         {paginatedComplaints.length === 0 ? (
           <Empty description={t('noComplaints')} />
         ) : (
-          paginatedComplaints.map((complaint, index) => (
-            <div key={complaint.id} className={styles.complaintCard}>
-              {/* Status Banner */}
-              {complaint.status === 2 && (
-                <div className={styles.statusBanner}>{getStatusBadge(complaint.status)}</div>
-              )}
+          paginatedComplaints.map((complaint, index) => {
+            const isClosed = complaint.isFinish === true;
+            const isOnHold = complaint.ishold === true && !complaint.isFinish;
 
-              <div className={styles.cardContent}>
-                {/* Left Section - Complaint Number */}
-                <div className={styles.numberSection}>
-                  <div className={styles.sequenceNumber}>
-                    {(currentPage - 1) * pageSize + index + 1}
+            return (
+              <div key={complaint.id} className={styles.complaintCard}>
+                {/* Top badges row */}
+                <div className={styles.badgesRow}>
+                  <div className={styles.badgesLeft}>
+                    <Tag color="blue">{getEnumLabel(COMPLAINT_TYPE, complaint.type, language)}</Tag>
+                    <Tag color="purple">
+                      {getEnumLabel(COMPLAINT_FROM, complaint.complaintFrom, language)}
+                    </Tag>
+                    {complaint.contractType && (
+                      <Tag color="geekblue">
+                        {getEnumLabel(CONTRACT_TYPE, complaint.contractType, language)}
+                      </Tag>
+                    )}
+                    {complaint.workerLocation != null && complaint.workerLocation !== 0 && (
+                      <Tag color="cyan">
+                        {getEnumLabel(WORKER_LOCATION, complaint.workerLocation, language)}
+                      </Tag>
+                    )}
                   </div>
-                  <div className={styles.complaintNumber}>#{complaint.id}</div>
-                  <div className={styles.dateText}>
-                    {complaint.createdAt
-                      ? new Date(complaint.createdAt).toLocaleDateString(
-                          isArabic ? 'ar-SA' : 'en-US'
-                        )
-                      : ''}
+                  <div>{getStatusBadge(complaint)}</div>
+                </div>
+
+                {/* Card content */}
+                <div className={styles.cardContent}>
+                  {/* Left - Number */}
+                  <div className={styles.numberSection}>
+                    <div className={styles.sequenceNumber}>
+                      {(currentPage - 1) * pageSize + index + 1}
+                    </div>
+                    <div
+                      className={styles.complaintNumber}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleViewDetails(complaint)}
+                      title={t('viewDetails')}
+                    >
+                      #{complaint.id}
+                    </div>
+                    <div className={styles.dateText}>
+                      {complaint.createdAt
+                        ? new Date(complaint.createdAt).toLocaleDateString(
+                            isArabic ? 'ar-SA' : 'en-US'
+                          )
+                        : ''}
+                    </div>
+                    <div className={styles.dateText} style={{ fontSize: 11, opacity: 0.7 }}>
+                      {complaint.createdAt
+                        ? new Date(complaint.createdAt).toLocaleTimeString(
+                            isArabic ? 'ar-SA' : 'en-US',
+                            { hour: '2-digit', minute: '2-digit' }
+                          )
+                        : ''}
+                    </div>
+                  </div>
+
+                  {/* Middle - Details */}
+                  <div className={styles.detailsSection}>
+                    <Row gutter={[16, 8]}>
+                      <Col xs={24} md={12}>
+                        <div className={styles.infoItem}>
+                          <UserOutlined className={styles.icon} />
+                          <div>
+                            <div className={styles.infoLabel}>{t('customerName')}</div>
+                            <div className={styles.infoValue}>
+                              {complaint.customerName || (isArabic ? 'غير محدد' : 'N/A')}
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col xs={24} md={12}>
+                        <div className={styles.infoItem}>
+                          <UserOutlined className={styles.icon} />
+                          <div>
+                            <div className={styles.infoLabel}>{t('workerName')}</div>
+                            <div className={styles.infoValue}>
+                              {complaint.workerName || (isArabic ? 'غير محدد' : 'N/A')}
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col xs={24}>
+                        <div className={styles.infoItem}>
+                          <MessageOutlined className={styles.icon} />
+                          <div>
+                            <div className={styles.infoLabel}>{t('notes')}</div>
+                            <div className={styles.infoValue}>
+                              {(isArabic ? complaint.notesAr : complaint.notesEn) ||
+                                complaint.notesAr ||
+                                complaint.notesEn ||
+                                (isArabic ? 'لا توجد ملاحظات' : 'No notes')}
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                  </div>
+
+                  {/* Right - Actions */}
+                  <div className={styles.statusSection}>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <Tooltip title={t('viewDetails')}>
+                        <Button
+                          type="text"
+                          size="small"
+                          icon={<EyeOutlined />}
+                          onClick={() => handleViewDetails(complaint)}
+                        />
+                      </Tooltip>
+                      {!isClosed && (
+                        <>
+                          <Tooltip title={t('finishComplaint')}>
+                            <Button
+                              type="text"
+                              size="small"
+                              icon={<CheckCircleOutlined style={{ color: '#00aa64' }} />}
+                              onClick={() => handleFinish(complaint)}
+                            />
+                          </Tooltip>
+                          <Tooltip title={t('addIssue')}>
+                            <Button
+                              type="text"
+                              size="small"
+                              icon={<FileAddOutlined style={{ color: '#1890ff' }} />}
+                              onClick={() => handleAddIssue(complaint)}
+                            />
+                          </Tooltip>
+                        </>
+                      )}
+                      <Dropdown menu={getActionMenu(complaint)} trigger={['click']}>
+                        <Button
+                          type="text"
+                          size="small"
+                          icon={<MoreOutlined style={{ fontSize: 16 }} />}
+                        />
+                      </Dropdown>
+                    </div>
                   </div>
                 </div>
 
-                {/* Middle Section - Details */}
-                <div className={styles.detailsSection}>
-                  <Row gutter={[16, 8]}>
-                    <Col xs={24} md={12}>
-                      <div className={styles.infoItem}>
-                        <UserOutlined className={styles.icon} />
-                        <div>
-                          <div className={styles.infoLabel}>{t('customerName')}</div>
-                          <div className={styles.infoValue}>
-                            {complaint.customerName || (isArabic ? 'غير محدد' : 'N/A')}
-                          </div>
-                        </div>
+                {/* Finish notes banner (for closed complaints) */}
+                {isClosed && (
+                  <div className={styles.finishNotesSection}>
+                    <CheckCircleOutlined className={styles.icon} />
+                    <div>
+                      <div className={styles.infoLabel}>{t('complaintFinished')}</div>
+                      <div className={styles.infoValue}>
+                        {complaint.finishNote || (isArabic ? 'تم الإنهاء' : 'Completed')}
                       </div>
-                    </Col>
-                    <Col xs={24} md={12}>
-                      <div className={styles.infoItem}>
-                        <UserOutlined className={styles.icon} />
-                        <div>
-                          <div className={styles.infoLabel}>{t('workerName')}</div>
-                          <div className={styles.infoValue}>
-                            {complaint.workerName || (isArabic ? 'غير محدد' : 'N/A')}
-                          </div>
-                        </div>
-                      </div>
-                    </Col>
-                    <Col xs={24}>
-                      <div className={styles.infoItem}>
-                        <MessageOutlined className={styles.icon} />
-                        <div>
-                          <div className={styles.infoLabel}>{t('notes')}</div>
-                          <div className={styles.infoValue}>
-                            {(isArabic ? complaint.notesAr : complaint.notesEn) ||
-                              complaint.notesAr ||
-                              complaint.notesEn ||
-                              (isArabic ? 'لا توجد ملاحظات' : 'No notes')}
-                          </div>
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-
-                {/* Right Section - Status & Tags & Actions */}
-                <div className={styles.statusSection}>
-                  {complaint.status !== 2 && getStatusBadge(complaint.status)}
-                  <div className={styles.tags}>
-                    <Badge
-                      count={getEnumLabel([...CONTRACT_TYPE], complaint.contractType, language)}
-                      style={{ backgroundColor: '#003366' }}
-                    />
-                    <Badge
-                      count={getEnumLabel([...COMPLAINT_FROM], complaint.complaintFrom, language)}
-                      style={{ backgroundColor: '#505050' }}
-                    />
-                    <Badge
-                      count={getEnumLabel([...WORKER_LOCATION], complaint.workerLocation, language)}
-                      style={{ backgroundColor: '#00478C' }}
-                    />
+                    </div>
                   </div>
-                  <Dropdown menu={getActionMenu(complaint)} trigger={['click']}>
-                    <Button
-                      type="text"
-                      icon={<MoreOutlined style={{ fontSize: 18 }} />}
-                      style={{ marginTop: 8 }}
-                    />
-                  </Dropdown>
-                </div>
+                )}
+
+                {/* On-hold banner */}
+                {isOnHold && (
+                  <div className={styles.holdBanner}>
+                    <PauseCircleOutlined style={{ color: '#8c0000' }} />
+                    <span>{isArabic ? 'الشكوى معلقة' : 'Complaint on hold'}</span>
+                  </div>
+                )}
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -825,6 +1159,328 @@ export default function ComplaintsPage() {
       >
         <ComplaintForm form={form} language={language} isArabic={isArabic} t={t} />
       </Modal>
+
+      {/* Finish Complaint Modal */}
+      <Modal
+        title={
+          <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#00aa64' }}>
+            <CheckCircleOutlined /> {t('finishComplaint')}
+          </span>
+        }
+        open={isFinishModalVisible}
+        onOk={handleFinishSubmit}
+        onCancel={() => {
+          setIsFinishModalVisible(false);
+          finishForm.resetFields();
+          setFinishingComplaint(null);
+        }}
+        okText={t('finish')}
+        cancelText={t('cancel')}
+        confirmLoading={finishMutation.isPending}
+        okButtonProps={{ style: { background: '#00aa64', borderColor: '#00aa64' } }}
+        width={600}
+        destroyOnClose
+      >
+        {finishingComplaint && (
+          <div style={{ marginBottom: 16, padding: 12, background: '#f5f7fa', borderRadius: 8 }}>
+            <strong>#{finishingComplaint.id}</strong> –{' '}
+            {finishingComplaint.customerName || finishingComplaint.workerName || ''}
+          </div>
+        )}
+        <Form form={finishForm} layout="vertical">
+          <Form.Item name="note" label={t('finishNotes')}>
+            <Input.TextArea rows={3} placeholder={t('finishNotes')} />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Add Issue Modal */}
+      <Modal
+        title={
+          <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#1890ff' }}>
+            <FileAddOutlined /> {t('addIssue')}
+          </span>
+        }
+        open={isIssueModalVisible}
+        onOk={handleIssueSubmit}
+        onCancel={() => {
+          setIsIssueModalVisible(false);
+          issueForm.resetFields();
+          setIssueComplaint(null);
+        }}
+        okText={t('save')}
+        cancelText={t('cancel')}
+        confirmLoading={addIssueMutation.isPending}
+        width={600}
+        destroyOnClose
+      >
+        {issueComplaint && (
+          <div style={{ marginBottom: 16, padding: 12, background: '#f5f7fa', borderRadius: 8 }}>
+            <strong>#{issueComplaint.id}</strong> –{' '}
+            {issueComplaint.customerName || issueComplaint.workerName || ''}
+          </div>
+        )}
+        <Form form={issueForm} layout="vertical">
+          <Row gutter={[16, 0]}>
+            <Col xs={24} md={12}>
+              <Form.Item name="incomingNumber" label={t('issueNumber')}>
+                <Input placeholder={t('issueNumber')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="submissionAuthority"
+                label={t('submissionAuthority')}
+                rules={[{ required: true, message: isArabic ? 'مطلوب' : 'Required' }]}
+              >
+                <Select
+                  placeholder={t('submissionAuthority')}
+                  options={toSelectOptions(SUBMISSION_AUTHORITY, language)}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item name="transactionDate" label={t('transactionDate')}>
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="attachmentFile"
+                label={t('attachment')}
+                valuePropName="fileList"
+                getValueFromEvent={(e: any) => e?.fileList || e}
+              >
+                <Upload maxCount={1} beforeUpload={() => false} accept="*/*">
+                  <Button icon={<UploadOutlined />}>{isArabic ? 'اختر ملف' : 'Select File'}</Button>
+                </Upload>
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
+
+      {/* View Details Modal */}
+      <ViewDetailsModal
+        complaint={viewingComplaint}
+        visible={isViewModalVisible}
+        onClose={() => {
+          setIsViewModalVisible(false);
+          setViewingComplaint(null);
+        }}
+        language={language}
+        isArabic={isArabic}
+        t={t}
+      />
     </div>
+  );
+}
+
+// ===================== View Details Modal Component =====================
+function ViewDetailsModal({
+  complaint,
+  visible,
+  onClose,
+  language,
+  isArabic,
+  t,
+}: {
+  complaint: Complaint | null;
+  visible: boolean;
+  onClose: () => void;
+  language: 'ar' | 'en';
+  isArabic: boolean;
+  t: (key: string) => string;
+}) {
+  const { data: issues = [] } = useComplaintIssues(complaint?.id || 0);
+
+  if (!complaint) return null;
+
+  return (
+    <Modal
+      title={
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#003366' }}>
+          <EyeOutlined /> {t('complaintDetails')} #{complaint.id}
+        </span>
+      }
+      open={visible}
+      onCancel={onClose}
+      footer={[
+        <Button key="close" onClick={onClose}>
+          {t('close')}
+        </Button>,
+      ]}
+      width={700}
+      destroyOnClose
+    >
+      {/* Complaint Info */}
+      <div style={{ marginBottom: 24 }}>
+        <Row gutter={[16, 16]}>
+          <Col xs={12} md={8}>
+            <div style={{ color: '#6c757d', fontSize: 12, marginBottom: 4 }}>
+              {t('complaintType')}
+            </div>
+            <Tag color="blue">{getEnumLabel(COMPLAINT_TYPE, complaint.type, language)}</Tag>
+          </Col>
+          <Col xs={12} md={8}>
+            <div style={{ color: '#6c757d', fontSize: 12, marginBottom: 4 }}>
+              {t('complaintFrom')}
+            </div>
+            <Tag color="purple">
+              {getEnumLabel(COMPLAINT_FROM, complaint.complaintFrom, language)}
+            </Tag>
+          </Col>
+          <Col xs={12} md={8}>
+            <div style={{ color: '#6c757d', fontSize: 12, marginBottom: 4 }}>{t('status')}</div>
+            <Tag
+              color={
+                complaint.isFinish
+                  ? 'success'
+                  : complaint.ishold
+                    ? 'error'
+                    : 'warning'
+              }
+            >
+              {getEnumLabel(COMPLAINT_STATUS, getComplaintStatus(complaint), language)}
+            </Tag>
+          </Col>
+          <Col xs={12} md={8}>
+            <div style={{ color: '#6c757d', fontSize: 12, marginBottom: 4 }}>
+              {t('customerName')}
+            </div>
+            <div style={{ fontWeight: 500 }}>
+              {complaint.customerName || (isArabic ? 'غير محدد' : 'N/A')}
+            </div>
+          </Col>
+          <Col xs={12} md={8}>
+            <div style={{ color: '#6c757d', fontSize: 12, marginBottom: 4 }}>{t('workerName')}</div>
+            <div style={{ fontWeight: 500 }}>
+              {complaint.workerName || (isArabic ? 'غير محدد' : 'N/A')}
+            </div>
+          </Col>
+          <Col xs={12} md={8}>
+            <div style={{ color: '#6c757d', fontSize: 12, marginBottom: 4 }}>{t('createdAt')}</div>
+            <div style={{ fontWeight: 500 }}>
+              {complaint.createdAt
+                ? new Date(complaint.createdAt).toLocaleDateString(isArabic ? 'ar-SA' : 'en-US')
+                : '—'}
+            </div>
+          </Col>
+          {complaint.contractType && (
+            <Col xs={12} md={8}>
+              <div style={{ color: '#6c757d', fontSize: 12, marginBottom: 4 }}>
+                {t('contractType')}
+              </div>
+              <Tag color="geekblue">
+                {getEnumLabel(CONTRACT_TYPE, complaint.contractType, language)}
+              </Tag>
+            </Col>
+          )}
+          {complaint.workerLocation != null && complaint.workerLocation !== 0 && (
+            <Col xs={12} md={8}>
+              <div style={{ color: '#6c757d', fontSize: 12, marginBottom: 4 }}>
+                {t('workerLocation')}
+              </div>
+              <Tag color="cyan">
+                {getEnumLabel(WORKER_LOCATION, complaint.workerLocation, language)}
+              </Tag>
+            </Col>
+          )}
+        </Row>
+
+        {/* Notes */}
+        <Divider style={{ margin: '16px 0' }} />
+        <div style={{ color: '#6c757d', fontSize: 12, marginBottom: 4 }}>{t('notes')}</div>
+        <div
+          style={{
+            background: '#f5f7fa',
+            padding: 12,
+            borderRadius: 8,
+            whiteSpace: 'pre-wrap',
+          }}
+        >
+          {complaint.notesAr && <div>{complaint.notesAr}</div>}
+          {complaint.notesEn && (
+            <div style={{ marginTop: complaint.notesAr ? 8 : 0, direction: 'ltr' }}>
+              {complaint.notesEn}
+            </div>
+          )}
+          {!complaint.notesAr && !complaint.notesEn && (
+            <span style={{ color: '#999' }}>{isArabic ? 'لا توجد ملاحظات' : 'No notes'}</span>
+          )}
+        </div>
+
+        {/* Finish notes (if closed) */}
+        {complaint.isFinish === true && (
+          <>
+            <Divider style={{ margin: '16px 0' }} />
+            <div
+              style={{
+                background: 'rgba(0, 170, 100, 0.05)',
+                border: '1px solid rgba(0, 170, 100, 0.2)',
+                borderRadius: 8,
+                padding: 12,
+              }}
+            >
+              <div
+                style={{
+                  color: '#00aa64',
+                  fontWeight: 600,
+                  marginBottom: 4,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <CheckCircleOutlined /> {t('complaintFinished')}
+              </div>
+              <div>{complaint.finishNote || '—'}</div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Issues */}
+      <Divider style={{ margin: '16px 0' }} />
+      <div style={{ fontWeight: 600, color: '#003366', marginBottom: 12, fontSize: 15 }}>
+        {t('issues')} ({issues.length})
+      </div>
+      {issues.length === 0 ? (
+        <Empty description={t('noIssues')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+      ) : (
+        <List
+          size="small"
+          dataSource={issues}
+          renderItem={(issue) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<FileTextOutlined style={{ fontSize: 20, color: '#1890ff' }} />}
+                title={
+                  <span>
+                    {issue.incomingNumber || `#${issue.id}`}{' '}
+                    <Tag color={issue.status === ISSUE_STATUS[0].value ? 'processing' : 'default'}>
+                      {getEnumLabel(ISSUE_STATUS, issue.status, language)}
+                    </Tag>
+                  </span>
+                }
+                description={
+                  <span>
+                    {getEnumLabel(SUBMISSION_AUTHORITY, issue.submissionAuthority, language)}
+                    {issue.transactionDate && (
+                      <>
+                        {' • '}
+                        {new Date(issue.transactionDate).toLocaleDateString(
+                          isArabic ? 'ar-SA' : 'en-US'
+                        )}
+                      </>
+                    )}
+                  </span>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      )}
+    </Modal>
   );
 }

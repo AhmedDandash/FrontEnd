@@ -83,6 +83,23 @@
   transform: translateY(-2px) translateZ(0);
 }
 
+/* Badges Row */
+.badgesRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, rgba(0, 51, 102, 0.03) 0%, rgba(0, 71, 140, 0.06) 100%);
+  border-bottom: 1px solid #e9ecef;
+}
+
+.badgesLeft {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .statusBanner {
   background: linear-gradient(90deg, rgba(0, 170, 100, 0.1) 0%, rgba(0, 170, 100, 0.05) 100%);
   padding: 8px 16px;
@@ -171,14 +188,26 @@
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  padding: 12px;
+  padding: 12px 20px;
   background: rgba(0, 170, 100, 0.05);
-  border-radius: 6px;
-  border-left: 3px solid #00aa64;
+  border-top: 1px solid rgba(0, 170, 100, 0.15);
 }
 
 .finishNotesSection .icon {
   color: #00aa64;
+}
+
+/* Hold Banner */
+.holdBanner {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 20px;
+  background: rgba(140, 0, 0, 0.04);
+  border-top: 1px solid rgba(140, 0, 0, 0.12);
+  color: #8c0000;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 /* Status Section */
@@ -251,7 +280,11 @@ html[dir='rtl'] .tags {
 
 html[dir='rtl'] .finishNotesSection {
   border-left: none;
-  border-right: 3px solid #00aa64;
+  border-right: none;
+}
+
+html[dir='rtl'] .badgesRow {
+  direction: rtl;
 }
 
 /* Responsive Design */

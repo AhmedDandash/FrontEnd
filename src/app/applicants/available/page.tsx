@@ -38,6 +38,16 @@ import {
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
 import { useWorker, useWorkers } from '@/hooks/api/useWorkers';
+import {
+  GENDER,
+  MARITAL_STATUS,
+  RELIGION,
+  NATIONALITIES,
+  WORKER_CONTRACT_TYPE,
+  PREVIOUS_EXPERIENCE,
+  getEnumLabel,
+  toSelectOptions,
+} from '@/constants/enums';
 import styles from './AvailableWorkers.module.css';
 import dayjs from 'dayjs';
 
@@ -204,8 +214,8 @@ export default function AvailableWorkersPage() {
     viewingWorkerId ? String(viewingWorkerId) : undefined
   );
 
-  const getGenderLabel = (g?: number | null) => (g === 1 ? t('female') : t('male'));
-  const getMaritalLabel = (m?: number | null) => (m === 1 ? t('married') : t('single'));
+  const getGenderLabel = (g?: number | null) => getEnumLabel(GENDER, g, language);
+  const getMaritalLabel = (m?: number | null) => getEnumLabel(MARITAL_STATUS, m, language);
 
   // Filter workers (show only active workers)
   const filteredWorkers = useMemo(() => {
@@ -234,9 +244,9 @@ export default function AvailableWorkersPage() {
       // Tab filtering based on workerType
       const matchesTab =
         activeTab === 'all' ||
-        (activeTab === 'mediation' && worker.workerType === 1) ||
-        (activeTab === 'rent' && worker.workerType === 2) ||
-        (activeTab === 'sponsorship' && worker.workerType === 5);
+        (activeTab === 'mediation' && worker.workerType === WORKER_CONTRACT_TYPE[0].value) ||
+        (activeTab === 'rent' && worker.workerType === WORKER_CONTRACT_TYPE[1].value) ||
+        (activeTab === 'sponsorship' && worker.workerType === WORKER_CONTRACT_TYPE[2].value);
 
       return (
         matchesActive &&
@@ -256,9 +266,11 @@ export default function AvailableWorkersPage() {
   const stats = useMemo(() => {
     return {
       total: filteredWorkers.length,
-      mediation: filteredWorkers.filter((w) => w.workerType === 1).length,
-      rent: filteredWorkers.filter((w) => w.workerType === 2).length,
-      sponsorship: filteredWorkers.filter((w) => w.workerType === 3).length,
+      mediation: filteredWorkers.filter((w) => w.workerType === WORKER_CONTRACT_TYPE[0].value)
+        .length,
+      rent: filteredWorkers.filter((w) => w.workerType === WORKER_CONTRACT_TYPE[1].value).length,
+      sponsorship: filteredWorkers.filter((w) => w.workerType === WORKER_CONTRACT_TYPE[2].value)
+        .length,
     };
   }, [filteredWorkers]);
 
@@ -442,18 +454,10 @@ export default function AvailableWorkersPage() {
                   allowClear
                   showSearch
                   optionFilterProp="label"
-                  options={[
-                    { value: '359', label: language === 'ar' ? 'الفلبين' : 'Philippines' },
-                    { value: '360', label: language === 'ar' ? 'كينيا' : 'Kenya' },
-                    { value: '361', label: language === 'ar' ? 'أوغندا' : 'Uganda' },
-                    { value: '362', label: language === 'ar' ? 'الهند' : 'India' },
-                    { value: '363', label: language === 'ar' ? 'السودان' : 'Sudan' },
-                    { value: '364', label: language === 'ar' ? 'مصر' : 'Egypt' },
-                    { value: '366', label: language === 'ar' ? 'بنجلادش' : 'Bangladesh' },
-                    { value: '367', label: language === 'ar' ? 'باكستان' : 'Pakistan' },
-                    { value: '731', label: language === 'ar' ? 'أثيوبيا' : 'Ethiopia' },
-                    { value: '771', label: language === 'ar' ? 'أندونيسيا' : 'Indonesia' },
-                  ]}
+                  options={toSelectOptions([...NATIONALITIES], language).map((o) => ({
+                    value: String(o.value),
+                    label: o.label,
+                  }))}
                 />
               </Col>
 
@@ -467,8 +471,13 @@ export default function AvailableWorkersPage() {
                   style={{ width: '100%' }}
                   allowClear
                 >
-                  <Select.Option value="1">{t('muslim')}</Select.Option>
-                  <Select.Option value="2">{t('nonMuslim')}</Select.Option>
+                  {toSelectOptions([...RELIGION], language)
+                    .filter((o) => o.value !== 0)
+                    .map((o) => (
+                      <Select.Option key={o.value} value={String(o.value)}>
+                        {o.label}
+                      </Select.Option>
+                    ))}
                 </Select>
               </Col>
 
@@ -482,8 +491,13 @@ export default function AvailableWorkersPage() {
                   style={{ width: '100%' }}
                   allowClear
                 >
-                  <Select.Option value="1">{t('hasExperience')}</Select.Option>
-                  <Select.Option value="2">{t('noExperience')}</Select.Option>
+                  {toSelectOptions([...PREVIOUS_EXPERIENCE], language)
+                    .filter((o) => o.value !== 0)
+                    .map((o) => (
+                      <Select.Option key={o.value} value={String(o.value)}>
+                        {o.label}
+                      </Select.Option>
+                    ))}
                 </Select>
               </Col>
 
@@ -497,8 +511,11 @@ export default function AvailableWorkersPage() {
                   style={{ width: '100%' }}
                   allowClear
                 >
-                  <Select.Option value="0">{t('male')}</Select.Option>
-                  <Select.Option value="1">{t('female')}</Select.Option>
+                  {toSelectOptions([...GENDER], language).map((o) => (
+                    <Select.Option key={o.value} value={String(o.value)}>
+                      {o.label}
+                    </Select.Option>
+                  ))}
                 </Select>
               </Col>
             </Row>
@@ -523,7 +540,7 @@ export default function AvailableWorkersPage() {
                     icon={<UserOutlined />}
                     className={styles.workerAvatar}
                     style={{
-                      backgroundColor: worker.gender === 1 ? '#f472b6' : '#003366',
+                      backgroundColor: worker.gender === GENDER[1].value ? '#f472b6' : '#003366',
                     }}
                   />
                 </div>
@@ -566,13 +583,13 @@ export default function AvailableWorkersPage() {
                       <div className={styles.detailItem}>
                         <span className={styles.detailItemLabel}>{t('gender')}</span>
                         <span className={styles.detailItemValue}>
-                          {worker.gender === 0 ? (
+                          {worker.gender === GENDER[0].value ? (
                             <Tag icon={<ManOutlined />} color="blue">
-                              {t('male')}
+                              {getEnumLabel(GENDER, worker.gender, language)}
                             </Tag>
-                          ) : worker.gender === 1 ? (
+                          ) : worker.gender === GENDER[1].value ? (
                             <Tag icon={<WomanOutlined />} color="pink">
-                              {t('female')}
+                              {getEnumLabel(GENDER, worker.gender, language)}
                             </Tag>
                           ) : (
                             'N/A'
@@ -589,7 +606,7 @@ export default function AvailableWorkersPage() {
                       <div className={styles.detailItem}>
                         <span className={styles.detailItemLabel}>{t('maritalStatus')}</span>
                         <span className={styles.detailItemValue}>
-                          {worker.maritalStatus === 1 ? t('married') : t('single')}
+                          {getEnumLabel(MARITAL_STATUS, worker.maritalStatus, language)}
                         </span>
                       </div>
                     </div>
@@ -681,7 +698,10 @@ export default function AvailableWorkersPage() {
                 <Avatar
                   size={150}
                   icon={<UserOutlined />}
-                  style={{ backgroundColor: viewingWorker?.gender === 1 ? '#f472b6' : '#003366' }}
+                  style={{
+                    backgroundColor:
+                      viewingWorker?.gender === GENDER[1].value ? '#f472b6' : '#003366',
+                  }}
                 />
               )}
               <h2 style={{ margin: '12px 0 4px', color: '#003366' }}>
@@ -724,11 +744,9 @@ export default function AvailableWorkersPage() {
                 {viewingWorker?.childrenCount ?? '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('religion')}>
-                {viewingWorker?.religion === 1
-                  ? t('muslim')
-                  : viewingWorker?.religion === 2
-                    ? t('nonMuslim')
-                    : viewingWorker?.religion || '-'}
+                {viewingWorker?.religion
+                  ? getEnumLabel(RELIGION, viewingWorker.religion, language)
+                  : '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('nationality')}>
                 {viewingWorker?.nationalityId || '-'}
@@ -789,13 +807,9 @@ export default function AvailableWorkersPage() {
                 {viewingWorker?.userName || '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('workerType')}>
-                {viewingWorker?.workerType === 1
-                  ? t('mediation')
-                  : viewingWorker?.workerType === 2
-                    ? t('rent')
-                    : viewingWorker?.workerType === 3
-                      ? t('sponsorship')
-                      : '-'}
+                {viewingWorker?.workerType
+                  ? getEnumLabel(WORKER_CONTRACT_TYPE, viewingWorker.workerType, language)
+                  : '-'}
               </Descriptions.Item>
               <Descriptions.Item label={t('boxNumber')}>
                 {viewingWorker?.boxNumber || '-'}

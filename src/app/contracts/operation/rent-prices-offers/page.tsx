@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo } from 'react';
 import {
@@ -53,33 +53,33 @@ export default function RentPricesOffersPage() {
 
   const t = (key: string) => {
     const translations: { [key: string]: { ar: string; en: string } } = {
-      pageTitle: { ar: 'Ø¹Ø±ÙˆØ¶ Ùˆ Ø§Ø³Ø¹Ø§Ø± Ø§Ù„ØªØ´ØºÙŠÙ„', en: 'Operating Prices & Offers' },
-      totalOffers: { ar: 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¹Ø±ÙˆØ¶', en: 'Total Offers' },
-      searchPlaceholder: { ar: 'Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø¹Ø±Ø¶...', en: 'Search offers...' },
-      searchFilters: { ar: 'ÙÙ„Ø§ØªØ± Ø§Ù„Ø¨Ø­Ø«', en: 'Search Filters' },
-      nationality: { ar: 'Ø§Ù„Ø¬Ù†Ø³ÙŠØ©', en: 'Nationality' },
-      job: { ar: 'Ø§Ù„ÙˆØ¸ÙŠÙØ©', en: 'Job' },
-      branch: { ar: 'Ø§Ù„ÙØ±Ø¹', en: 'Branch' },
-      branchName: { ar: 'Ø§Ø³Ù… Ø§Ù„ÙØ±Ø¹', en: 'Branch Name' },
-      nationalities: { ar: 'Ø§Ù„Ø¬Ù†Ø³ÙŠØ§Øª', en: 'Nationalities' },
-      availableOffers: { ar: 'Ø¹Ø¯Ø¯ Ø§Ù„Ø¹Ø±ÙˆØ¶ Ø§Ù„Ù…ØªØ§Ø­Ø©', en: 'Available Offers' },
-      offersAndPrices: { ar: 'Ø§Ù„Ø¹Ø±ÙˆØ¶ ÙˆØ§Ù„Ø§Ø³Ø¹Ø§Ø±', en: 'Offers & Prices' },
-      addOffer: { ar: 'Ø¥Ø¶Ø§ÙØ© Ø¹Ø±ÙˆØ¶ Ùˆ Ø§Ø³Ø¹Ø§Ø± Ø§Ù„ØªØ´ØºÙŠÙ„', en: 'Add Operating Offers & Prices' },
-      addSpecialOffer: { ar: 'Ø¥Ø¶Ø§ÙØ© Ø¹Ø±ÙˆØ¶ Ø®Ø§ØµØ©', en: 'Add Special Offers' },
-      addPackageOffer: { ar: 'Ø¥Ø¶Ø§ÙØ© Ø¹Ø±ÙˆØ¶ Ø§Ù„Ø¨Ø§Ù‚Ø§Øª', en: 'Add Package Offers' },
-      duration: { ar: 'Ù…Ø¯Ø©', en: 'Duration' },
-      serviceTransfer: { ar: 'Ù†Ù‚Ù„ Ø§Ù„Ø®Ø¯Ù…Ø§Øª', en: 'Service Transfer' },
-      dailyDuration: { ar: 'Ù…Ø¯Ø© (Ø¹Ù‚ÙˆØ¯ ÙŠÙˆÙ…ÙŠØ©)', en: 'Duration (Daily Contracts)' },
-      dailyServiceTransfer: { ar: 'Ù†Ù‚Ù„ Ø§Ù„Ø®Ø¯Ù…Ø§Øª (Ø¹Ù‚ÙˆØ¯ ÙŠÙˆÙ…ÙŠØ©)', en: 'Service Transfer (Daily)' },
-      viewDetails: { ar: 'Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„', en: 'View Details' },
-      all: { ar: 'Ø§Ù„ÙƒÙ„', en: 'All' },
-      allBranches: { ar: 'ÙƒÙ„ Ø§Ù„ÙØ±ÙˆØ¹', en: 'All Branches' },
-      search: { ar: 'Ø¨Ø­Ø«', en: 'Search' },
-      cancel: { ar: 'Ø¥Ù„ØºØ§Ø¡', en: 'Cancel' },
-      refresh: { ar: 'ØªØ­Ø¯ÙŠØ«', en: 'Refresh' },
-      noData: { ar: 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¹Ø±ÙˆØ¶', en: 'No Offers Found' },
-      total: { ar: 'Ø§Ù„Ø¹Ø¯Ø¯', en: 'Total' },
-      shown: { ar: 'Ø§Ù„Ù…Ø¹Ø±ÙˆØ¶', en: 'Shown' },
+      pageTitle: { ar: 'عروض و اسعار التشغيل', en: 'Operating Prices & Offers' },
+      totalOffers: { ar: 'إجمالي العروض', en: 'Total Offers' },
+      searchPlaceholder: { ar: 'البحث عن عرض...', en: 'Search offers...' },
+      searchFilters: { ar: 'فلاتر البحث', en: 'Search Filters' },
+      nationality: { ar: 'الجنسية', en: 'Nationality' },
+      job: { ar: 'الوظيفة', en: 'Job' },
+      branch: { ar: 'الفرع', en: 'Branch' },
+      branchName: { ar: 'اسم الفرع', en: 'Branch Name' },
+      nationalities: { ar: 'الجنسيات', en: 'Nationalities' },
+      availableOffers: { ar: 'عدد العروض المتاحة', en: 'Available Offers' },
+      offersAndPrices: { ar: 'العروض والاسعار', en: 'Offers & Prices' },
+      addOffer: { ar: 'إضافة عروض و اسعار التشغيل', en: 'Add Operating Offers & Prices' },
+      addSpecialOffer: { ar: 'إضافة عروض خاصة', en: 'Add Special Offers' },
+      addPackageOffer: { ar: 'إضافة عروض الباقات', en: 'Add Package Offers' },
+      duration: { ar: 'مدة', en: 'Duration' },
+      serviceTransfer: { ar: 'نقل الخدمات', en: 'Service Transfer' },
+      dailyDuration: { ar: 'مدة (عقود يومية)', en: 'Duration (Daily Contracts)' },
+      dailyServiceTransfer: { ar: 'نقل الخدمات (عقود يومية)', en: 'Service Transfer (Daily)' },
+      viewDetails: { ar: 'عرض التفاصيل', en: 'View Details' },
+      all: { ar: 'الكل', en: 'All' },
+      allBranches: { ar: 'كل الفروع', en: 'All Branches' },
+      search: { ar: 'بحث', en: 'Search' },
+      cancel: { ar: 'إلغاء', en: 'Cancel' },
+      refresh: { ar: 'تحديث', en: 'Refresh' },
+      noData: { ar: 'لا توجد عروض', en: 'No Offers Found' },
+      total: { ar: 'العدد', en: 'Total' },
+      shown: { ar: 'المعروض', en: 'Shown' },
       index: { ar: '#', en: '#' },
     };
     return translations[key]?.[language] || key;
@@ -87,34 +87,34 @@ export default function RentPricesOffersPage() {
 
   // Static nationality options (from HTML reference)
   const nationalityOptions = [
-    { value: 359, label: { ar: 'Ø§Ù„ÙÙ„Ø¨ÙŠÙ†', en: 'Philippines' } },
-    { value: 360, label: { ar: 'ÙƒÙŠÙ†ÙŠØ§', en: 'Kenya' } },
-    { value: 361, label: { ar: 'Ø£ÙˆØºÙ†Ø¯Ø§', en: 'Uganda' } },
-    { value: 362, label: { ar: 'Ø§Ù„Ù‡Ù†Ø¯', en: 'India' } },
-    { value: 363, label: { ar: 'Ø§Ù„Ø³ÙˆØ¯Ø§Ù†', en: 'Sudan' } },
-    { value: 364, label: { ar: 'Ù…ØµØ±', en: 'Egypt' } },
-    { value: 365, label: { ar: 'Ø¨ÙˆØ±ÙˆÙ†Ø¯ÙŠ', en: 'Burundi' } },
-    { value: 366, label: { ar: 'Ø¨Ù†Ø¬Ù„Ø§Ø¯Ø´', en: 'Bangladesh' } },
-    { value: 367, label: { ar: 'Ø¨Ø§ÙƒØ³ØªØ§Ù†', en: 'Pakistan' } },
-    { value: 482, label: { ar: 'Ø§Ù„Ù…ØºØ±Ø¨', en: 'Morocco' } },
-    { value: 701, label: { ar: 'Ø³Ø±ÙŠÙ„Ø§Ù†ÙƒØ§', en: 'Sri Lanka' } },
-    { value: 731, label: { ar: 'Ø£Ø«ÙŠÙˆØ¨ÙŠØ§', en: 'Ethiopia' } },
-    { value: 771, label: { ar: 'Ø£Ù†Ø¯ÙˆÙ†ÙŠØ³ÙŠØ§', en: 'Indonesia' } },
-    { value: 839, label: { ar: 'Ø§Ù„ÙŠÙ…Ù†', en: 'Yemen' } },
+    { value: 359, label: { ar: 'الفلبين', en: 'Philippines' } },
+    { value: 360, label: { ar: 'كينيا', en: 'Kenya' } },
+    { value: 361, label: { ar: 'أوغندا', en: 'Uganda' } },
+    { value: 362, label: { ar: 'الهند', en: 'India' } },
+    { value: 363, label: { ar: 'السودان', en: 'Sudan' } },
+    { value: 364, label: { ar: 'مصر', en: 'Egypt' } },
+    { value: 365, label: { ar: 'بوروندي', en: 'Burundi' } },
+    { value: 366, label: { ar: 'بنجلادش', en: 'Bangladesh' } },
+    { value: 367, label: { ar: 'باكستان', en: 'Pakistan' } },
+    { value: 482, label: { ar: 'المغرب', en: 'Morocco' } },
+    { value: 701, label: { ar: 'سريلانكا', en: 'Sri Lanka' } },
+    { value: 731, label: { ar: 'أثيوبيا', en: 'Ethiopia' } },
+    { value: 771, label: { ar: 'أندونيسيا', en: 'Indonesia' } },
+    { value: 839, label: { ar: 'اليمن', en: 'Yemen' } },
   ];
 
   // Static job options (from HTML reference)
   const jobOptions = [
-    { value: 1198, label: { ar: 'Ø¹Ø§Ù…Ù„Ø© Ù…Ù†Ø²Ù„ÙŠØ©', en: 'Housemaid' } },
-    { value: 1199, label: { ar: 'Ø³Ø§Ø¦Ù‚ Ø®Ø§Øµ', en: 'Private Driver' } },
-    { value: 1210, label: { ar: 'Ø³ÙØ±Ø¬ÙŠ Ù…Ù†Ø²Ù„ÙŠ', en: 'Home Butler' } },
-    { value: 1212, label: { ar: 'Ù…Ù…Ø±Ø¶Ù‡ Ù…Ù†Ø²Ù„ÙŠÙ‡', en: 'Home Nurse' } },
-    { value: 1246, label: { ar: 'Ø·Ø¨Ø§Ø®', en: 'Cook' } },
-    { value: 1293, label: { ar: 'Ø¹Ø§Ù…Ù„ Ù…Ù†Ø²Ù„ÙŠ', en: 'Houseboy' } },
-    { value: 1522, label: { ar: 'Ù‚Ù‡ÙˆØ¬ÙŠ Ù…Ù†Ø²Ù„ÙŠ', en: 'Home Coffee Maker' } },
-    { value: 1568, label: { ar: 'Ø­Ø§Ø±Ø³ Ù…Ù†Ø²Ù„ÙŠ', en: 'Home Guard' } },
-    { value: 1602, label: { ar: 'Ù…Ø²Ø§Ø±Ø¹ Ù…Ù†Ø²Ù„ÙŠ', en: 'Home Farmer' } },
-    { value: 1616, label: { ar: 'Ù…Ø¯ÙŠØ± Ù…Ù†Ø²Ù„', en: 'House Manager' } },
+    { value: 1198, label: { ar: 'عاملة منزلية', en: 'Housemaid' } },
+    { value: 1199, label: { ar: 'سائق خاص', en: 'Private Driver' } },
+    { value: 1210, label: { ar: 'سفرجي منزلي', en: 'Home Butler' } },
+    { value: 1212, label: { ar: 'ممرضه منزليه', en: 'Home Nurse' } },
+    { value: 1246, label: { ar: 'طباخ', en: 'Cook' } },
+    { value: 1293, label: { ar: 'عامل منزلي', en: 'Houseboy' } },
+    { value: 1522, label: { ar: 'قهوجي منزلي', en: 'Home Coffee Maker' } },
+    { value: 1568, label: { ar: 'حارس منزلي', en: 'Home Guard' } },
+    { value: 1602, label: { ar: 'مزارع منزلي', en: 'Home Farmer' } },
+    { value: 1616, label: { ar: 'مدير منزل', en: 'House Manager' } },
   ];
 
   const getNationalityLabel = (id: number | null | undefined) => {
@@ -214,7 +214,7 @@ export default function RentPricesOffersPage() {
       render: (_: any, record: EmploymentContractOfferSummary) => (
         <Tooltip title={t('viewDetails')}>
           <Link
-            href={`/contracts/operation/rent-prices-offers/details?nationalityId=${record.nationalityId || 0}&jobId=${record.jobId || 0}&branchId=${record.branchId || 0}`}
+            href={`/operation/rent-prices-offers/details?nationalityId=${record.nationalityId || 0}&jobId=${record.jobId || 0}&branchId=${record.branchId || 0}`}
           >
             <Button type="link" icon={<EyeOutlined style={{ fontSize: '20px' }} />} />
           </Link>
@@ -227,20 +227,20 @@ export default function RentPricesOffersPage() {
   const addOfferMenuItems: MenuProps['items'] = [
     {
       key: 'duration-1',
-      label: <Link href="/contracts/operation/rent-prices-offers/add?type=1">{t('duration')}</Link>,
+      label: <Link href="/operation/rent-prices-offers/add?type=1">{t('duration')}</Link>,
     },
     {
       key: 'transfer-3',
-      label: <Link href="/contracts/operation/rent-prices-offers/add?type=3">{t('serviceTransfer')}</Link>,
+      label: <Link href="/operation/rent-prices-offers/add?type=3">{t('serviceTransfer')}</Link>,
     },
     {
       key: 'daily-duration-5',
-      label: <Link href="/contracts/operation/rent-prices-offers/add?type=5">{t('dailyDuration')}</Link>,
+      label: <Link href="/operation/rent-prices-offers/add?type=5">{t('dailyDuration')}</Link>,
     },
     {
       key: 'daily-transfer-3d',
       label: (
-        <Link href="/contracts/operation/rent-prices-offers/add?type=3&daily=true">
+        <Link href="/operation/rent-prices-offers/add?type=3&daily=true">
           {t('dailyServiceTransfer')}
         </Link>
       ),
@@ -250,12 +250,12 @@ export default function RentPricesOffersPage() {
   const addSpecialOfferMenuItems: MenuProps['items'] = [
     {
       key: 'special-duration-1',
-      label: <Link href="/contracts/operation/rent-prices-offers/add-offer?type=1">{t('duration')}</Link>,
+      label: <Link href="/operation/rent-prices-offers/add-offer?type=1">{t('duration')}</Link>,
     },
     {
       key: 'special-transfer-3',
       label: (
-        <Link href="/contracts/operation/rent-prices-offers/add-offer?type=3">{t('serviceTransfer')}</Link>
+        <Link href="/operation/rent-prices-offers/add-offer?type=3">{t('serviceTransfer')}</Link>
       ),
     },
   ];
@@ -263,12 +263,12 @@ export default function RentPricesOffersPage() {
   const addPackageMenuItems: MenuProps['items'] = [
     {
       key: 'package-duration-1',
-      label: <Link href="/contracts/operation/rent-prices-offers/add-package?type=1">{t('duration')}</Link>,
+      label: <Link href="/operation/rent-prices-offers/add-package?type=1">{t('duration')}</Link>,
     },
     {
       key: 'package-transfer-3',
       label: (
-        <Link href="/contracts/operation/rent-prices-offers/add-package?type=3">{t('serviceTransfer')}</Link>
+        <Link href="/operation/rent-prices-offers/add-package?type=3">{t('serviceTransfer')}</Link>
       ),
     },
   ];
@@ -533,4 +533,3 @@ export default function RentPricesOffersPage() {
     </div>
   );
 }
-

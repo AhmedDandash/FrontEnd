@@ -50,11 +50,17 @@ import { RecruitmentRequestService } from '@/services/recruitment-request.servic
 import type {
   RecruitmentRequest,
   Job,
-  Nationality,
   Customer,
   Worker,
   CreateRecruitmentRequestDto,
 } from '@/types/api.types';
+import {
+  NATIONALITIES,
+  RELIGION,
+  REQUEST_TYPE,
+  getEnumLabel,
+  toSelectOptions,
+} from '@/constants/enums';
 import styles from './RecruitmentRequests.module.css';
 
 export default function RecruitmentRequestsPage() {
@@ -68,23 +74,13 @@ export default function RecruitmentRequestsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Hardcoded Nationalities Data
-  const nationalities: Nationality[] = [
-    { id: 359, nationalityNameAr: 'الفلبين', nationalityNameEn: 'Philippines', isActive: true },
-    { id: 360, nationalityNameAr: 'كينيا', nationalityNameEn: 'Kenya', isActive: true },
-    { id: 361, nationalityNameAr: 'أوغندا', nationalityNameEn: 'Uganda', isActive: true },
-    { id: 362, nationalityNameAr: 'الهند', nationalityNameEn: 'India', isActive: true },
-    { id: 363, nationalityNameAr: 'السودان', nationalityNameEn: 'Sudan', isActive: true },
-    { id: 364, nationalityNameAr: 'مصر', nationalityNameEn: 'Egypt', isActive: true },
-    { id: 365, nationalityNameAr: 'بوروندي', nationalityNameEn: 'Burundi', isActive: true },
-    { id: 366, nationalityNameAr: 'بنغلاديش', nationalityNameEn: 'Bangladesh', isActive: true },
-    { id: 367, nationalityNameAr: 'باكستان', nationalityNameEn: 'Pakistan', isActive: true },
-    { id: 482, nationalityNameAr: 'المغرب', nationalityNameEn: 'Morocco', isActive: true },
-    { id: 701, nationalityNameAr: 'سريلانكا', nationalityNameEn: 'Sri Lanka', isActive: true },
-    { id: 731, nationalityNameAr: 'إثيوبيا', nationalityNameEn: 'Ethiopia', isActive: true },
-    { id: 771, nationalityNameAr: 'إندونيسيا', nationalityNameEn: 'Indonesia', isActive: true },
-    { id: 839, nationalityNameAr: 'اليمن', nationalityNameEn: 'Yemen', isActive: true },
-  ];
+  // Nationalities derived from central enums
+  const nationalities = NATIONALITIES.map((n) => ({
+    id: n.value,
+    nationalityNameAr: n.labelAr,
+    nationalityNameEn: n.labelEn,
+    isActive: true,
+  }));
 
   // API Data States
   const [requests, setRequests] = useState<RecruitmentRequest[]>([]);
@@ -189,43 +185,35 @@ export default function RecruitmentRequestsPage() {
   const statistics = useMemo(() => {
     return {
       total: requests.length,
-      pending: requests.filter((r) => r.requestStats === 0 || r.requestStats === null).length,
-      inReview: requests.filter((r) => r.requestStats === 1).length,
-      accepted: requests.filter((r) => r.requestStats === 2).length,
-      refused: requests.filter((r) => r.requestStats === 3).length,
+      pending: requests.filter(
+        (r) => r.requestStats === REQUEST_TYPE[0].value || r.requestStats === null
+      ).length,
+      inReview: requests.filter((r) => r.requestStats === REQUEST_TYPE[1].value).length,
+      accepted: requests.filter((r) => r.requestStats === REQUEST_TYPE[2].value).length,
+      refused: requests.filter((r) => r.requestStats === REQUEST_TYPE[3].value).length,
     };
   }, [requests]);
 
   const activeJobs = useMemo(() => jobs.filter((job) => job.isActive), [jobs]);
 
-  // Get status color
+  // Status color mapping
+  const statusColors: Record<number, string> = {
+    [REQUEST_TYPE[0].value]: 'gold',
+    [REQUEST_TYPE[1].value]: 'blue',
+    [REQUEST_TYPE[2].value]: 'green',
+    [REQUEST_TYPE[3].value]: 'red',
+  };
+
   const getStatusColor = (status: number | null | undefined) => {
-    const colors: Record<number, string> = {
-      0: 'gold', // Pending
-      1: 'blue', // In Review
-      2: 'green', // Accepted
-      3: 'red', // Refused
-    };
-    return colors[status ?? 0] || 'default';
+    return statusColors[status ?? 0] || 'default';
   };
 
-  // Get status text
   const getStatusText = (status: number | null | undefined) => {
-    const translations: Record<number, { ar: string; en: string }> = {
-      0: { ar: 'قيد الانتظار', en: 'Pending' },
-      1: { ar: 'قيد المراجعة', en: 'In Review' },
-      2: { ar: 'مقبول', en: 'Accepted' },
-      3: { ar: 'مرفوض', en: 'Refused' },
-    };
-    const key = status ?? 0;
-    return translations[key]?.[language] || (language === 'ar' ? 'غير محدد' : 'Unknown');
+    return getEnumLabel(REQUEST_TYPE, status ?? 0, language);
   };
 
-  // Get religion text
   const getReligionText = (religion: number | null | undefined) => {
-    if (religion === 1) return language === 'ar' ? 'مسلم' : 'Muslim';
-    if (religion === 2) return language === 'ar' ? 'غير مسلم' : 'Non-Muslim';
-    return language === 'ar' ? 'غير محدد' : 'Not specified';
+    return getEnumLabel(RELIGION, religion, language);
   };
 
   // Get nationality name
@@ -592,10 +580,9 @@ export default function RecruitmentRequestsPage() {
                   value={selectedReligion}
                   onChange={setSelectedReligion}
                   style={{ width: '100%' }}
-                  options={[
-                    { value: '1', label: language === 'ar' ? 'مسلم' : 'Muslim' },
-                    { value: '2', label: language === 'ar' ? 'غير مسلم' : 'Non-Muslim' },
-                  ]}
+                  options={toSelectOptions([...RELIGION], language)
+                    .filter((o) => o.value !== 0)
+                    .map((o) => ({ value: String(o.value), label: o.label }))}
                   allowClear
                 />
               </Col>
@@ -649,10 +636,10 @@ export default function RecruitmentRequestsPage() {
                   style={{ width: '100%' }}
                   options={[
                     { value: 'all', label: language === 'ar' ? 'الكل' : 'All' },
-                    { value: '0', label: language === 'ar' ? 'قيد الانتظار' : 'Pending' },
-                    { value: '1', label: language === 'ar' ? 'قيد المراجعة' : 'In Review' },
-                    { value: '2', label: language === 'ar' ? 'مقبول' : 'Accepted' },
-                    { value: '3', label: language === 'ar' ? 'مرفوض' : 'Refused' },
+                    ...toSelectOptions([...REQUEST_TYPE], language).map((o) => ({
+                      value: String(o.value),
+                      label: o.label,
+                    })),
                   ]}
                 />
               </Col>
@@ -695,7 +682,7 @@ export default function RecruitmentRequestsPage() {
                     <GlobalOutlined style={{ marginRight: 4 }} />
                     {getNationalityName(request.nationalityId)}
                   </Tag>
-                  <Tag color={request.workerReligion === 1 ? 'green' : 'orange'}>
+                  <Tag color={request.workerReligion === RELIGION[1].value ? 'green' : 'orange'}>
                     {getReligionText(request.workerReligion)}
                   </Tag>
                   {request.workerAge && (
@@ -782,7 +769,8 @@ export default function RecruitmentRequestsPage() {
               <div className={styles.cardActions}>
                 <Space wrap>
                   {/* Show Review button when status is 0 (Pending) */}
-                  {(request.requestStats === 0 || request.requestStats === null) && (
+                  {(request.requestStats === REQUEST_TYPE[0].value ||
+                    request.requestStats === null) && (
                     <>
                       <Button
                         type="primary"
@@ -811,7 +799,7 @@ export default function RecruitmentRequestsPage() {
                   )}
 
                   {/* Show Accept button when status is 1 (In Review) */}
-                  {request.requestStats === 1 && (
+                  {request.requestStats === REQUEST_TYPE[1].value && (
                     <>
                       <Button
                         type="primary"
@@ -841,22 +829,22 @@ export default function RecruitmentRequestsPage() {
                   )}
 
                   {/* Show status badge for Accepted/Refused */}
-                  {request.requestStats === 2 && (
+                  {request.requestStats === REQUEST_TYPE[2].value && (
                     <Tag
                       color="green"
                       icon={<CheckCircleOutlined />}
                       style={{ fontSize: 14, padding: '4px 12px' }}
                     >
-                      {language === 'ar' ? 'تم القبول' : 'Accepted'}
+                      {getEnumLabel(REQUEST_TYPE, request.requestStats, language)}
                     </Tag>
                   )}
-                  {request.requestStats === 3 && (
+                  {request.requestStats === REQUEST_TYPE[3].value && (
                     <Tag
                       color="red"
                       icon={<CloseCircleOutlined />}
                       style={{ fontSize: 14, padding: '4px 12px' }}
                     >
-                      {language === 'ar' ? 'مرفوض' : 'Refused'}
+                      {getEnumLabel(REQUEST_TYPE, request.requestStats, language)}
                     </Tag>
                   )}
                 </Space>
@@ -1003,10 +991,7 @@ export default function RecruitmentRequestsPage() {
               >
                 <Select
                   placeholder={language === 'ar' ? 'اختر الديانة' : 'Select religion'}
-                  options={[
-                    { value: 1, label: language === 'ar' ? 'مسلم' : 'Muslim' },
-                    { value: 2, label: language === 'ar' ? 'غير مسلم' : 'Non-Muslim' },
-                  ]}
+                  options={toSelectOptions([...RELIGION], language).filter((o) => o.value !== 0)}
                 />
               </Form.Item>
             </Col>

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo } from 'react';
 import {
@@ -32,35 +32,35 @@ import styles from '../RentPricesOffers.module.css';
 
 // Period types with months count
 const periodTypes = [
-  { id: 46, monthsCount: 1, label: { ar: 'Ø´Ù‡Ø±ÙŠ', en: 'Monthly' } },
-  { id: 52, monthsCount: 3, label: { ar: 'Ø±Ø¨Ø¹ Ø³Ù†ÙˆÙŠ', en: 'Quarterly' } },
-  { id: 53, monthsCount: 6, label: { ar: 'Ù†ØµÙ Ø³Ù†ÙˆÙŠ', en: 'Semi-Annual' } },
-  { id: 189, monthsCount: 12, label: { ar: 'Ø³Ù†ÙˆÙŠ', en: 'Annual' } },
-  { id: 190, monthsCount: 1, label: { ar: 'Ø§Ø«ÙŠÙˆØ¨ÙŠØ§', en: 'Ethiopia' } },
+  { id: 46, monthsCount: 1, label: { ar: 'شهري', en: 'Monthly' } },
+  { id: 52, monthsCount: 3, label: { ar: 'ربع سنوي', en: 'Quarterly' } },
+  { id: 53, monthsCount: 6, label: { ar: 'نصف سنوي', en: 'Semi-Annual' } },
+  { id: 189, monthsCount: 12, label: { ar: 'سنوي', en: 'Annual' } },
+  { id: 190, monthsCount: 1, label: { ar: 'اثيوبيا', en: 'Ethiopia' } },
 ];
 
 const nationalityOptions = [
-  { value: 0, label: { ar: 'Ø§Ù„ÙƒÙ„', en: 'All' } },
-  { value: 359, label: { ar: 'Ø§Ù„ÙÙ„Ø¨ÙŠÙ†', en: 'Philippines' } },
-  { value: 360, label: { ar: 'ÙƒÙŠÙ†ÙŠØ§', en: 'Kenya' } },
-  { value: 361, label: { ar: 'Ø£ÙˆØºÙ†Ø¯Ø§', en: 'Uganda' } },
-  { value: 362, label: { ar: 'Ø§Ù„Ù‡Ù†Ø¯', en: 'India' } },
-  { value: 363, label: { ar: 'Ø§Ù„Ø³ÙˆØ¯Ø§Ù†', en: 'Sudan' } },
-  { value: 364, label: { ar: 'Ù…ØµØ±', en: 'Egypt' } },
-  { value: 365, label: { ar: 'Ø¨ÙˆØ±ÙˆÙ†Ø¯ÙŠ', en: 'Burundi' } },
-  { value: 366, label: { ar: 'Ø¨Ù†Ø¬Ù„Ø§Ø¯Ø´', en: 'Bangladesh' } },
-  { value: 367, label: { ar: 'Ø¨Ø§ÙƒØ³ØªØ§Ù†', en: 'Pakistan' } },
-  { value: 482, label: { ar: 'Ø§Ù„Ù…ØºØ±Ø¨', en: 'Morocco' } },
-  { value: 701, label: { ar: 'Ø³Ø±ÙŠÙ„Ø§Ù†ÙƒØ§', en: 'Sri Lanka' } },
-  { value: 731, label: { ar: 'Ø£Ø«ÙŠÙˆØ¨ÙŠØ§', en: 'Ethiopia' } },
-  { value: 771, label: { ar: 'Ø£Ù†Ø¯ÙˆÙ†ÙŠØ³ÙŠØ§', en: 'Indonesia' } },
-  { value: 839, label: { ar: 'Ø§Ù„ÙŠÙ…Ù†', en: 'Yemen' } },
+  { value: 0, label: { ar: 'الكل', en: 'All' } },
+  { value: 359, label: { ar: 'الفلبين', en: 'Philippines' } },
+  { value: 360, label: { ar: 'كينيا', en: 'Kenya' } },
+  { value: 361, label: { ar: 'أوغندا', en: 'Uganda' } },
+  { value: 362, label: { ar: 'الهند', en: 'India' } },
+  { value: 363, label: { ar: 'السودان', en: 'Sudan' } },
+  { value: 364, label: { ar: 'مصر', en: 'Egypt' } },
+  { value: 365, label: { ar: 'بوروندي', en: 'Burundi' } },
+  { value: 366, label: { ar: 'بنجلادش', en: 'Bangladesh' } },
+  { value: 367, label: { ar: 'باكستان', en: 'Pakistan' } },
+  { value: 482, label: { ar: 'المغرب', en: 'Morocco' } },
+  { value: 701, label: { ar: 'سريلانكا', en: 'Sri Lanka' } },
+  { value: 731, label: { ar: 'أثيوبيا', en: 'Ethiopia' } },
+  { value: 771, label: { ar: 'أندونيسيا', en: 'Indonesia' } },
+  { value: 839, label: { ar: 'اليمن', en: 'Yemen' } },
 ];
 
 const experienceOptions = [
-  { value: 0, label: { ar: 'Ø§Ù„ÙƒÙ„', en: 'All' } },
-  { value: 1, label: { ar: 'Ø³Ø¨Ù‚ Ù„Ù‡ Ø§Ù„Ø¹Ù…Ù„', en: 'Has Experience' } },
-  { value: 2, label: { ar: 'Ù„Ù… ÙŠØ³Ø¨Ù‚ Ù„Ù‡ Ø§Ù„Ø¹Ù…Ù„', en: 'No Experience' } },
+  { value: 0, label: { ar: 'الكل', en: 'All' } },
+  { value: 1, label: { ar: 'سبق له العمل', en: 'Has Experience' } },
+  { value: 2, label: { ar: 'لم يسبق له العمل', en: 'No Experience' } },
 ];
 
 export default function AddOfferPage() {
@@ -103,55 +103,55 @@ export default function AddOfferPage() {
 
   const t = (key: string) => {
     const translations: { [key: string]: { ar: string; en: string } } = {
-      pageTitle: { ar: 'Ø¥Ø¶Ø§ÙØ© Ø¹Ø±Ø¶ Ø¬Ø¯ÙŠØ¯', en: 'Add New Offer' },
-      typeDuration: { ar: 'Ø¹Ø±Ø¶ Ù…Ø¯Ø©', en: 'Duration Offer' },
-      typeServiceTransfer: { ar: 'Ø¹Ø±Ø¶ Ù†Ù‚Ù„ Ø®Ø¯Ù…Ø§Øª', en: 'Service Transfer Offer' },
-      typeDailyDuration: { ar: 'Ø¹Ø±Ø¶ Ù…Ø¯Ø© (Ø¹Ù‚ÙˆØ¯ ÙŠÙˆÙ…ÙŠØ©)', en: 'Duration Offer (Daily)' },
-      nationality: { ar: 'Ø§Ù„Ø¬Ù†Ø³ÙŠØ©', en: 'Nationality' },
-      nationalityRequired: { ar: 'Ø§Ù„Ø¬Ù†Ø³ÙŠØ© Ù…Ø·Ù„ÙˆØ¨Ø©', en: 'Nationality is required' },
-      job: { ar: 'Ø§Ù„ÙˆØ¸ÙŠÙØ©', en: 'Job' },
-      jobRequired: { ar: 'Ø§Ù„ÙˆØ¸ÙŠÙØ© Ù…Ø·Ù„ÙˆØ¨Ø©', en: 'Job is required' },
-      branch: { ar: 'Ø§Ù„ÙØ±Ø¹', en: 'Branch' },
-      allBranches: { ar: 'Ø¬Ù…ÙŠØ¹ Ø§Ù„ÙØ±ÙˆØ¹', en: 'All Branches' },
-      duration: { ar: 'Ø§Ù„Ù…Ø¯Ø©', en: 'Duration' },
-      durationRequired: { ar: 'Ø§Ù„Ù…Ø¯Ø© Ù…Ø·Ù„ÙˆØ¨Ø©', en: 'Duration is required' },
+      pageTitle: { ar: 'إضافة عرض جديد', en: 'Add New Offer' },
+      typeDuration: { ar: 'عرض مدة', en: 'Duration Offer' },
+      typeServiceTransfer: { ar: 'عرض نقل خدمات', en: 'Service Transfer Offer' },
+      typeDailyDuration: { ar: 'عرض مدة (عقود يومية)', en: 'Duration Offer (Daily)' },
+      nationality: { ar: 'الجنسية', en: 'Nationality' },
+      nationalityRequired: { ar: 'الجنسية مطلوبة', en: 'Nationality is required' },
+      job: { ar: 'الوظيفة', en: 'Job' },
+      jobRequired: { ar: 'الوظيفة مطلوبة', en: 'Job is required' },
+      branch: { ar: 'الفرع', en: 'Branch' },
+      allBranches: { ar: 'جميع الفروع', en: 'All Branches' },
+      duration: { ar: 'المدة', en: 'Duration' },
+      durationRequired: { ar: 'المدة مطلوبة', en: 'Duration is required' },
       showForExternalCustomers: {
-        ar: 'Ø¥Ø¸Ù‡Ø§Ø± Ù„Ù„Ø¹Ù…Ù„Ø§Ø¡ Ø§Ù„Ø®Ø§Ø±Ø¬ÙŠÙŠÙ†',
+        ar: 'إظهار للعملاء الخارجيين',
         en: 'Show for External Customers',
       },
-      showForReception: { ar: 'ÙŠØ¸Ù‡Ø± Ù„Ù„Ø§Ø³ØªÙ‚Ø¨Ø§Ù„', en: 'Show for Reception' },
-      activate: { ar: 'ØªÙØ¹ÙŠÙ„', en: 'Activate' },
-      officeCost: { ar: 'ØªÙƒÙ„ÙØ© Ø§Ù„Ù…ÙƒØªØ¨', en: 'Office Cost' },
-      costLabel: { ar: 'Ø§Ù„ØªÙƒÙ„ÙØ©', en: 'Cost' },
+      showForReception: { ar: 'يظهر للاستقبال', en: 'Show for Reception' },
+      activate: { ar: 'تفعيل', en: 'Activate' },
+      officeCost: { ar: 'تكلفة المكتب', en: 'Office Cost' },
+      costLabel: { ar: 'التكلفة', en: 'Cost' },
       costDescription: {
-        ar: 'ÙŠÙ‚ØµØ¯ Ø¨Ø§Ù„ØªÙƒØ§Ù„ÙŠÙ Ø§Ù„Ù…Ø­Ù„ÙŠØ© Ù„Ù„ØªØ´ØºÙŠÙ„ (ØªÙƒØ§Ù„ÙŠÙ Ø§Ø¯Ø§Ø±Ø© Ø§Ù„Ù…ÙƒØªØ¨ . Ø§Ù„Ø§Ø±Ø¨Ø§Ø­)',
+        ar: 'يقصد بالتكاليف المحلية للتشغيل (تكاليف ادارة المكتب . الارباح)',
         en: 'Local operating costs (office management costs, profits)',
       },
       excludingTaxAndSalary: {
-        ar: 'ØºÙŠØ± Ø´Ø§Ù…Ù„ Ø±Ø§ØªØ¨ Ø§Ù„Ø¹Ø§Ù…Ù„ Ùˆ ØºÙŠØ± Ø´Ø§Ù…Ù„ Ø§Ù„Ø¶Ø±ÙŠØ¨Ø©',
+        ar: 'غير شامل راتب العامل و غير شامل الضريبة',
         en: 'Excluding worker salary and tax',
       },
-      excludingTax: { ar: 'ØºÙŠØ± Ø´Ø§Ù…Ù„ Ø§Ù„Ø¶Ø±ÙŠØ¨Ø©', en: 'Excluding tax' },
-      costTax: { ar: 'Ø¶Ø±ÙŠØ¨Ø© Ø§Ù„ØªÙƒØ§Ù„ÙŠÙ', en: 'Cost Tax' },
-      insuranceLabel: { ar: 'Ø§Ù„ØªØ£Ù…ÙŠÙ†', en: 'Insurance' },
-      previousExperience: { ar: 'Ø³Ø¨Ù‚ Ù„Ù‡ Ø§Ù„Ø¹Ù…Ù„', en: 'Previous Experience' },
-      salarySection: { ar: 'Ø§Ù„Ø±ÙˆØ§ØªØ¨', en: 'Salaries' },
-      workerSalary: { ar: 'Ø±Ø§ØªØ¨ Ø§Ù„Ø¹Ø§Ù…Ù„Ø©', en: 'Worker Salary' },
-      monthlySalary: { ar: 'Ø±Ø§ØªØ¨ Ø§Ù„Ø¹Ø§Ù…Ù„Ø© Ø§Ù„Ø´Ù‡Ø±ÙŠ', en: "Worker's monthly salary" },
-      totalCostWithTax: { ar: 'Ø§Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ØªÙƒØ§Ù„ÙŠÙ Ø´Ø§Ù…Ù„ Ø§Ù„Ø¶Ø±ÙŠØ¨Ø©', en: 'Total Cost Including Tax' },
-      offerSummary: { ar: 'Ø§Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¹Ø±Ø¶', en: 'Offer Summary' },
-      officeCostSummary: { ar: 'ØªÙƒÙ„ÙØ© Ø§Ù„Ù…ÙƒØªØ¨', en: 'Office Cost' },
-      costTaxSummary: { ar: 'Ø¶Ø±ÙŠØ¨Ø© Ø§Ù„ØªÙƒÙ„ÙØ©', en: 'Cost Tax' },
-      insuranceAmount: { ar: 'Ù…Ø¨Ù„Øº Ø§Ù„ØªØ£Ù…ÙŠÙ†', en: 'Insurance Amount' },
-      workerSalarySummary: { ar: 'Ø±Ø§ØªØ¨ Ø§Ù„Ø¹Ø§Ù…Ù„', en: 'Worker Salary' },
-      save: { ar: 'Ø­ÙØ¸', en: 'Save' },
-      back: { ar: 'Ø±Ø¬ÙˆØ¹', en: 'Back' },
-      choose: { ar: 'Ø§Ø®ØªØ±', en: 'Choose' },
-      createSuccess: { ar: 'ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø¹Ø±Ø¶ Ø¨Ù†Ø¬Ø§Ø­', en: 'Offer created successfully' },
-      createError: { ar: 'Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø¥Ù†Ø´Ø§Ø¡', en: 'Error creating offer' },
-      numberOfDays: { ar: 'Ø¹Ø¯Ø¯ Ø§Ù„Ø£ÙŠØ§Ù…', en: 'Number of Days' },
-      dailyPrice: { ar: 'Ø§Ù„Ø³Ø¹Ø± Ø§Ù„ÙŠÙˆÙ…ÙŠ', en: 'Daily Price' },
-      promissoryNote: { ar: 'Ù…Ø¨Ù„Øº Ø§Ù„Ø³Ù†Ø¯ Ù„Ø£Ù…Ø±', en: 'Promissory Note Amount' },
+      excludingTax: { ar: 'غير شامل الضريبة', en: 'Excluding tax' },
+      costTax: { ar: 'ضريبة التكاليف', en: 'Cost Tax' },
+      insuranceLabel: { ar: 'التأمين', en: 'Insurance' },
+      previousExperience: { ar: 'سبق له العمل', en: 'Previous Experience' },
+      salarySection: { ar: 'الرواتب', en: 'Salaries' },
+      workerSalary: { ar: 'راتب العاملة', en: 'Worker Salary' },
+      monthlySalary: { ar: 'راتب العاملة الشهري', en: "Worker's monthly salary" },
+      totalCostWithTax: { ar: 'اجمالي التكاليف شامل الضريبة', en: 'Total Cost Including Tax' },
+      offerSummary: { ar: 'اجمالي العرض', en: 'Offer Summary' },
+      officeCostSummary: { ar: 'تكلفة المكتب', en: 'Office Cost' },
+      costTaxSummary: { ar: 'ضريبة التكلفة', en: 'Cost Tax' },
+      insuranceAmount: { ar: 'مبلغ التأمين', en: 'Insurance Amount' },
+      workerSalarySummary: { ar: 'راتب العامل', en: 'Worker Salary' },
+      save: { ar: 'حفظ', en: 'Save' },
+      back: { ar: 'رجوع', en: 'Back' },
+      choose: { ar: 'اختر', en: 'Choose' },
+      createSuccess: { ar: 'تم إنشاء العرض بنجاح', en: 'Offer created successfully' },
+      createError: { ar: 'حدث خطأ أثناء الإنشاء', en: 'Error creating offer' },
+      numberOfDays: { ar: 'عدد الأيام', en: 'Number of Days' },
+      dailyPrice: { ar: 'السعر اليومي', en: 'Daily Price' },
+      promissoryNote: { ar: 'مبلغ السند لأمر', en: 'Promissory Note Amount' },
     };
     return translations[key]?.[language] || key;
   };
@@ -206,7 +206,7 @@ export default function AddOfferPage() {
         promissoryNoteAmount: values.promissoryNoteAmount || 0,
       });
       message.success(t('createSuccess'));
-      router.push('/contracts/operation/rent-prices-offers');
+      router.push('/operation/rent-prices-offers');
     } catch {
       message.error(t('createError'));
     } finally {
@@ -282,7 +282,7 @@ export default function AddOfferPage() {
                     return label.toLowerCase().includes(input.toLowerCase());
                   }}
                   options={[
-                    { value: 0, label: language === 'ar' ? 'Ø§Ù„ÙƒÙ„' : 'All' },
+                    { value: 0, label: language === 'ar' ? 'الكل' : 'All' },
                     ...jobs.map((job: any) => ({
                       value: job.id,
                       label:
@@ -296,7 +296,7 @@ export default function AddOfferPage() {
                       <Spin size="small" />
                     ) : (
                       <Empty
-                        description={language === 'ar' ? 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ù‡Ù†' : 'No jobs available'}
+                        description={language === 'ar' ? 'لا توجد مهن' : 'No jobs available'}
                       />
                     )
                   }
@@ -430,7 +430,7 @@ export default function AddOfferPage() {
                     min={0}
                     value={cost}
                     onChange={(e) => setCost(parseFloat(e.target.value) || 0)}
-                    addonAfter={language === 'ar' ? 'Ø±ÙŠØ§Ù„' : 'SAR'}
+                    addonAfter={language === 'ar' ? 'ريال' : 'SAR'}
                   />
                 </Form.Item>
                 <p style={{ color: '#22c55e', fontSize: 12 }}>{t('excludingTax')}</p>
@@ -442,7 +442,7 @@ export default function AddOfferPage() {
                   size="large"
                   readOnly
                   value={calculation.taxAmount.toFixed(2)}
-                  addonAfter={language === 'ar' ? 'Ø±ÙŠØ§Ù„' : 'SAR'}
+                  addonAfter={language === 'ar' ? 'ريال' : 'SAR'}
                   style={{ background: '#f5f5f5' }}
                 />
               </Form.Item>
@@ -454,7 +454,7 @@ export default function AddOfferPage() {
                   min={0}
                   value={insurance}
                   onChange={(e) => setInsurance(parseFloat(e.target.value) || 0)}
-                  addonAfter={language === 'ar' ? 'Ø±ÙŠØ§Ù„' : 'SAR'}
+                  addonAfter={language === 'ar' ? 'ريال' : 'SAR'}
                 />
               </Form.Item>
               <p style={{ color: '#22c55e', fontSize: 12, marginTop: -16, marginBottom: 16 }}>
@@ -490,7 +490,7 @@ export default function AddOfferPage() {
                     min={0}
                     value={applicantSalary}
                     onChange={(e) => setApplicantSalary(parseFloat(e.target.value) || 0)}
-                    addonAfter={language === 'ar' ? 'Ø±ÙŠØ§Ù„' : 'SAR'}
+                    addonAfter={language === 'ar' ? 'ريال' : 'SAR'}
                   />
                 </Form.Item>
                 <p style={{ color: '#22c55e', fontSize: 12 }}>{t('excludingTax')}</p>
@@ -502,7 +502,7 @@ export default function AddOfferPage() {
                   size="large"
                   readOnly
                   value={calculation.total.toFixed(2)}
-                  addonAfter={language === 'ar' ? 'Ø±ÙŠØ§Ù„' : 'SAR'}
+                  addonAfter={language === 'ar' ? 'ريال' : 'SAR'}
                   style={{
                     background: '#f0f9ff',
                     fontWeight: 700,
@@ -518,7 +518,7 @@ export default function AddOfferPage() {
                       type="number"
                       size="large"
                       min={0}
-                      addonAfter={language === 'ar' ? 'Ø±ÙŠØ§Ù„' : 'SAR'}
+                      addonAfter={language === 'ar' ? 'ريال' : 'SAR'}
                     />
                   </Form.Item>
                   <Form.Item label={t('promissoryNote')} name="promissoryNoteAmount">
@@ -526,7 +526,7 @@ export default function AddOfferPage() {
                       type="number"
                       size="large"
                       min={0}
-                      addonAfter={language === 'ar' ? 'Ø±ÙŠØ§Ù„' : 'SAR'}
+                      addonAfter={language === 'ar' ? 'ريال' : 'SAR'}
                     />
                   </Form.Item>
                 </>
@@ -551,7 +551,7 @@ export default function AddOfferPage() {
               <Button
                 size="large"
                 icon={language === 'ar' ? <ArrowRightOutlined /> : <ArrowLeftOutlined />}
-                onClick={() => router.push('/contracts/operation/rent-prices-offers')}
+                onClick={() => router.push('/operation/rent-prices-offers')}
                 style={{ minWidth: 150 }}
               >
                 {t('back')}
@@ -563,4 +563,3 @@ export default function AddOfferPage() {
     </div>
   );
 }
-

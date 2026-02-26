@@ -5,7 +5,14 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ComplaintService } from '@/services/complaint.service';
-import type { Complaint, CreateComplaintDto, UpdateComplaintDto } from '@/types/api.types';
+import type {
+  Complaint,
+  CreateComplaintDto,
+  UpdateComplaintDto,
+  FinishComplaintDto,
+  AddIssueDto,
+  ComplaintIssue,
+} from '@/types/api.types';
 import { message } from 'antd';
 
 const QUERY_KEY = 'complaints';
@@ -88,5 +95,75 @@ export const useDeleteComplaint = () => {
         error?.response?.data?.message || 'فشل حذف الشكوى / Failed to delete complaint'
       );
     },
+  });
+};
+
+/**
+ * Finish (close) a complaint with notes
+ */
+export const useFinishComplaint = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Complaint, Error, FinishComplaintDto>({
+    mutationFn: ComplaintService.finish,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      message.success('تم إنهاء الشكوى بنجاح / Complaint finished successfully');
+    },
+    onError: (error: any) => {
+      message.error(
+        error?.response?.data?.message || 'فشل إنهاء الشكوى / Failed to finish complaint'
+      );
+    },
+  });
+};
+
+/**
+ * Put a complaint on hold
+ */
+export const useHoldComplaint = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Complaint, Error, number>({
+    mutationFn: ComplaintService.hold,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      message.success('تم تعليق الشكوى بنجاح / Complaint put on hold successfully');
+    },
+    onError: (error: any) => {
+      message.error(
+        error?.response?.data?.message || 'فشل تعليق الشكوى / Failed to hold complaint'
+      );
+    },
+  });
+};
+
+/**
+ * Add an issue/case to a complaint
+ */
+export const useAddIssue = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<ComplaintIssue, Error, AddIssueDto>({
+    mutationFn: ComplaintService.addIssue,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ['complaint-issues'] });
+      message.success('تمت إضافة القضية بنجاح / Issue added successfully');
+    },
+    onError: (error: any) => {
+      message.error(error?.response?.data?.message || 'فشل إضافة القضية / Failed to add issue');
+    },
+  });
+};
+
+/**
+ * Get issues for a complaint
+ */
+export const useComplaintIssues = (complaintId: number) => {
+  return useQuery<ComplaintIssue[], Error>({
+    queryKey: ['complaint-issues', complaintId],
+    queryFn: () => ComplaintService.getIssueById(complaintId),
+    enabled: !!complaintId,
   });
 };

@@ -32,6 +32,7 @@ import {
   SearchOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
+import { NATIONALITIES } from '@/constants/enums';
 import styles from './SponsorshipTransfer.module.css';
 
 const { RangePicker } = DatePicker;
@@ -69,19 +70,11 @@ export default function SponsorshipTransferPage() {
   const [creationDateRange, setCreationDateRange] = useState<[string, string] | null>(null);
   const [transferDateRange, setTransferDateRange] = useState<[string, string] | null>(null);
 
-  const nationalities = [
-    { value: '359', label: 'Philippines', labelAr: 'الفلبين' },
-    { value: '360', label: 'Kenya', labelAr: 'كينيا' },
-    { value: '361', label: 'Uganda', labelAr: 'أوغندا' },
-    { value: '362', label: 'India', labelAr: 'الهند' },
-    { value: '363', label: 'Sudan', labelAr: 'السودان' },
-    { value: '364', label: 'Egypt', labelAr: 'مصر' },
-    { value: '366', label: 'Bangladesh', labelAr: 'بنغلاديش' },
-    { value: '367', label: 'Pakistan', labelAr: 'باكستان' },
-    { value: '701', label: 'Sri Lanka', labelAr: 'سريلانكا' },
-    { value: '731', label: 'Ethiopia', labelAr: 'إثيوبيا' },
-    { value: '771', label: 'Indonesia', labelAr: 'إندونيسيا' },
-  ];
+  const nationalities = NATIONALITIES.map((n) => ({
+    value: String(n.value),
+    label: n.labelEn,
+    labelAr: n.labelAr,
+  }));
 
   // Mock data for sponsorship transfer contracts
   const allContracts: SponsorshipTransferContract[] = Array.from({ length: 155 }, (_, i) => ({

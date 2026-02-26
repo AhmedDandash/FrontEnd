@@ -47,7 +47,13 @@ import {
   useDeleteMedicalExamination,
 } from '@/hooks/api/useWorkers';
 import type { Worker } from '@/types/api.types';
-import { MEDICAL_STATUS, WORKER_SATUS, toSelectOptions } from '@/constants/enums';
+import {
+  MEDICAL_STATUS,
+  WORKER_SATUS,
+  NATIONALITIES,
+  VISA_JOB_TYPES,
+  toSelectOptions,
+} from '@/constants/enums';
 import styles from './WorkersFollowup.module.css';
 import dayjs from 'dayjs';
 
@@ -665,13 +671,10 @@ export default function WorkersFollowupPage() {
                   allowClear
                   showSearch
                   optionFilterProp="label"
-                  options={[
-                    { value: '359', label: language === 'ar' ? 'الفلبين' : 'Philippines' },
-                    { value: '360', label: language === 'ar' ? 'كينيا' : 'Kenya' },
-                    { value: '361', label: language === 'ar' ? 'أوغندا' : 'Uganda' },
-                    { value: '362', label: language === 'ar' ? 'الهند' : 'India' },
-                    { value: '731', label: language === 'ar' ? 'أثيوبيا' : 'Ethiopia' },
-                  ]}
+                  options={toSelectOptions([...NATIONALITIES], language).map((o) => ({
+                    value: String(o.value),
+                    label: o.label,
+                  }))}
                 />
               </Col>
 
@@ -686,11 +689,10 @@ export default function WorkersFollowupPage() {
                   allowClear
                   showSearch
                   optionFilterProp="label"
-                  options={[
-                    { value: '1198', label: language === 'ar' ? 'عاملة منزلية' : 'Housemaid' },
-                    { value: '1199', label: language === 'ar' ? 'سائق خاص' : 'Private Driver' },
-                    { value: '1293', label: language === 'ar' ? 'عامل منزلي' : 'Houseworker' },
-                  ]}
+                  options={toSelectOptions([...VISA_JOB_TYPES], language).map((o) => ({
+                    value: String(o.value),
+                    label: o.label,
+                  }))}
                 />
               </Col>
 
