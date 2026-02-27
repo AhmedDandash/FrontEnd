@@ -28,6 +28,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useEmploymentContractOffers } from '@/hooks/api/useEmploymentContractOffers';
 import { useBranches } from '@/hooks/api/useBranches';
 import { useJobs } from '@/hooks/api/useJobs';
+import { useNationalities } from '@/hooks/api/useNationalities';
 import styles from '../RentPricesOffers.module.css';
 
 // Period types with months count
@@ -37,24 +38,6 @@ const periodTypes = [
   { id: 53, monthsCount: 6, label: { ar: 'نصف سنوي', en: 'Semi-Annual' } },
   { id: 189, monthsCount: 12, label: { ar: 'سنوي', en: 'Annual' } },
   { id: 190, monthsCount: 1, label: { ar: 'اثيوبيا', en: 'Ethiopia' } },
-];
-
-const nationalityOptions = [
-  { value: 0, label: { ar: 'الكل', en: 'All' } },
-  { value: 359, label: { ar: 'الفلبين', en: 'Philippines' } },
-  { value: 360, label: { ar: 'كينيا', en: 'Kenya' } },
-  { value: 361, label: { ar: 'أوغندا', en: 'Uganda' } },
-  { value: 362, label: { ar: 'الهند', en: 'India' } },
-  { value: 363, label: { ar: 'السودان', en: 'Sudan' } },
-  { value: 364, label: { ar: 'مصر', en: 'Egypt' } },
-  { value: 365, label: { ar: 'بوروندي', en: 'Burundi' } },
-  { value: 366, label: { ar: 'بنجلادش', en: 'Bangladesh' } },
-  { value: 367, label: { ar: 'باكستان', en: 'Pakistan' } },
-  { value: 482, label: { ar: 'المغرب', en: 'Morocco' } },
-  { value: 701, label: { ar: 'سريلانكا', en: 'Sri Lanka' } },
-  { value: 731, label: { ar: 'أثيوبيا', en: 'Ethiopia' } },
-  { value: 771, label: { ar: 'أندونيسيا', en: 'Indonesia' } },
-  { value: 839, label: { ar: 'اليمن', en: 'Yemen' } },
 ];
 
 const experienceOptions = [
@@ -74,6 +57,22 @@ export default function AddOfferPage() {
   const { createOfferAsync } = useEmploymentContractOffers();
   const { branches } = useBranches();
   const { data: jobsData, isLoading: isLoadingJobs } = useJobs();
+  const { data: nationalitiesData = [] } = useNationalities();
+
+  // Build dynamic nationality options from API
+  const dynamicNationalityOptions = useMemo(() => {
+    const opts = [{ value: 0, label: { ar: 'الكل', en: 'All' } }];
+    (nationalitiesData as any[]).forEach((n: any) => {
+      opts.push({
+        value: n.id,
+        label: {
+          ar: n.nationalityNameAr || n.name || `#${n.id}`,
+          en: n.nationalityName || n.name || n.nationalityNameAr || `#${n.id}`,
+        },
+      });
+    });
+    return opts;
+  }, [nationalitiesData]);
 
   // Safely extract jobs array from API response and filter active jobs only
   const jobs = useMemo(() => {
@@ -259,7 +258,7 @@ export default function AddOfferPage() {
                   showSearch
                   optionFilterProp="label"
                   placeholder={t('choose')}
-                  options={nationalityOptions.map((n) => ({
+                  options={dynamicNationalityOptions.map((n) => ({
                     value: n.value,
                     label: n.label[language],
                   }))}

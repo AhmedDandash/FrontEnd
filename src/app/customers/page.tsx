@@ -16,6 +16,7 @@ import {
   Avatar,
   Dropdown,
   Divider,
+  Tag,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -40,11 +41,14 @@ import { useAuthStore } from '@/store/authStore';
 import { useCustomers } from '@/hooks/api/useCustomers';
 import { useEmploymentOperatingContracts } from '@/hooks/api/useEmploymentOperatingContracts';
 import { useJobs } from '@/hooks/api/useJobs';
+import { useNationalities } from '@/hooks/api/useNationalities';
+import RentOfferSelector from '@/components/contracts/RentOfferSelector';
 import type {
   Customer,
   CreateCustomerDto,
   UpdateCustomerDto,
   CreateEmploymentOperatingContractDto,
+  EmploymentContractOffer,
 } from '@/types/api.types';
 import {
   HOUSING_TYPE,
@@ -71,6 +75,8 @@ export default function CustomersPage() {
   const [selectedCustomerForContract, setSelectedCustomerForContract] = useState<Customer | null>(
     null
   );
+  const [contractSelectedOffer, setContractSelectedOffer] =
+    useState<EmploymentContractOffer | null>(null);
   const [contractForm] = Form.useForm();
 
   // Use real API
@@ -90,6 +96,9 @@ export default function CustomersPage() {
 
   // Jobs API
   const { data: jobsData, isLoading: isLoadingJobs } = useJobs();
+
+  // Nationalities API
+  const { data: nationalitiesData = [] } = useNationalities();
 
   // Safely extract jobs array from API response and filter active jobs only
   const jobs = useMemo(() => {
@@ -236,6 +245,7 @@ export default function CustomersPage() {
 
   const handleCreateOperationContract = (customer: Customer) => {
     setSelectedCustomerForContract(customer);
+    setContractSelectedOffer(null);
     contractForm.resetFields();
     // Pre-fill customer ID and default values
     contractForm.setFieldsValue({
@@ -246,6 +256,19 @@ export default function CustomersPage() {
       paymentMethod: 1, // Default to "Cash"
     });
     setIsContractModalVisible(true);
+  };
+
+  const handleContractOfferSelect = (offer: EmploymentContractOffer) => {
+    setContractSelectedOffer(offer);
+    contractForm.setFieldsValue({
+      offerId: offer.id,
+      nationalityId: offer.nationalityId ?? undefined,
+      jobId: offer.jobId ?? undefined,
+      duration: offer.duration ?? undefined,
+      cost: offer.cost ?? undefined,
+      insurance: offer.insurance ?? undefined,
+      offerPrice: offer.workerSalary ?? undefined,
+    });
   };
 
   const handleContractSubmit = async () => {
@@ -763,6 +786,8 @@ export default function CustomersPage() {
           setIsContractModalVisible(false);
           contractForm.resetFields();
           setSelectedCustomerForContract(null);
+          setContractSelectedOffer(null);
+          setContractSelectedOffer(null);
         }}
         confirmLoading={isCreatingContract}
         okText={language === 'ar' ? 'إنشاء العقد' : 'Create Contract'}
@@ -784,7 +809,21 @@ export default function CustomersPage() {
           </div>
         )}
 
+        {/* Offer Selector */}
+        <div style={{ marginBottom: 16 }}>
+          <RentOfferSelector
+            selectedOfferId={contractSelectedOffer?.id}
+            onSelect={handleContractOfferSelect}
+            language={language as 'ar' | 'en'}
+            compact
+          />
+        </div>
+
         <Form form={contractForm} layout="vertical">
+          <Form.Item name="offerId" hidden>
+            <input />
+          </Form.Item>
+
           {/* Customer Information Section */}
           <Divider plain style={{ fontWeight: 600, textAlign: 'left' }}>
             {language === 'ar' ? 'معلومات العميل' : 'Customer Information'}
@@ -861,7 +900,16 @@ export default function CustomersPage() {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                label={language === 'ar' ? 'الجنسية' : 'Nationality'}
+                label={
+                  <span>
+                    {language === 'ar' ? 'الجنسية' : 'Nationality'}
+                    {contractSelectedOffer && (
+                      <Tag color="green" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                        {language === 'ar' ? 'من العرض' : 'From Offer'}
+                      </Tag>
+                    )}
+                  </span>
+                }
                 name="nationalityId"
                 rules={[
                   {
@@ -871,25 +919,32 @@ export default function CustomersPage() {
                   },
                 ]}
               >
-                <Select placeholder={language === 'ar' ? 'اختر الجنسية' : 'Select Nationality'}>
-                  <Select.Option value={1}>{getNationality(1)}</Select.Option>
-                  <Select.Option value={2}>{getNationality(2)}</Select.Option>
-                  <Select.Option value={3}>{getNationality(3)}</Select.Option>
-                  <Select.Option value={4}>{getNationality(4)}</Select.Option>
-                  <Select.Option value={5}>{getNationality(5)}</Select.Option>
-                  <Select.Option value={6}>{getNationality(6)}</Select.Option>
-                  <Select.Option value={7}>{getNationality(7)}</Select.Option>
-                  <Select.Option value={8}>{getNationality(8)}</Select.Option>
-                  <Select.Option value={9}>{getNationality(9)}</Select.Option>
-                  <Select.Option value={10}>{getNationality(10)}</Select.Option>
-                  <Select.Option value={11}>{getNationality(11)}</Select.Option>
-                  <Select.Option value={12}>{getNationality(12)}</Select.Option>
-                </Select>
+                <Select
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder={language === 'ar' ? 'اختر الجنسية' : 'Select Nationality'}
+                  options={(nationalitiesData as any[]).map((n: any) => ({
+                    value: n.id,
+                    label:
+                      language === 'ar'
+                        ? n.nationalityNameAr || n.name
+                        : n.nationalityName || n.name,
+                  }))}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                label={language === 'ar' ? 'المهنة' : 'Job'}
+                label={
+                  <span>
+                    {language === 'ar' ? 'المهنة' : 'Job'}
+                    {contractSelectedOffer && (
+                      <Tag color="blue" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                        {language === 'ar' ? 'من العرض' : 'From Offer'}
+                      </Tag>
+                    )}
+                  </span>
+                }
                 name="jobId"
                 rules={[
                   {
@@ -931,7 +986,16 @@ export default function CustomersPage() {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                label={language === 'ar' ? 'مدة العقد' : 'Contract Duration'}
+                label={
+                  <span>
+                    {language === 'ar' ? 'مدة العقد' : 'Contract Duration'}
+                    {contractSelectedOffer && (
+                      <Tag color="orange" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                        {language === 'ar' ? 'من العرض' : 'From Offer'}
+                      </Tag>
+                    )}
+                  </span>
+                }
                 name="duration"
               >
                 <Input
@@ -995,7 +1059,16 @@ export default function CustomersPage() {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                label={language === 'ar' ? 'التكلفة' : 'Cost'}
+                label={
+                  <span>
+                    {language === 'ar' ? 'التكلفة' : 'Cost'}
+                    {contractSelectedOffer && (
+                      <Tag color="green" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                        {language === 'ar' ? 'من العرض' : 'From Offer'}
+                      </Tag>
+                    )}
+                  </span>
+                }
                 name="cost"
                 rules={[
                   {
@@ -1012,7 +1085,19 @@ export default function CustomersPage() {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label={language === 'ar' ? 'التأمين' : 'Insurance'} name="insurance">
+              <Form.Item
+                label={
+                  <span>
+                    {language === 'ar' ? 'التأمين' : 'Insurance'}
+                    {contractSelectedOffer && (
+                      <Tag color="purple" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                        {language === 'ar' ? 'من العرض' : 'From Offer'}
+                      </Tag>
+                    )}
+                  </span>
+                }
+                name="insurance"
+              >
                 <Input
                   type="number"
                   prefix="SAR"

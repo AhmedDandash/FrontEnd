@@ -35,6 +35,8 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { useEmploymentContractOffers } from '@/hooks/api/useEmploymentContractOffers';
 import { useBranches } from '@/hooks/api/useBranches';
+import { useNationalities } from '@/hooks/api/useNationalities';
+import { useJobs } from '@/hooks/api/useJobs';
 import type { EmploymentContractOfferSummary } from '@/types/api.types';
 import styles from './RentPricesOffers.module.css';
 
@@ -50,6 +52,8 @@ export default function RentPricesOffersPage() {
   const { summary, isSummaryLoading, refetchSummary } = useEmploymentContractOffers();
 
   const { branches } = useBranches();
+  const { data: nationalities = [] } = useNationalities();
+  const { data: apiJobs = [] } = useJobs();
 
   const t = (key: string) => {
     const translations: { [key: string]: { ar: string; en: string } } = {
@@ -85,48 +89,77 @@ export default function RentPricesOffersPage() {
     return translations[key]?.[language] || key;
   };
 
-  // Static nationality options (from HTML reference)
-  const nationalityOptions = [
-    { value: 359, label: { ar: 'الفلبين', en: 'Philippines' } },
-    { value: 360, label: { ar: 'كينيا', en: 'Kenya' } },
-    { value: 361, label: { ar: 'أوغندا', en: 'Uganda' } },
-    { value: 362, label: { ar: 'الهند', en: 'India' } },
-    { value: 363, label: { ar: 'السودان', en: 'Sudan' } },
-    { value: 364, label: { ar: 'مصر', en: 'Egypt' } },
-    { value: 365, label: { ar: 'بوروندي', en: 'Burundi' } },
-    { value: 366, label: { ar: 'بنجلادش', en: 'Bangladesh' } },
-    { value: 367, label: { ar: 'باكستان', en: 'Pakistan' } },
-    { value: 482, label: { ar: 'المغرب', en: 'Morocco' } },
-    { value: 701, label: { ar: 'سريلانكا', en: 'Sri Lanka' } },
-    { value: 731, label: { ar: 'أثيوبيا', en: 'Ethiopia' } },
-    { value: 771, label: { ar: 'أندونيسيا', en: 'Indonesia' } },
-    { value: 839, label: { ar: 'اليمن', en: 'Yemen' } },
-  ];
+  // Dynamic nationality options from API
+  const nationalityOptions = useMemo(() => {
+    return (nationalities as any[]).map((n: any) => ({
+      value: n.id,
+      label: {
+        ar: n.nationalityNameAr || n.name || `#${n.id}`,
+        en: n.nationalityName || n.name || n.nationalityNameAr || `#${n.id}`,
+      },
+    }));
+  }, [nationalities]);
 
-  // Static job options (from HTML reference)
-  const jobOptions = [
-    { value: 1198, label: { ar: 'عاملة منزلية', en: 'Housemaid' } },
-    { value: 1199, label: { ar: 'سائق خاص', en: 'Private Driver' } },
-    { value: 1210, label: { ar: 'سفرجي منزلي', en: 'Home Butler' } },
-    { value: 1212, label: { ar: 'ممرضه منزليه', en: 'Home Nurse' } },
-    { value: 1246, label: { ar: 'طباخ', en: 'Cook' } },
-    { value: 1293, label: { ar: 'عامل منزلي', en: 'Houseboy' } },
-    { value: 1522, label: { ar: 'قهوجي منزلي', en: 'Home Coffee Maker' } },
-    { value: 1568, label: { ar: 'حارس منزلي', en: 'Home Guard' } },
-    { value: 1602, label: { ar: 'مزارع منزلي', en: 'Home Farmer' } },
-    { value: 1616, label: { ar: 'مدير منزل', en: 'House Manager' } },
-  ];
+  // Dynamic job options from API
+  const jobOptions = useMemo(() => {
+    return (apiJobs as any[]).map((j: any) => ({
+      value: j.id,
+      label: {
+        ar: j.jobNameAr || j.name || `#${j.id}`,
+        en: j.jobNameEn || j.jobNameAr || j.name || `#${j.id}`,
+      },
+    }));
+  }, [apiJobs]);
+
+  // Nationality lookup map for O(1) access
+  const nationalityMap = useMemo(() => {
+    const map = new Map<number, { ar: string; en: string }>();
+    (nationalities as any[]).forEach((n: any) => {
+      map.set(n.id, {
+        ar: n.nationalityNameAr || n.name || `#${n.id}`,
+        en: n.nationalityName || n.name || n.nationalityNameAr || `#${n.id}`,
+      });
+    });
+    return map;
+  }, [nationalities]);
+
+  // Job lookup map for O(1) access
+  const jobMap = useMemo(() => {
+    const map = new Map<number, { ar: string; en: string }>();
+    (apiJobs as any[]).forEach((j: any) => {
+      map.set(j.id, {
+        ar: j.jobNameAr || j.name || `#${j.id}`,
+        en: j.jobNameEn || j.jobNameAr || j.name || `#${j.id}`,
+      });
+    });
+    return map;
+  }, [apiJobs]);
+
+  // Branch lookup map for O(1) access
+  const branchMap = useMemo(() => {
+    const map = new Map<number, { ar: string; en: string }>();
+    (branches || []).forEach((b: any) => {
+      map.set(b.id, { ar: b.nameAr || b.name || `#${b.id}`, en: b.nameEn || b.name || `#${b.id}` });
+    });
+    return map;
+  }, [branches]);
 
   const getNationalityLabel = (id: number | null | undefined) => {
     if (!id || id === 0) return t('all');
-    const nat = nationalityOptions.find((n) => n.value === id);
-    return nat ? nat.label[language] : String(id);
+    const nat = nationalityMap.get(id);
+    return nat ? nat[language] : String(id);
   };
 
   const getJobLabel = (id: number | null | undefined) => {
     if (!id || id === 0) return t('all');
-    const job = jobOptions.find((j) => j.value === id);
-    return job ? job.label[language] : String(id);
+    const job = jobMap.get(id);
+    return job ? job[language] : String(id);
+  };
+
+  const getBranchLabel = (id: number | null | undefined) => {
+    if (!id || id === 0) return t('allBranches');
+    const branch = branchMap.get(id);
+    return branch ? branch[language] : String(id);
   };
 
   // Helper to safely extract array from summary data
@@ -179,7 +212,8 @@ export default function RentPricesOffersPage() {
       title: t('branchName'),
       dataIndex: 'branchName',
       key: 'branchName',
-      render: (text: string) => text || t('allBranches'),
+      render: (text: string, record: EmploymentContractOfferSummary) =>
+        text || getBranchLabel(record.branchId),
     },
     {
       title: t('nationalities'),

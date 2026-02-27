@@ -19,6 +19,10 @@ import {
   Dropdown,
   DatePicker,
   Spin,
+  Form,
+  InputNumber,
+  Alert,
+  message,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -53,7 +57,11 @@ import {
 
 import { useAuthStore } from '@/store/authStore';
 import { useEmploymentOperatingContracts } from '@/hooks/api/useEmploymentOperatingContracts';
-import type { EmploymentOperatingContract } from '@/types/api.types';
+import { useNationalities } from '@/hooks/api/useNationalities';
+import { useJobs } from '@/hooks/api/useJobs';
+import { useCustomers } from '@/hooks/api/useCustomers';
+import RentOfferSelector from '@/components/contracts/RentOfferSelector';
+import type { EmploymentOperatingContract, EmploymentContractOffer } from '@/types/api.types';
 import styles from './RentContracts.module.css';
 
 const { RangePicker } = DatePicker;
@@ -94,6 +102,7 @@ export default function RentContractsPage() {
   const customerId = searchParams.get('customerId');
 
   const language = useAuthStore((state) => state.language);
+  const isRtl = language === 'ar';
   const [mounted, setMounted] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -102,8 +111,25 @@ export default function RentContractsPage() {
   const [selectedContract, setSelectedContract] = useState<RentContract | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
+  // Create Contract Modal state
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createSelectedOffer, setCreateSelectedOffer] = useState<EmploymentContractOffer | null>(
+    null
+  );
+  const [createForm] = Form.useForm();
+
   // Fetch contracts from API
-  const { contracts: apiContracts, isLoading } = useEmploymentOperatingContracts();
+  const {
+    contracts: apiContracts,
+    isLoading,
+    createContract,
+    isCreating,
+  } = useEmploymentOperatingContracts();
+
+  // Lookup hooks for resolving null names
+  const { data: nationalities = [] } = useNationalities();
+  const { data: jobs = [] } = useJobs();
+  const { customers = [] } = useCustomers();
 
   // Safely extract data from API response (handles wrapped responses)
   const contractsData = useMemo((): EmploymentOperatingContract[] => {
@@ -119,6 +145,36 @@ export default function RentContractsPage() {
     }
     return [];
   }, [apiContracts]);
+
+  // Helper: resolve nationality name from ID
+  const getNationalityNameById = useMemo(() => {
+    const map = new Map<number, { ar: string; en: string }>();
+    (nationalities as any[]).forEach((n: any) => {
+      map.set(n.id, {
+        ar: n.nationalityNameAr || n.name || `#${n.id}`,
+        en: n.nationalityName || n.name || n.nationalityNameAr || `#${n.id}`,
+      });
+    });
+    return (id: number | null | undefined): { ar: string; en: string } => {
+      if (!id) return { ar: 'غير معروف', en: 'Unknown' };
+      return map.get(id) || { ar: 'غير معروف', en: 'Unknown' };
+    };
+  }, [nationalities]);
+
+  // Helper: resolve job name from ID
+  const getJobNameById = useMemo(() => {
+    const map = new Map<number, { ar: string; en: string }>();
+    (jobs as any[]).forEach((j: any) => {
+      map.set(j.id, {
+        ar: j.jobNameAr || j.name || `#${j.id}`,
+        en: j.jobNameEn || j.jobNameAr || j.name || `#${j.id}`,
+      });
+    });
+    return (id: number | null | undefined): { ar: string; en: string } => {
+      if (!id) return { ar: 'غير معروف', en: 'Unknown' };
+      return map.get(id) || { ar: 'غير معروف', en: 'Unknown' };
+    };
+  }, [jobs]);
 
   // Map API data to internal RentContract format
   const allContracts = useMemo((): RentContract[] => {
@@ -148,6 +204,12 @@ export default function RentContractsPage() {
       );
       const totalCollected = monthlyRent * monthsActive;
 
+      // Resolve nationality and job names via lookup
+      const natName = getNationalityNameById(contract.nationalityId);
+      const jobNameResolved = contract.jobName
+        ? { ar: contract.jobName, en: contract.jobName }
+        : getJobNameById(contract.jobId);
+
       return {
         id: String(contract.id),
         customerId: contract.customerId || 0,
@@ -164,12 +226,12 @@ export default function RentContractsPage() {
           0,
           (contract.totalCostWithTax || contract.cost || 0) - totalCollected
         ),
-        workerName: contract.jobName || 'Unknown',
-        workerNameAr: contract.jobName || 'غير معروف',
-        nationality: 'Unknown',
-        nationalityAr: 'غير معروف',
-        profession: contract.jobName || 'Unknown',
-        professionAr: contract.jobName || 'غير معروف',
+        workerName: jobNameResolved.en,
+        workerNameAr: jobNameResolved.ar,
+        nationality: natName.en,
+        nationalityAr: natName.ar,
+        profession: jobNameResolved.en,
+        professionAr: jobNameResolved.ar,
         agent: 'Unknown',
         agentAr: 'غير معروف',
         branch: 'Sigma Recruitment Office',
@@ -184,7 +246,7 @@ export default function RentContractsPage() {
     console.log('Rent Page - Mapped Contracts Count:', mapped.length);
     console.log('Rent Page - Sample Contract:', mapped[0]);
     return mapped;
-  }, [contractsData]);
+  }, [contractsData, getNationalityNameById, getJobNameById]);
 
   useEffect(() => {
     setMounted(true);
@@ -323,8 +385,53 @@ export default function RentContractsPage() {
   };
 
   const handleAddContract = () => {
-    // Navigate to customers page to select customer first
-    router.push('/customers');
+    setCreateSelectedOffer(null);
+    createForm.resetFields();
+    setShowCreateModal(true);
+  };
+
+  // Handle offer selection in create modal — auto-fill form fields
+  const handleCreateOfferSelect = (offer: EmploymentContractOffer) => {
+    setCreateSelectedOffer(offer);
+    createForm.setFieldsValue({
+      offerId: offer.id,
+      nationalityId: offer.nationalityId ?? undefined,
+      jobId: offer.jobId ?? undefined,
+      duration: offer.duration ?? undefined,
+      cost: offer.cost ?? 0,
+      insurance: offer.insurance ?? 0,
+      offerPrice: offer.totalCostWithTax ?? offer.cost ?? 0,
+    });
+  };
+
+  // Handle create contract form submission
+  const handleCreateContractSubmit = async () => {
+    try {
+      const values = await createForm.validateFields();
+      createContract({
+        customerId: values.customerId,
+        offerId: values.offerId,
+        nationalityId: values.nationalityId,
+        jobId: values.jobId,
+        duration: values.duration,
+        cost: values.cost,
+        insurance: values.insurance,
+        offerPrice: values.offerPrice,
+        contractStartDate: values.contractStartDate?.toISOString(),
+        contractEndDate: values.contractEndDate?.toISOString(),
+        customerAddress: values.customerAddress,
+        workerNameAr: values.workerNameAr,
+        workerNameEn: values.workerNameEn,
+        workerPhone: values.workerPhone,
+        workersCount: values.workersCount,
+        paymentMethod: values.paymentMethod,
+      });
+      setShowCreateModal(false);
+      createForm.resetFields();
+      setCreateSelectedOffer(null);
+    } catch {
+      // validation errors handled by form
+    }
   };
 
   const handleExportExcel = () => {
@@ -853,6 +960,323 @@ export default function RentContractsPage() {
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t.noResults} />
         </Card>
       )}
+
+      {/* Create Contract Modal */}
+      <Modal
+        title={
+          <span>
+            <PlusOutlined style={{ marginInlineEnd: 8 }} />
+            {isRtl ? 'إضافة عقد تشغيل' : 'Add Operating Contract'}
+          </span>
+        }
+        open={showCreateModal}
+        onCancel={() => {
+          setShowCreateModal(false);
+          createForm.resetFields();
+          setCreateSelectedOffer(null);
+        }}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => {
+              setShowCreateModal(false);
+              createForm.resetFields();
+              setCreateSelectedOffer(null);
+            }}
+          >
+            {isRtl ? 'إلغاء' : 'Cancel'}
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={isCreating}
+            onClick={handleCreateContractSubmit}
+          >
+            {isRtl ? 'إنشاء العقد' : 'Create Contract'}
+          </Button>,
+        ]}
+        width={1000}
+        destroyOnClose
+      >
+        {/* Step 1: Select Offer */}
+        <div style={{ marginBottom: 24 }}>
+          <h3 style={{ marginBottom: 8 }}>{isRtl ? '1. اختر العرض' : '1. Select Offer'}</h3>
+          <Alert
+            type="info"
+            showIcon
+            message={
+              isRtl
+                ? 'اختر عرض من الجدول أدناه لملء بيانات العقد تلقائياً'
+                : 'Select an offer from the table below to auto-fill contract data'
+            }
+            style={{ marginBottom: 16 }}
+          />
+          <RentOfferSelector
+            language={language}
+            selectedOfferId={createSelectedOffer?.id ?? createForm.getFieldValue('offerId') ?? null}
+            onSelect={handleCreateOfferSelect}
+            compact
+          />
+        </div>
+
+        {/* Step 2: Contract Form */}
+        <div>
+          <h3 style={{ marginBottom: 16 }}>{isRtl ? '2. بيانات العقد' : '2. Contract Details'}</h3>
+
+          {createSelectedOffer && (
+            <Alert
+              type="success"
+              showIcon
+              message={
+                isRtl
+                  ? `تم ملء البيانات تلقائياً من العرض #${createSelectedOffer.id}`
+                  : `Data auto-filled from Offer #${createSelectedOffer.id}`
+              }
+              style={{ marginBottom: 16 }}
+            />
+          )}
+
+          <Form
+            form={createForm}
+            layout="vertical"
+            requiredMark="optional"
+            dir={isRtl ? 'rtl' : 'ltr'}
+          >
+            <Form.Item name="offerId" hidden>
+              <Input />
+            </Form.Item>
+
+            <Row gutter={[16, 0]}>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="customerId"
+                  label={isRtl ? 'العميل' : 'Customer'}
+                  rules={[{ required: true, message: isRtl ? 'مطلوب' : 'Required' }]}
+                >
+                  <Select
+                    showSearch
+                    optionFilterProp="label"
+                    placeholder={isRtl ? 'اختر العميل' : 'Select Customer'}
+                    options={(customers as any[]).map((c: any) => ({
+                      value: c.id,
+                      label: isRtl
+                        ? c.arabicName || c.englishName || `#${c.id}`
+                        : c.englishName || c.arabicName || `#${c.id}`,
+                    }))}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="nationalityId"
+                  label={
+                    <span>
+                      {isRtl ? 'الجنسية' : 'Nationality'}
+                      {createSelectedOffer && (
+                        <Tag color="green" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                          {isRtl ? 'من العرض' : 'From Offer'}
+                        </Tag>
+                      )}
+                    </span>
+                  }
+                >
+                  <Select
+                    showSearch
+                    optionFilterProp="label"
+                    placeholder={isRtl ? 'اختر الجنسية' : 'Select Nationality'}
+                    options={(nationalities as any[]).map((n: any) => ({
+                      value: n.id,
+                      label: isRtl ? n.nationalityNameAr || n.name : n.nationalityName || n.name,
+                    }))}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={[16, 0]}>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="jobId"
+                  label={
+                    <span>
+                      {isRtl ? 'الوظيفة' : 'Job'}
+                      {createSelectedOffer && (
+                        <Tag color="blue" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                          {isRtl ? 'من العرض' : 'From Offer'}
+                        </Tag>
+                      )}
+                    </span>
+                  }
+                >
+                  <Select
+                    showSearch
+                    optionFilterProp="label"
+                    placeholder={isRtl ? 'اختر الوظيفة' : 'Select Job'}
+                    options={(jobs as any[]).map((j: any) => ({
+                      value: j.id,
+                      label: isRtl ? j.jobNameAr || j.name : j.jobNameEn || j.name,
+                    }))}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="duration"
+                  label={
+                    <span>
+                      {isRtl ? 'المدة (أشهر)' : 'Duration (months)'}
+                      {createSelectedOffer && (
+                        <Tag color="orange" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                          {isRtl ? 'من العرض' : 'From Offer'}
+                        </Tag>
+                      )}
+                    </span>
+                  }
+                >
+                  <InputNumber style={{ width: '100%' }} min={1} max={24} />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={[16, 0]}>
+              <Col xs={24} sm={8}>
+                <Form.Item
+                  name="cost"
+                  label={
+                    <span>
+                      {isRtl ? 'التكلفة' : 'Cost'}
+                      {createSelectedOffer && (
+                        <Tag color="green" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                          {isRtl ? 'من العرض' : 'From Offer'}
+                        </Tag>
+                      )}
+                    </span>
+                  }
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    min={0}
+                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    addonAfter={isRtl ? 'ريال' : 'SAR'}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={8}>
+                <Form.Item
+                  name="insurance"
+                  label={
+                    <span>
+                      {isRtl ? 'التأمين' : 'Insurance'}
+                      {createSelectedOffer && (
+                        <Tag color="purple" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                          {isRtl ? 'من العرض' : 'From Offer'}
+                        </Tag>
+                      )}
+                    </span>
+                  }
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    min={0}
+                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    addonAfter={isRtl ? 'ريال' : 'SAR'}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={8}>
+                <Form.Item
+                  name="offerPrice"
+                  label={
+                    <span>
+                      {isRtl ? 'الإجمالي مع الضريبة' : 'Total with Tax'}
+                      {createSelectedOffer && (
+                        <Tag color="cyan" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                          {isRtl ? 'من العرض' : 'From Offer'}
+                        </Tag>
+                      )}
+                    </span>
+                  }
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    min={0}
+                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    addonAfter={isRtl ? 'ريال' : 'SAR'}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={[16, 0]}>
+              <Col xs={24} sm={12}>
+                <Form.Item name="contractStartDate" label={isRtl ? 'تاريخ البداية' : 'Start Date'}>
+                  <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item name="contractEndDate" label={isRtl ? 'تاريخ النهاية' : 'End Date'}>
+                  <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={[16, 0]}>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="workerNameAr"
+                  label={isRtl ? 'اسم العامل (عربي)' : 'Worker Name (Arabic)'}
+                >
+                  <Input placeholder={isRtl ? 'اسم العامل بالعربي' : 'Worker name in Arabic'} />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="workerNameEn"
+                  label={isRtl ? 'اسم العامل (إنجليزي)' : 'Worker Name (English)'}
+                >
+                  <Input placeholder={isRtl ? 'اسم العامل بالإنجليزي' : 'Worker name in English'} />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={[16, 0]}>
+              <Col xs={24} sm={12}>
+                <Form.Item name="workerPhone" label={isRtl ? 'هاتف العامل' : 'Worker Phone'}>
+                  <Input placeholder="05xxxxxxxx" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="customerAddress"
+                  label={isRtl ? 'عنوان العميل' : 'Customer Address'}
+                >
+                  <Input placeholder={isRtl ? 'العنوان' : 'Address'} />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={[16, 0]}>
+              <Col xs={24} sm={12}>
+                <Form.Item name="workersCount" label={isRtl ? 'عدد العمال' : 'Workers Count'}>
+                  <InputNumber style={{ width: '100%' }} min={1} />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item name="paymentMethod" label={isRtl ? 'طريقة الدفع' : 'Payment Method'}>
+                  <Select
+                    placeholder={isRtl ? 'اختر طريقة الدفع' : 'Select Payment Method'}
+                    options={[
+                      { value: 1, label: isRtl ? 'نقدي' : 'Cash' },
+                      { value: 2, label: isRtl ? 'شبكة' : 'Card/Network' },
+                      { value: 3, label: isRtl ? 'تحويل بنكي' : 'Bank Transfer' },
+                    ]}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </div>
+      </Modal>
 
       {/* Details Modal */}
       <Modal
