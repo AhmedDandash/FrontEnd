@@ -57,7 +57,9 @@ import {
 } from '@/hooks/api/useMediationContracts';
 import type {
   MediationContract,
+  MediationContractOffer,
   CreateMediationContractDto,
+  UpdateMediationContractDto,
   MediationContractNote,
 } from '@/types/api.types';
 import {
@@ -70,6 +72,7 @@ import {
   getEnumLabel,
   toSelectOptions,
 } from '@/constants/enums';
+import OfferSelector from '@/components/contracts/OfferSelector';
 import styles from './MediationContracts.module.css';
 
 export default function MediationContractsPage() {
@@ -97,8 +100,19 @@ export default function MediationContractsPage() {
   const [showCustomerSelectModal, setShowCustomerSelectModal] = useState(false);
   const [customerSelectId, setCustomerSelectId] = useState<number | null>(null);
 
+  // Edit modal
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingContract, setEditingContract] = useState<MediationContract | null>(null);
+
+  // Offer selection state for create/edit modals
+  const [createSelectedOffer, setCreateSelectedOffer] = useState<MediationContractOffer | null>(
+    null
+  );
+  const [editSelectedOffer, setEditSelectedOffer] = useState<MediationContractOffer | null>(null);
+
   // Forms
   const [createForm] = Form.useForm();
+  const [editForm] = Form.useForm();
   const [noteForm] = Form.useForm();
   const [cancelForm] = Form.useForm();
   const [typeChangeForm] = Form.useForm();
@@ -117,6 +131,7 @@ export default function MediationContractsPage() {
     changeContractType,
     addDomesticWorker,
     isCreating,
+    isUpdating,
     isCancelling,
     isChangingType,
     isAddingWorker,
@@ -339,6 +354,36 @@ export default function MediationContractsPage() {
     createForm.setFieldValue('totalCost', computeTotalCost(values));
   };
 
+  // Handle offer selection in CREATE modal → auto-fill fields
+  const handleCreateOfferSelect = (offer: MediationContractOffer) => {
+    setCreateSelectedOffer(offer);
+    createForm.setFieldsValue({
+      offerId: offer.id,
+      salary: offer.salary ?? 0,
+      localCost: offer.localCost ?? 0,
+      agentCostSAR: offer.agentCostSAR ?? 0,
+    });
+    setTimeout(() => {
+      const values = createForm.getFieldsValue();
+      createForm.setFieldValue('totalCost', computeTotalCost(values));
+    }, 50);
+  };
+
+  // Handle offer selection in EDIT modal → auto-fill fields
+  const handleEditOfferSelect = (offer: MediationContractOffer) => {
+    setEditSelectedOffer(offer);
+    editForm.setFieldsValue({
+      offerId: offer.id,
+      salary: offer.salary ?? 0,
+      localCost: offer.localCost ?? 0,
+      agentCostSAR: offer.agentCostSAR ?? 0,
+    });
+    setTimeout(() => {
+      const values = editForm.getFieldsValue();
+      editForm.setFieldValue('totalCost', computeTotalCost(values));
+    }, 50);
+  };
+
   // Handle contract creation
   const handleCreateContract = async () => {
     try {
@@ -375,6 +420,7 @@ export default function MediationContractsPage() {
       };
       await createContract(data);
       setShowCreateModal(false);
+      setCreateSelectedOffer(null);
       createForm.resetFields();
     } catch (error) {
       console.error('Form validation failed:', error);
@@ -479,15 +525,82 @@ export default function MediationContractsPage() {
     });
   };
 
-  // Open create modal
-  const openCreateModal = () => {
-    createForm.resetFields();
-    if (prefilledCustomerId) {
-      createForm.setFieldValue('customerId', Number(prefilledCustomerId));
-    }
-    createForm.setFieldValue('statusId', 1);
-    setShowCreateModal(true);
+  // Open edit modal
+  const openEditModal = (contract: MediationContract) => {
+    setEditingContract(contract);
+    editForm.setFieldsValue({
+      contractType: contract.contractType,
+      statusId: contract.statusId,
+      customerId: contract.customerId,
+      musanedContractNumber: contract.musanedContractNumber,
+      musanedDocumentationNumber: contract.musanedDocumentationNumber,
+      contractCategory: contract.contractCategory,
+      offerId: contract.offerId,
+      visaType: contract.visaType,
+      visaNumber: contract.visaNumber,
+      visaDateHijri: contract.visaDateHijri,
+      isComprehensiveQualificationVisa: contract.isComprehensiveQualificationVisa ?? false,
+      arrivalDestinationId: contract.arrivalDestinationId,
+      localCost: contract.localCost,
+      agentCostSAR: contract.agentCostSAR,
+      salary: contract.salary,
+      otherCosts: contract.otherCosts,
+      totalTaxValue: contract.totalTaxValue,
+      managerDiscount: contract.managerDiscount,
+      costDiscount: contract.costDiscount,
+      totalCost: contract.totalCost,
+      costDescription: contract.costDescription,
+      hasContractInsurance: contract.hasContractInsurance ?? false,
+      domesticWorkerInsurance: contract.domesticWorkerInsurance,
+    });
+    setShowEditModal(true);
   };
+
+  // Handle contract update
+  const handleUpdateContract = async () => {
+    try {
+      const values = await editForm.validateFields();
+      const totalCost = computeTotalCost(values);
+      const data: UpdateMediationContractDto = {
+        contractType: values.contractType,
+        statusId: values.statusId,
+        customerId: values.customerId,
+        musanedContractNumber: values.musanedContractNumber || null,
+        musanedDocumentationNumber: values.musanedDocumentationNumber || null,
+        marketerId: values.marketerId || null,
+        contractCategory: values.contractCategory || null,
+        offerId: values.offerId || null,
+        visaType: values.visaType || null,
+        visaNumber: values.visaNumber || null,
+        visaDateHijri: values.visaDateHijri || null,
+        visaDate: values.visaDate ? new Date(values.visaDate).toISOString() : null,
+        isComprehensiveQualificationVisa: values.isComprehensiveQualificationVisa || false,
+        arrivalDestinationId: values.arrivalDestinationId || null,
+        localCost: values.localCost || 0,
+        agentCostSAR: values.agentCostSAR || 0,
+        salary: values.salary || 0,
+        otherCosts: values.otherCosts || 0,
+        totalTaxValue: values.totalTaxValue || 0,
+        managerDiscount: values.managerDiscount || 0,
+        costDiscount: values.costDiscount || 0,
+        totalCost: totalCost,
+        costDescription: values.costDescription || null,
+        hasContractInsurance: values.hasContractInsurance || false,
+        domesticWorkerInsurance: values.hasContractInsurance
+          ? values.domesticWorkerInsurance || 0
+          : 0,
+      };
+      await updateContract({ id: editingContract!.id, data });
+      setShowEditModal(false);
+      editForm.resetFields();
+      setEditingContract(null);
+      setEditSelectedOffer(null);
+    } catch (error) {
+      console.error('Edit form validation failed:', error);
+    }
+  };
+
+  // Open create modal can be re-added if needed; currently Add Contract navigates to /add page
 
   // Render a contract card
   const renderContractCard = (contract: MediationContract) => {
@@ -721,6 +834,15 @@ export default function MediationContractsPage() {
               >
                 {t.contractDetails}
               </Button>
+              <Button
+                type="link"
+                icon={<FileTextOutlined />}
+                className={styles.actionBtn}
+                block
+                onClick={() => openEditModal(contract)}
+              >
+                {language === 'ar' ? 'تعديل العقد' : 'Edit Contract'}
+              </Button>
             </div>
           </div>
         </Card>
@@ -912,7 +1034,10 @@ export default function MediationContractsPage() {
       <Modal
         title={t.addContract}
         open={showCreateModal}
-        onCancel={() => setShowCreateModal(false)}
+        onCancel={() => {
+          setShowCreateModal(false);
+          setCreateSelectedOffer(null);
+        }}
         onOk={handleCreateContract}
         okText={t.save}
         cancelText={t.cancel}
@@ -921,7 +1046,7 @@ export default function MediationContractsPage() {
         destroyOnClose
       >
         <Form form={createForm} layout="vertical" onValuesChange={handleCostFieldChange}>
-          <Divider orientation="left">{t.contractDetails}</Divider>
+          <Divider>{t.contractDetails}</Divider>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -950,17 +1075,9 @@ export default function MediationContractsPage() {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="offerId" label={t.selectOffer}>
-                <Select
-                  showSearch
-                  allowClear
-                  placeholder={t.selectOffer}
-                  optionFilterProp="label"
-                  options={[]}
-                />
+              <Form.Item name="offerId" hidden>
+                <InputNumber />
               </Form.Item>
-            </Col>
-            <Col span={12}>
               <Form.Item name="contractCategory" label={t.contractCategory}>
                 <Select
                   allowClear
@@ -989,7 +1106,15 @@ export default function MediationContractsPage() {
             </Col>
           </Row>
 
-          <Divider orientation="left">{t.visaInfo}</Divider>
+          <Divider>{language === 'ar' ? 'اختيار العرض' : 'Select Offer'}</Divider>
+          <OfferSelector
+            language={language}
+            selectedOfferId={createSelectedOffer?.id ?? createForm.getFieldValue('offerId') ?? null}
+            onSelect={handleCreateOfferSelect}
+            compact
+          />
+
+          <Divider>{t.visaInfo}</Divider>
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item name="visaType" label={language === 'ar' ? 'نوع التأشيرة' : 'Visa Type'}>
@@ -1032,7 +1157,7 @@ export default function MediationContractsPage() {
             </Col>
           </Row>
 
-          <Divider orientation="left">{t.financialInfo}</Divider>
+          <Divider>{t.financialInfo}</Divider>
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item name="localCost" label={t.localCost}>
@@ -1472,6 +1597,205 @@ export default function MediationContractsPage() {
               </div>
             );
           })()}
+      </Modal>
+
+      {/* ========== EDIT CONTRACT MODAL ========== */}
+      <Modal
+        title={`${language === 'ar' ? 'تعديل العقد' : 'Edit Contract'} #${editingContract?.id || ''}`}
+        open={showEditModal}
+        onCancel={() => {
+          setShowEditModal(false);
+          editForm.resetFields();
+          setEditingContract(null);
+          setEditSelectedOffer(null);
+        }}
+        onOk={handleUpdateContract}
+        okText={t.save}
+        cancelText={t.cancel}
+        confirmLoading={isUpdating}
+        width={800}
+        destroyOnClose
+      >
+        <Form
+          form={editForm}
+          layout="vertical"
+          onValuesChange={() => {
+            const values = editForm.getFieldsValue();
+            editForm.setFieldValue('totalCost', computeTotalCost(values));
+          }}
+        >
+          <Divider>{t.contractDetails}</Divider>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="contractType"
+                label={t.type}
+                rules={[{ required: true, message: language === 'ar' ? 'مطلوب' : 'Required' }]}
+              >
+                <Select
+                  placeholder={t.type}
+                  options={toSelectOptions([...MEDIATION_CONTRACT_TYPE], language)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="statusId" label={t.status}>
+                <Select
+                  placeholder={t.status}
+                  options={toSelectOptions([...MEDIATION_CONTRACT_STATUS], language)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="contractCategory" label={t.contractCategory}>
+                <Select
+                  allowClear
+                  placeholder={t.contractCategory}
+                  options={toSelectOptions([...WORKER_NOMINATION], language)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="musanedContractNumber" label={t.musanedNumber}>
+                <Input placeholder={t.musanedNumber} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="musanedDocumentationNumber" label={t.documentationNumber}>
+                <Input placeholder={t.documentationNumber} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Divider>{language === 'ar' ? 'اختيار العرض' : 'Select Offer'}</Divider>
+          <Form.Item name="offerId" hidden>
+            <InputNumber />
+          </Form.Item>
+          <OfferSelector
+            language={language}
+            selectedOfferId={
+              editSelectedOffer?.id ??
+              editForm.getFieldValue('offerId') ??
+              editingContract?.offerId ??
+              null
+            }
+            onSelect={handleEditOfferSelect}
+            compact
+          />
+
+          <Divider>{t.visaInfo}</Divider>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item name="visaType" label={language === 'ar' ? 'نوع التأشيرة' : 'Visa Type'}>
+                <Select
+                  allowClear
+                  placeholder={language === 'ar' ? 'نوع التأشيرة' : 'Visa Type'}
+                  options={toSelectOptions([...VISA_TYPE], language)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="visaNumber" label={t.visaNumber}>
+                <Input placeholder={t.visaNumber} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="visaDateHijri" label={t.visaDateHijri}>
+                <Input placeholder="1446/06/15" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="arrivalDestinationId" label={t.arrivalCity}>
+                <Select
+                  showSearch
+                  allowClear
+                  placeholder={t.arrivalCity}
+                  optionFilterProp="label"
+                  options={toSelectOptions([...ARRIVAL_DESTINATIONS], language)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="isComprehensiveQualificationVisa"
+                valuePropName="checked"
+                label={t.comprehensiveVisa}
+              >
+                <Switch />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Divider>{t.financialInfo}</Divider>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item name="localCost" label={t.localCost}>
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="0" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="agentCostSAR" label={t.agentCost}>
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="0" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="salary" label={t.salary}>
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="0" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="otherCosts" label={t.otherCosts}>
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="0" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="totalTaxValue" label={t.taxValue}>
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="0" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="managerDiscount" label={t.managerDiscount}>
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="0" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="costDiscount" label={t.costDiscount}>
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="0" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="totalCost" label={t.totalCost}>
+                <InputNumber style={{ width: '100%' }} disabled />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="costDescription" label={t.costDescription}>
+                <Input placeholder={t.costDescription} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="hasContractInsurance" valuePropName="checked" label={t.hasInsurance}>
+                <Switch />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                noStyle
+                shouldUpdate={(prev: Record<string, unknown>, curr: Record<string, unknown>) =>
+                  prev.hasContractInsurance !== curr.hasContractInsurance
+                }
+              >
+                {({ getFieldValue }: { getFieldValue: (name: string) => unknown }) =>
+                  getFieldValue('hasContractInsurance') ? (
+                    <Form.Item name="domesticWorkerInsurance" label={t.insuranceCost}>
+                      <InputNumber style={{ width: '100%' }} min={0} placeholder="0" />
+                    </Form.Item>
+                  ) : null
+                }
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
       </Modal>
 
       {/* Customer Selection Modal - shown when adding a contract without a pre-selected customer */}

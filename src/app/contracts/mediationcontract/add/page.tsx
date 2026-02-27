@@ -16,6 +16,7 @@ import {
   Divider,
   Space,
   Alert,
+  Tag,
 } from 'antd';
 import {
   UserOutlined,
@@ -30,8 +31,7 @@ import {
 import { useAuthStore } from '@/store/authStore';
 import { useMediationContracts } from '@/hooks/api/useMediationContracts';
 import { useCustomers } from '@/hooks/api/useCustomers';
-import { useMediationOffers } from '@/hooks/api/useMediationOffers';
-import type { CreateMediationContractDto } from '@/types/api.types';
+import type { CreateMediationContractDto, MediationContractOffer } from '@/types/api.types';
 import {
   MEDIATION_CONTRACT_TYPE,
   VISA_TYPE,
@@ -40,6 +40,7 @@ import {
   MEDIATION_CONTRACT_STATUS,
   toSelectOptions,
 } from '@/constants/enums';
+import OfferSelector from '@/components/contracts/OfferSelector';
 import styles from './AddMediationContract.module.css';
 
 const { TextArea } = Input;
@@ -57,10 +58,26 @@ export default function AddMediationContractPage() {
   const [form] = Form.useForm();
   const [hasInsurance, setHasInsurance] = useState(false);
   const [isComprehensiveVisa, setIsComprehensiveVisa] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState<MediationContractOffer | null>(null);
 
   const { createContract, isCreating } = useMediationContracts();
   const { customers, isLoading: isLoadingCustomers } = useCustomers();
-  const { data: offers, isLoading: isLoadingOffers } = useMediationOffers();
+
+  // Handle offer selection → auto-fill fields
+  const handleOfferSelect = (offer: MediationContractOffer) => {
+    setSelectedOffer(offer);
+    form.setFieldsValue({
+      offerId: offer.id,
+      salary: offer.salary ?? 0,
+      localCost: offer.localCost ?? 0,
+      agentCostSAR: offer.agentCostSAR ?? 0,
+    });
+    // Recompute total after a tick so the form values propagate
+    setTimeout(() => {
+      const total = computedTotalCost();
+      form.setFieldsValue({ totalCost: total });
+    }, 50);
+  };
 
   // Pre-fill customer from URL param
   useEffect(() => {
@@ -97,6 +114,9 @@ export default function AddMediationContractPage() {
     workerNomination: isRtl ? 'نوع الترشيح' : 'Worker Nomination',
     offerSelection: isRtl ? 'اختر العرض' : 'Select Offer',
     offer: isRtl ? 'العرض' : 'Offer',
+    offerAutoFillNote: isRtl
+      ? 'اختر عرض من الجدول لملء الراتب والتكلفة المحلية وتكلفة الوكيل تلقائياً'
+      : 'Select an offer from the table to auto-fill salary, local cost, and agent cost',
     // Visa step
     visaType: isRtl ? 'نوع التأشيرة' : 'Visa Type',
     visaNumber: isRtl ? 'رقم التأشيرة' : 'Visa Number',
@@ -337,47 +357,39 @@ export default function AddMediationContractPage() {
 
   // ─── Step 2: Worker & Offer ────────────────────────────────────────────────
   const renderStep2 = () => (
-    <Row gutter={[24, 0]}>
-      <Col xs={24} md={12}>
-        <Form.Item name="workerNomination" label={t.workerNomination}>
-          <Select
-            size="large"
-            placeholder={isRtl ? 'اختر نوع الترشيح' : 'Select nomination type'}
-            allowClear
-          >
-            {toSelectOptions(WORKER_NOMINATION, language).map((opt) => (
-              <Option key={opt.value} value={opt.value}>
-                {opt.label}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-      </Col>
-      <Col xs={24} md={12}>
-        <Form.Item name="offerId" label={t.offer}>
-          <Select
-            showSearch
-            loading={isLoadingOffers}
-            placeholder={t.offerSelection}
-            filterOption={(input, option) =>
-              String(option?.children || '')
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            size="large"
-            allowClear
-          >
-            {(offers || []).map((o: any) => (
-              <Option key={o.id} value={o.id}>
-                {isRtl
-                  ? o.offerNameAr || o.offerName || '#' + o.id
-                  : o.offerName || o.offerNameAr || '#' + o.id}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-      </Col>
-    </Row>
+    <>
+      <Row gutter={[24, 0]}>
+        <Col xs={24} md={12}>
+          <Form.Item name="workerNomination" label={t.workerNomination}>
+            <Select
+              size="large"
+              placeholder={isRtl ? 'اختر نوع الترشيح' : 'Select nomination type'}
+              allowClear
+            >
+              {toSelectOptions(WORKER_NOMINATION, language).map((opt) => (
+                <Option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Col>
+        <Col xs={24} md={12}>
+          <Form.Item name="offerId" label={t.offer} hidden>
+            <InputNumber />
+          </Form.Item>
+        </Col>
+      </Row>
+
+      {/* Offer Selector Table */}
+      <Alert type="info" showIcon message={t.offerAutoFillNote} style={{ marginBottom: 16 }} />
+      <OfferSelector
+        language={language}
+        selectedOfferId={selectedOffer?.id ?? form.getFieldValue('offerId') ?? null}
+        onSelect={handleOfferSelect}
+        compact
+      />
+    </>
   );
 
   // ─── Step 3: Visa Data ─────────────────────────────────────────────────────
@@ -450,9 +462,33 @@ export default function AddMediationContractPage() {
   // ─── Step 4: Contract Costs ────────────────────────────────────────────────
   const renderStep4 = () => (
     <>
+      {selectedOffer && (
+        <Alert
+          type="success"
+          showIcon
+          message={
+            isRtl
+              ? `تم ملء الراتب والتكلفة المحلية وتكلفة الوكيل تلقائياً من العرض #${selectedOffer.id}`
+              : `Salary, Local Cost, and Agent Cost were auto-filled from Offer #${selectedOffer.id}`
+          }
+          style={{ marginBottom: 16 }}
+        />
+      )}
       <Row gutter={[24, 0]}>
         <Col xs={24} md={8}>
-          <Form.Item name="localCost" label={t.localCost}>
+          <Form.Item
+            name="localCost"
+            label={
+              <span>
+                {t.localCost}
+                {selectedOffer && (
+                  <Tag color="green" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                    {isRtl ? 'من العرض' : 'From Offer'}
+                  </Tag>
+                )}
+              </span>
+            }
+          >
             <InputNumber
               size="large"
               style={{ width: '100%' }}
@@ -467,7 +503,19 @@ export default function AddMediationContractPage() {
           </Form.Item>
         </Col>
         <Col xs={24} md={8}>
-          <Form.Item name="agentCostSAR" label={t.agentCost}>
+          <Form.Item
+            name="agentCostSAR"
+            label={
+              <span>
+                {t.agentCost}
+                {selectedOffer && (
+                  <Tag color="orange" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                    {isRtl ? 'من العرض' : 'From Offer'}
+                  </Tag>
+                )}
+              </span>
+            }
+          >
             <InputNumber
               size="large"
               style={{ width: '100%' }}
@@ -482,7 +530,19 @@ export default function AddMediationContractPage() {
           </Form.Item>
         </Col>
         <Col xs={24} md={8}>
-          <Form.Item name="salary" label={t.salary}>
+          <Form.Item
+            name="salary"
+            label={
+              <span>
+                {t.salary}
+                {selectedOffer && (
+                  <Tag color="blue" style={{ marginInlineStart: 8, fontSize: 11 }}>
+                    {isRtl ? 'من العرض' : 'From Offer'}
+                  </Tag>
+                )}
+              </span>
+            }
+          >
             <InputNumber
               size="large"
               style={{ width: '100%' }}

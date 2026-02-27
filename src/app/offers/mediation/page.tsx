@@ -306,14 +306,32 @@ export default function MediationOffersPage() {
       title: t('branchName'),
       dataIndex: 'branchName',
       key: 'branchName',
-      render: (text: string) => text || (isArabic ? 'غير محدد' : 'N/A'),
+      render: (text: string, record: MediationContractOffer) => {
+        if (text) return text;
+        if (record.branchId) {
+          const branch = branches.find((b: any) => b.id === record.branchId);
+          if (branch)
+            return isArabic ? branch.nameAr || branch.nameEn : branch.nameEn || branch.nameAr;
+        }
+        return isArabic ? 'غير محدد' : 'N/A';
+      },
       sorter: (a, b) => (a.branchName || '').localeCompare(b.branchName || ''),
     },
     {
       title: t('nationality'),
       dataIndex: 'nationalityName',
       key: 'nationalityName',
-      render: (text: string) => text || (isArabic ? 'غير محدد' : 'N/A'),
+      render: (text: string, record: MediationContractOffer) => {
+        if (text) return text;
+        if (record.nationalityId) {
+          const nat = nationalities.find((n) => n.nationalityId === record.nationalityId);
+          if (nat)
+            return isArabic
+              ? nat.nationalityNameAr || nat.nationalityNameEn
+              : nat.nationalityNameEn || nat.nationalityNameAr;
+        }
+        return isArabic ? 'غير محدد' : 'N/A';
+      },
       sorter: (a, b) => (a.nationalityName || '').localeCompare(b.nationalityName || ''),
     },
     {
