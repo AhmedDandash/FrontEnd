@@ -780,7 +780,7 @@ export interface AddIssueDto {
   incomingNumber?: string | null;
   submissionAuthority?: number | null;
   transactionDate?: string | null;
-  attachmentFile?: File | string | null;
+  attachmentFile?: string | null;
 }
 
 export interface ComplaintIssue {
@@ -891,4 +891,149 @@ export interface MediationContractOfferSummary {
   branchId?: number | null;
   branchName?: string | null;
   offersCount?: number | null;
+}
+
+// ==================== Mediation Contract Types ====================
+export interface MediationContract {
+  id: number;
+  statusId?: number | null;
+  contractType?: number | null;
+  customerId?: number | null;
+  musanedContractNumber?: string | null;
+  musanedDocumentationNumber?: string | null;
+  marketerId?: number | null;
+  contractCategory?: number | null;
+  offerId?: number | null;
+  visaType?: number | null;
+  visaNumber?: string | null;
+  visaDateHijri?: string | null;
+  visaDate?: string | null;
+  isComprehensiveQualificationVisa?: boolean | null;
+  arrivalDestinationId?: number | null;
+  localCost?: number | null;
+  agentCostSAR?: number | null;
+  salary?: number | null;
+  otherCosts?: number | null;
+  totalTaxValue?: number | null;
+  managerDiscount?: number | null;
+  costDiscount?: number | null;
+  totalCost?: number | null;
+  costDescription?: string | null;
+  hasContractInsurance?: boolean | null;
+  domesticWorkerInsurance?: number | null;
+  // Read-only / joined fields from API
+  customerName?: string | null;
+  customerNameAr?: string | null;
+  customerPhone?: string | null;
+  nationalityName?: string | null;
+  nationalityNameAr?: string | null;
+  jobName?: string | null;
+  jobNameAr?: string | null;
+  agentName?: string | null;
+  branchName?: string | null;
+  cancelBy?: number | null;
+  cancelNote?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface CreateMediationContractDto {
+  contractType?: number | null;
+  statusId?: number | null;
+  customerId?: number | null;
+  musanedContractNumber?: string | null;
+  musanedDocumentationNumber?: string | null;
+  marketerId?: number | null;
+  contractCategory?: number | null;
+  offerId?: number | null;
+  visaType?: number | null;
+  visaNumber?: string | null;
+  visaDateHijri?: string | null;
+  visaDate?: string | null;
+  isComprehensiveQualificationVisa?: boolean | null;
+  arrivalDestinationId?: number | null;
+  localCost?: number | null;
+  agentCostSAR?: number | null;
+  salary?: number | null;
+  otherCosts?: number | null;
+  totalTaxValue?: number | null;
+  managerDiscount?: number | null;
+  costDiscount?: number | null;
+  totalCost?: number | null;
+  costDescription?: string | null;
+  hasContractInsurance?: boolean | null;
+  domesticWorkerInsurance?: number | null;
+}
+
+export interface UpdateMediationContractDto {
+  contractType?: number | null;
+  statusId?: number | null;
+  customerId?: number | null;
+  musanedContractNumber?: string | null;
+  musanedDocumentationNumber?: string | null;
+  marketerId?: number | null;
+  contractCategory?: number | null;
+  offerId?: number | null;
+  visaType?: number | null;
+  visaNumber?: string | null;
+  visaDateHijri?: string | null;
+  visaDate?: string | null;
+  isComprehensiveQualificationVisa?: boolean | null;
+  arrivalDestinationId?: number | null;
+  localCost?: number | null;
+  agentCostSAR?: number | null;
+  salary?: number | null;
+  otherCosts?: number | null;
+  totalTaxValue?: number | null;
+  managerDiscount?: number | null;
+  costDiscount?: number | null;
+  totalCost?: number | null;
+  costDescription?: string | null;
+  hasContractInsurance?: boolean | null;
+  domesticWorkerInsurance?: number | null;
+}
+
+export interface MediationContractNoteDto {
+  mediationId: number;
+  dateNote?: string | null;
+  note?: string | null;
+}
+
+export interface MediationContractNote {
+  id: number;
+  mediationId?: number | null;
+  dateNote?: string | null;
+  note?: string | null;
+  createdAt?: string | null;
+}
+
+export interface AddDomesticWorkerDto {
+  hasContractInsurance?: boolean | null;
+  cost?: number | null;
+  contractId: number;
+}
+
+export interface ContractTypeChangeDto {
+  type: number;
+  contractId: number;
+}
+
+export interface ContractCancelDto {
+  contractId: number;
+  cancelBy?: number | null;
+  cancelNote?: string | null;
+}
+
+export interface MediationContractInvoice {
+  id: number;
+  paymentDate?: string | null;
+  musanedContractNumber?: string | null;
+  mediationContractId?: number | null;
+  createdAt?: string | null;
+}
+
+export interface CreateInvoiceDto {
+  paymentDate?: string | null;
+  musanedContractNumber?: string | null;
+  mediationContractId: number;
 }

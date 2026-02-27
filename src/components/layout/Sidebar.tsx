@@ -139,21 +139,36 @@ export default function Sidebar({
       icon: <FileTextOutlined />,
       label: language === 'ar' ? 'العقود' : 'Contracts',
       children: [
-        { key: '/contracts', label: language === 'ar' ? 'جميع العقود' : 'All Contracts' },
+        // {
+        //   key: '/contracts/mediationcontract',
+        //   label: language === 'ar' ? 'عقود الوساطة' : 'Mediation Contracts',
+        // },
+        // {
+        //   key: '/contracts/rent',
+        //   label: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts',
+        // },
+        // { key: '/contracts/delegates', label: language === 'ar' ? 'مندوبو العقود' : 'Delegates' },
+        // { key: '/contracts/penalties', label: language === 'ar' ? 'غرامات العقود' : 'Penalties' },
+        // { key: '/contracts/transmital', label: language === 'ar' ? 'نقل العقود' : 'Transfer' },
+        // {
+        //   key: '/contracts/cancellation',
+        //   label: language === 'ar' ? 'إلغاء العقود' : 'Cancellation',
+        // },
+        // {
+        //   key: '/contracts/collection-renewal',
+        //   label: language === 'ar' ? 'التحصيل والتجديد' : 'Collection & Renewal',
+        // },
+
         {
-          key: '/contracts/rent',
-          label: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts',
-        },
-        { key: '/contracts/delegates', label: language === 'ar' ? 'مندوبو العقود' : 'Delegates' },
-        { key: '/contracts/penalties', label: language === 'ar' ? 'غرامات العقود' : 'Penalties' },
-        { key: '/contracts/transmital', label: language === 'ar' ? 'نقل العقود' : 'Transfer' },
-        {
-          key: '/contracts/cancellation',
-          label: language === 'ar' ? 'إلغاء العقود' : 'Cancellation',
-        },
-        {
-          key: '/contracts/collection-renewal',
-          label: language === 'ar' ? 'التحصيل والتجديد' : 'Collection & Renewal',
+          key: 'contracts-mediation',
+          label: language === 'ar' ? 'عقود الوساطة' : 'Mediation',
+          children: [
+            {
+              key: '/contracts/mediationcontract',
+              label: language === 'ar' ? 'عقود الوساطة' : 'Mediation Contracts',
+            },
+            
+          ],
         },
         /* ───── Operation submenu (moved from top-level) ───── */
         {

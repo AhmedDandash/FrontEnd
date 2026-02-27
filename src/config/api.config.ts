@@ -153,4 +153,20 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/MediationContractOffer/UpdateOffer/${id}`,
     DELETE: (id: number) => `/api/MediationContractOffer/DeleteOffer/${id}`,
   },
+
+  // Mediation Contract
+  MEDIATION_CONTRACT: {
+    GET_ALL: '/api/MediationContract',
+    CREATE: '/api/MediationContract',
+    GET_BY_ID: (id: number) => `/api/MediationContract/${id}`,
+    UPDATE: (id: number) => `/api/MediationContract/${id}`,
+    DELETE: (id: number) => `/api/MediationContract/${id}`,
+    ADD_NOTE: '/api/MediationContract/AddNote',
+    ALL_NOTES: '/api/MediationContract/AllNotes',
+    ADD_DOMESTIC_WORKER: '/api/MediationContract/Addingdomesticworker',
+    CONTRACT_TYPE_CHANGE: '/api/MediationContract/ContractTypeChange',
+    CONTRACT_CANCEL: '/api/MediationContract/ContractCancel',
+    GET_INVOICE_BY_ID: (id: number) => `/api/MediationContract/GetInvoiceById/${id}`,
+    CREATE_INVOICE: '/api/MediationContract/CreateInvoice',
+  },
 } as const;

@@ -341,3 +341,65 @@ export const ISSUE_STATUS = [
   { value: 1, labelAr: 'مفتوحة', labelEn: 'Open' },
   { value: 2, labelAr: 'مغلقة', labelEn: 'Closed' },
 ] as const;
+
+// ==================== Mediation Contract Status ====================
+// حالة عقد الوساطة
+export const MEDIATION_CONTRACT_STATUS = [
+  { value: 1, labelAr: 'جديد', labelEn: 'New' },
+  { value: 2, labelAr: 'قيد التنفيذ', labelEn: 'In Progress' },
+  { value: 3, labelAr: 'مكتمل', labelEn: 'Completed' },
+  { value: 4, labelAr: 'ملغى', labelEn: 'Cancelled' },
+  { value: 5, labelAr: 'معلق', labelEn: 'Pending' },
+] as const;
+
+// ==================== Mediation Contract Type ====================
+// نوع عقد الوساطة
+export const MEDIATION_CONTRACT_TYPE = [
+  { value: 1, labelAr: 'عقد مساند', labelEn: 'Musaned Contract' },
+  { value: 2, labelAr: 'عقد تفويض', labelEn: 'Delegation Contract' },
+] as const;
+
+// ==================== Visa Type ====================
+// نوع التأشيرة
+export const VISA_TYPE = [
+  { value: 1, labelAr: 'تأشيرة عمل', labelEn: 'Work Visa' },
+  { value: 2, labelAr: 'تأشيرة زيارة', labelEn: 'Visit Visa' },
+  { value: 3, labelAr: 'تأشيرة نقل خدمات', labelEn: 'Transfer Visa' },
+] as const;
+
+// ==================== Worker Nomination Status ====================
+// حالة تعيين العامل (في عقد الوساطة)
+export const WORKER_NOMINATION = [
+  { value: 1, labelAr: 'معين', labelEn: 'Nominated' },
+  { value: 2, labelAr: 'غير معين', labelEn: 'Not Nominated' },
+  { value: 3, labelAr: 'تفويض', labelEn: 'Delegation' },
+  { value: 4, labelAr: 'معروفة', labelEn: 'Known' },
+] as const;
+
+// ==================== Cancel By ====================
+// إلغاء بواسطة
+export const CANCEL_BY = [
+  { value: 1, labelAr: 'من العميل', labelEn: 'By Customer' },
+  { value: 2, labelAr: 'من الإدارة', labelEn: 'By Management' },
+] as const;
+
+// ==================== Arrival Destinations ====================
+// مدن الوصول
+export const ARRIVAL_DESTINATIONS = [
+  { value: 1, labelAr: 'الرياض', labelEn: 'Riyadh' },
+  { value: 2, labelAr: 'الدمام', labelEn: 'Dammam' },
+  { value: 3, labelAr: 'جدة', labelEn: 'Jeddah' },
+  { value: 4, labelAr: 'حائل', labelEn: 'Hail' },
+  { value: 5, labelAr: 'الأحساء', labelEn: 'Al Ahsa' },
+  { value: 6, labelAr: 'المدينة المنورة', labelEn: 'Madinah' },
+  { value: 7, labelAr: 'ينبع', labelEn: 'Yanbu' },
+  { value: 8, labelAr: 'تبوك', labelEn: 'Tabuk' },
+  { value: 9, labelAr: 'بريدة', labelEn: 'Buraidah' },
+  { value: 10, labelAr: 'أبها', labelEn: 'Abha' },
+  { value: 11, labelAr: 'الطائف', labelEn: 'Taif' },
+  { value: 12, labelAr: 'نجران', labelEn: 'Najran' },
+  { value: 13, labelAr: 'جازان', labelEn: 'Jazan' },
+  { value: 14, labelAr: 'الجوف', labelEn: 'Al Jawf' },
+  { value: 15, labelAr: 'القصيم', labelEn: 'Qassim' },
+  { value: 16, labelAr: 'عرعر', labelEn: 'Arar' },
+] as const;

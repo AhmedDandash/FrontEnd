@@ -343,7 +343,13 @@ export default function CustomersPage() {
         key: 'contracts',
         label: language === 'ar' ? 'عقود الوساطة' : 'Mediation Contracts',
         icon: <FileTextOutlined />,
-        onClick: () => console.log('View mediation contracts:', customer.id),
+        onClick: () => router.push(`/contracts/mediationcontract?customerId=${customer.id}`),
+      },
+      {
+        key: 'addMediationContract',
+        label: language === 'ar' ? 'إنشاء عقد وساطة' : 'Create Mediation Contract',
+        icon: <FileTextOutlined />,
+        onClick: () => router.push(`/contracts/mediationcontract/add?customerId=${customer.id}`),
       },
       {
         key: 'transfer',
@@ -597,6 +603,19 @@ export default function CustomersPage() {
 
                 {/* Card Footer Actions */}
                 <div className={styles.cardFooter}>
+                  <Button
+                    type="primary"
+                    icon={<FileTextOutlined />}
+                    onClick={() =>
+                      router.push(`/contracts/mediationcontract/add?customerId=${customer.id}`)
+                    }
+                    style={{
+                      marginRight: language === 'ar' ? 0 : 8,
+                      marginLeft: language === 'ar' ? 8 : 0,
+                    }}
+                  >
+                    {language === 'ar' ? 'إنشاء عقد وساطة' : 'Create Mediation Contract'}
+                  </Button>
                   <Button
                     type="primary"
                     icon={<FileTextOutlined />}

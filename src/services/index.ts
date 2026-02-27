@@ -15,3 +15,4 @@ export { EmploymentOperatingContractService } from './employment-operating-contr
 export { ComplaintService } from './complaint.service';
 export { NationalityService } from './nationality.service';
 export { MediationContractOfferService } from './mediation-contract-offer.service';
+export { MediationContractService } from './mediation-contract.service';
