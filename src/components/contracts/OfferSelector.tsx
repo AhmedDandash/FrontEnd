@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Table, Input, Select, Tag, Empty, Spin, Card, Row, Col, Alert } from 'antd';
 import { SearchOutlined, CheckCircleFilled, DollarOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -46,7 +46,10 @@ export default function OfferSelector({
 
   // Fetch offers from API if not provided externally
   const { data: apiOffers, isLoading: isLoadingOffers } = useMediationOffers();
-  const offers = externalOffers ?? apiOffers ?? [];
+  const offers = useMemo(
+    () => externalOffers ?? apiOffers ?? [],
+    [externalOffers, apiOffers]
+  );
 
   // Lookup data for display (nationalities & jobs from API)
   const { data: nationalities = [] } = useNationalities();
@@ -85,7 +88,7 @@ export default function OfferSelector({
   };
 
   // Helper: resolve nationality name
-  const getNationalityName = (offer: MediationContractOffer): string => {
+  const getNationalityName = useCallback((offer: MediationContractOffer): string => {
     // 1. Use joined name from API
     if (offer.nationalityName) return offer.nationalityName;
     // 2. Lookup from nationalities API
@@ -101,19 +104,19 @@ export default function OfferSelector({
       const enumNat = [...NATIONALITIES].find((n) => n.value === offer.nationalityId);
       if (enumNat) return isArabic ? enumNat.labelAr : enumNat.labelEn;
     }
-    return t.notDefined;
-  };
+    return isArabic ? 'غير محدد' : 'N/A';
+  }, [nationalities, isArabic]);
 
   // Helper: resolve job name
-  const getJobName = (offer: MediationContractOffer): string => {
+  const getJobName = useCallback((offer: MediationContractOffer): string => {
     if (offer.jobName) return offer.jobName;
     if (offer.jobId) {
       const job = (jobs as any[]).find((j: any) => j.id === offer.jobId);
       if (job)
         return isArabic ? job.jobNameAr || job.name : job.jobNameEn || job.jobNameAr || job.name;
     }
-    return t.notDefined;
-  };
+    return isArabic ? 'غير محدد' : 'N/A';
+  }, [jobs, isArabic]);
 
   // Format currency
   const formatSAR = (val: number | null | undefined): string => {
@@ -189,7 +192,7 @@ export default function OfferSelector({
       }
       return true;
     });
-  }, [offers, nationalityFilter, jobFilter, searchTerm]);
+  }, [offers, nationalityFilter, jobFilter, searchTerm, getNationalityName, getJobName]);
 
   // Find currently selected offer for the highlight badge
   const selectedOffer = selectedOfferId ? offers.find((o) => o.id === selectedOfferId) : null;

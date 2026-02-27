@@ -780,7 +780,7 @@ export interface AddIssueDto {
   incomingNumber?: string | null;
   submissionAuthority?: number | null;
   transactionDate?: string | null;
-  attachmentFile?: string | null;
+  attachmentFile?: File | string | null;
 }
 
 export interface ComplaintIssue {

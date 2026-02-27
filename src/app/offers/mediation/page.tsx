@@ -71,7 +71,7 @@ export default function MediationOffersPage() {
   const { data: nationalities = [] } = useNationalities();
   const { data: jobs = [] } = useJobs();
   const { branches: branchList } = useBranches();
-  const branches = branchList || [];
+  const branches = useMemo(() => branchList || [], [branchList]);
   const { data: agents = [] } = useAgents();
 
   // State
