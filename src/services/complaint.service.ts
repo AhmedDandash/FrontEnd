@@ -93,18 +93,15 @@ export class ComplaintService {
    * Add an issue/case to a complaint (supports file upload)
    */
   static async addIssue(data: AddIssueDto): Promise<ComplaintIssue> {
-    const formData = new FormData();
-    formData.append('complaintId', data.complaintId.toString());
-    if (data.incomingNumber) formData.append('incomingNumber', data.incomingNumber);
-    if (data.submissionAuthority != null)
-      formData.append('submissionAuthority', data.submissionAuthority.toString());
-    if (data.transactionDate) formData.append('transactionDate', data.transactionDate);
-    if (data.attachmentFile && data.attachmentFile instanceof File) {
-      formData.append('attachmentFile', data.attachmentFile);
-    }
-    const response = await api.post<ComplaintIssue>(API_ENDPOINTS.COMPLAINT.ADD_ISSUE, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const payload: Record<string, any> = {
+      complaintId: data.complaintId,
+    };
+    if (data.incomingNumber != null) payload.incomingNumber = data.incomingNumber;
+    if (data.submissionAuthority != null) payload.submissionAuthority = data.submissionAuthority;
+    if (data.transactionDate != null) payload.transactionDate = data.transactionDate;
+    if (data.attachmentFile != null) payload.attachmentFile = data.attachmentFile;
+
+    const response = await api.post<ComplaintIssue>(API_ENDPOINTS.COMPLAINT.ADD_ISSUE, payload);
     return response.data;
   }
 

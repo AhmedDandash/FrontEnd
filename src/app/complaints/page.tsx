@@ -81,8 +81,8 @@ const { TextArea } = Input;
 // Derive a numeric status from the boolean flags returned by the API
 const getComplaintStatus = (complaint: Complaint): number => {
   if (complaint.isFinish) return COMPLAINT_STATUS[1].value; // 2 = Closed
-  if (complaint.ishold) return COMPLAINT_STATUS[2].value;  // 3 = On Hold
-  return COMPLAINT_STATUS[0].value;                        // 1 = Open
+  if (complaint.ishold) return COMPLAINT_STATUS[2].value; // 3 = On Hold
+  return COMPLAINT_STATUS[0].value; // 1 = Open
 };
 
 // complaintFrom values (derived from COMPLAINT_FROM enum):
@@ -490,7 +490,8 @@ export default function ComplaintsPage() {
         (complaint.notesAr || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (complaint.notesEn || '').toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus = statusFilter === 'all' || getComplaintStatus(complaint).toString() === statusFilter;
+      const matchesStatus =
+        statusFilter === 'all' || getComplaintStatus(complaint).toString() === statusFilter;
       const matchesContractType =
         contractTypeFilter === 'all' || complaint.contractType?.toString() === contractTypeFilter;
       const matchesComplaintFrom =
@@ -676,6 +677,19 @@ export default function ComplaintsPage() {
     try {
       const values = await issueForm.validateFields();
       if (!issueComplaint) return;
+
+      // Convert selected file to base64 string
+      let attachmentFileStr: string | null = null;
+      const fileObj: File | undefined = values.attachmentFile?.[0]?.originFileObj;
+      if (fileObj) {
+        attachmentFileStr = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve((reader.result as string).split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(fileObj);
+        });
+      }
+
       const dto: AddIssueDto = {
         complaintId: issueComplaint.id,
         incomingNumber: values.incomingNumber || null,
@@ -683,7 +697,7 @@ export default function ComplaintsPage() {
         transactionDate: values.transactionDate
           ? values.transactionDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
           : null,
-        attachmentFile: values.attachmentFile?.[0]?.originFileObj || null,
+        attachmentFile: attachmentFileStr,
       };
       addIssueMutation.mutate(dto, {
         onSuccess: () => {
@@ -1332,15 +1346,7 @@ function ViewDetailsModal({
           </Col>
           <Col xs={12} md={8}>
             <div style={{ color: '#6c757d', fontSize: 12, marginBottom: 4 }}>{t('status')}</div>
-            <Tag
-              color={
-                complaint.isFinish
-                  ? 'success'
-                  : complaint.ishold
-                    ? 'error'
-                    : 'warning'
-              }
-            >
+            <Tag color={complaint.isFinish ? 'success' : complaint.ishold ? 'error' : 'warning'}>
               {getEnumLabel(COMPLAINT_STATUS, getComplaintStatus(complaint), language)}
             </Tag>
           </Col>

@@ -167,7 +167,10 @@ export default function Sidebar({
               key: '/contracts/mediationcontract',
               label: language === 'ar' ? 'عقود الوساطة' : 'Mediation Contracts',
             },
-            
+            {
+              key: '/contracts/mediationcontract/offers',
+              label: language === 'ar' ? 'عروض عقود الوساطة' : 'Mediation Offers',
+            },
           ],
         },
         /* ───── Operation submenu (moved from top-level) ───── */
