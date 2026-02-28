@@ -334,10 +334,9 @@ function DetailsContent() {
     },
     {
       title: t('costTax'),
-      dataIndex: 'costTax',
       key: 'costTax',
       align: 'end',
-      render: (v: number) => formatSAR(v),
+      render: (_: any, record) => formatSAR(Math.round((record.cost ?? 0) * 0.15)),
     },
     {
       title: t('insurance'),

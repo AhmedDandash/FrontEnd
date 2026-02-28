@@ -66,11 +66,14 @@ export default function AddMediationContractPage() {
   // Handle offer selection → auto-fill fields
   const handleOfferSelect = (offer: MediationContractOffer) => {
     setSelectedOffer(offer);
+    const localCost = offer.localCost ?? 0;
+    const taxValue = Math.round(localCost * 0.15 * 100) / 100;
     form.setFieldsValue({
       offerId: offer.id,
       salary: offer.salary ?? 0,
-      localCost: offer.localCost ?? 0,
+      localCost,
       agentCostSAR: offer.agentCostSAR ?? 0,
+      totalTaxValue: taxValue,
     });
     // Recompute total after a tick so the form values propagate
     setTimeout(() => {
@@ -495,7 +498,10 @@ export default function AddMediationContractPage() {
               placeholder="0.00"
               min={0}
               precision={2}
-              onChange={() => {
+              onChange={(val) => {
+                const localCost = Number(val) || 0;
+                const taxValue = Math.round(localCost * 0.15 * 100) / 100;
+                form.setFieldsValue({ totalTaxValue: taxValue });
                 const total = computedTotalCost();
                 form.setFieldsValue({ totalCost: total });
               }}
@@ -571,14 +577,11 @@ export default function AddMediationContractPage() {
           <Form.Item name="totalTaxValue" label={t.taxValue}>
             <InputNumber
               size="large"
-              style={{ width: '100%' }}
+              style={{ width: '100%', background: '#f5f5f5' }}
               placeholder="0.00"
               min={0}
               precision={2}
-              onChange={() => {
-                const total = computedTotalCost();
-                form.setFieldsValue({ totalCost: total });
-              }}
+              readOnly
             />
           </Form.Item>
         </Col>

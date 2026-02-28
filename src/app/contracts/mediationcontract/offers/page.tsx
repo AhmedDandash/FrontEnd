@@ -244,6 +244,7 @@ export default function MediationOffersPage() {
 
   const handleEdit = (offer: MediationContractOffer) => {
     setEditingOffer(offer);
+    const localCost = offer.localCost ?? 0;
     form.setFieldsValue({
       nationalityId: offer.nationalityId,
       jobId: offer.jobId,
@@ -254,8 +255,8 @@ export default function MediationOffersPage() {
       previousExperience: offer.previousExperience,
       agentId: offer.agentId,
       salary: offer.salary,
-      localCost: offer.localCost,
-      taxLocalCost: offer.taxLocalCost,
+      localCost,
+      taxLocalCost: Math.round(localCost * 0.15 * 100) / 100,
       agentCostSAR: offer.agentCostSAR,
     });
     setIsModalVisible(true);
@@ -714,15 +715,20 @@ export default function MediationOffersPage() {
                   placeholder={t('localCost')}
                   formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                   parser={(value) => value?.replace(/,/g, '') as any}
+                  onChange={(val) => {
+                    const localCost = Number(val) || 0;
+                    form.setFieldsValue({ taxLocalCost: Math.round(localCost * 0.15 * 100) / 100 });
+                  }}
                 />
               </Form.Item>
             </Col>
             <Col xs={24} md={8}>
               <Form.Item name="taxLocalCost" label={t('taxLocalCost')}>
                 <InputNumber
-                  style={{ width: '100%' }}
+                  style={{ width: '100%', background: '#f5f5f5' }}
                   min={0}
                   placeholder={t('taxLocalCost')}
+                  readOnly
                   formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                   parser={(value) => value?.replace(/,/g, '') as any}
                 />
