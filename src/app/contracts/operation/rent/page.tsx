@@ -22,7 +22,6 @@ import {
   Form,
   InputNumber,
   Alert,
-  message,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
