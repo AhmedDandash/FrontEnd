@@ -37,6 +37,7 @@ export function useEmploymentContractOffers(params?: Record<string, any>) {
   } = useQuery({
     queryKey: [QUERY_KEY, params],
     queryFn: () => EmploymentContractOfferService.getAll(params),
+    staleTime: 0, // Always consider stale so new offers are fetched immediately
   });
 
   // Get offer by ID

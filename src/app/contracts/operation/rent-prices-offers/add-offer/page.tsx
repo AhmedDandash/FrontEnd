@@ -231,7 +231,7 @@ export default function AddSpecialOfferPage() {
 
       await createOfferAsync(payload);
       message.success(t('createSuccess'));
-      router.push('/operation/rent-prices-offers');
+      router.push('/contracts/operation/rent-prices-offers');
     } catch (error: any) {
       console.error('Error creating offer:', error);
       console.error('Error details:', {
@@ -278,7 +278,7 @@ export default function AddSpecialOfferPage() {
             experienceIndicator: 0,
             showForExternalCustomers: false,
             showForReception: false,
-            isActive: false,
+            isActive: true,
             offersCount: 1,
           }}
         >
@@ -571,7 +571,7 @@ export default function AddSpecialOfferPage() {
               <Button
                 size="large"
                 icon={language === 'ar' ? <ArrowRightOutlined /> : <ArrowLeftOutlined />}
-                onClick={() => router.push('/operation/rent-prices-offers')}
+                onClick={() => router.push('/contracts/operation/rent-prices-offers')}
                 style={{ minWidth: 150 }}
               >
                 {t('back')}

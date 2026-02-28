@@ -205,7 +205,7 @@ export default function AddOfferPage() {
         promissoryNoteAmount: values.promissoryNoteAmount || 0,
       });
       message.success(t('createSuccess'));
-      router.push('/operation/rent-prices-offers');
+      router.push('/contracts/operation/rent-prices-offers');
     } catch {
       message.error(t('createError'));
     } finally {
@@ -243,7 +243,7 @@ export default function AddOfferPage() {
             experienceIndicator: 0,
             showForExternalCustomers: false,
             showForReception: false,
-            isActive: false,
+            isActive: true,
           }}
         >
           <Row gutter={[32, 16]}>
@@ -550,7 +550,7 @@ export default function AddOfferPage() {
               <Button
                 size="large"
                 icon={language === 'ar' ? <ArrowRightOutlined /> : <ArrowLeftOutlined />}
-                onClick={() => router.push('/operation/rent-prices-offers')}
+                onClick={() => router.push('/contracts/operation/rent-prices-offers')}
                 style={{ minWidth: 150 }}
               >
                 {t('back')}

@@ -248,7 +248,7 @@ export default function RentPricesOffersPage() {
       render: (_: any, record: EmploymentContractOfferSummary) => (
         <Tooltip title={t('viewDetails')}>
           <Link
-            href={`/operation/rent-prices-offers/details?nationalityId=${record.nationalityId || 0}&jobId=${record.jobId || 0}&branchId=${record.branchId || 0}`}
+            href={`/contracts/operation/rent-prices-offers/details?nationalityId=${record.nationalityId || 0}&jobId=${record.jobId || 0}&branchId=${record.branchId || 0}`}
           >
             <Button type="link" icon={<EyeOutlined style={{ fontSize: '20px' }} />} />
           </Link>
@@ -261,20 +261,26 @@ export default function RentPricesOffersPage() {
   const addOfferMenuItems: MenuProps['items'] = [
     {
       key: 'duration-1',
-      label: <Link href="/operation/rent-prices-offers/add?type=1">{t('duration')}</Link>,
+      label: <Link href="/contracts/operation/rent-prices-offers/add?type=1">{t('duration')}</Link>,
     },
     {
       key: 'transfer-3',
-      label: <Link href="/operation/rent-prices-offers/add?type=3">{t('serviceTransfer')}</Link>,
+      label: (
+        <Link href="/contracts/operation/rent-prices-offers/add?type=3">
+          {t('serviceTransfer')}
+        </Link>
+      ),
     },
     {
       key: 'daily-duration-5',
-      label: <Link href="/operation/rent-prices-offers/add?type=5">{t('dailyDuration')}</Link>,
+      label: (
+        <Link href="/contracts/operation/rent-prices-offers/add?type=5">{t('dailyDuration')}</Link>
+      ),
     },
     {
       key: 'daily-transfer-3d',
       label: (
-        <Link href="/operation/rent-prices-offers/add?type=3&daily=true">
+        <Link href="/contracts/operation/rent-prices-offers/add?type=3&daily=true">
           {t('dailyServiceTransfer')}
         </Link>
       ),
@@ -284,12 +290,16 @@ export default function RentPricesOffersPage() {
   const addSpecialOfferMenuItems: MenuProps['items'] = [
     {
       key: 'special-duration-1',
-      label: <Link href="/operation/rent-prices-offers/add-offer?type=1">{t('duration')}</Link>,
+      label: (
+        <Link href="/contracts/operation/rent-prices-offers/add-offer?type=1">{t('duration')}</Link>
+      ),
     },
     {
       key: 'special-transfer-3',
       label: (
-        <Link href="/operation/rent-prices-offers/add-offer?type=3">{t('serviceTransfer')}</Link>
+        <Link href="/contracts/operation/rent-prices-offers/add-offer?type=3">
+          {t('serviceTransfer')}
+        </Link>
       ),
     },
   ];
@@ -297,12 +307,18 @@ export default function RentPricesOffersPage() {
   const addPackageMenuItems: MenuProps['items'] = [
     {
       key: 'package-duration-1',
-      label: <Link href="/operation/rent-prices-offers/add-package?type=1">{t('duration')}</Link>,
+      label: (
+        <Link href="/contracts/operation/rent-prices-offers/add-package?type=1">
+          {t('duration')}
+        </Link>
+      ),
     },
     {
       key: 'package-transfer-3',
       label: (
-        <Link href="/operation/rent-prices-offers/add-package?type=3">{t('serviceTransfer')}</Link>
+        <Link href="/contracts/operation/rent-prices-offers/add-package?type=3">
+          {t('serviceTransfer')}
+        </Link>
       ),
     },
   ];

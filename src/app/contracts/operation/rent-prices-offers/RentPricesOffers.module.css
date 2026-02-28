@@ -402,6 +402,15 @@
   margin-top: 16px;
 }
 
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
 .priceBreakdown td {
   padding: 8px 12px;
   border-bottom: 1px solid #f0f0f0;

@@ -1,8 +1,26 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { Table, Input, Select, Tag, Empty, Spin, Card, Row, Col, Alert } from 'antd';
-import { SearchOutlined, CheckCircleFilled, DollarOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Input,
+  Select,
+  Tag,
+  Empty,
+  Spin,
+  Card,
+  Row,
+  Col,
+  Alert,
+  Button,
+  Tooltip,
+} from 'antd';
+import {
+  SearchOutlined,
+  CheckCircleFilled,
+  DollarOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useEmploymentContractOffers } from '@/hooks/api/useEmploymentContractOffers';
 import { useNationalities } from '@/hooks/api/useNationalities';
@@ -40,7 +58,11 @@ export default function RentOfferSelector({
   const isArabic = language === 'ar';
 
   // Fetch offers from API if not provided externally
-  const { offers: apiOffersRaw, isLoading: isLoadingOffers } = useEmploymentContractOffers();
+  const {
+    offers: apiOffersRaw,
+    isLoading: isLoadingOffers,
+    refetch: refetchOffers,
+  } = useEmploymentContractOffers();
   const apiOffers = useMemo((): EmploymentContractOffer[] => {
     if (!apiOffersRaw) return [];
     if (Array.isArray(apiOffersRaw)) return apiOffersRaw;
@@ -92,6 +114,7 @@ export default function RentOfferSelector({
     noOffers: isArabic ? 'لا توجد عروض' : 'No offers found',
     loading: isArabic ? 'جاري التحميل...' : 'Loading...',
     selected: isArabic ? 'محدد' : 'Selected',
+    refresh: isArabic ? 'تحديث العروض' : 'Refresh Offers',
     sar: isArabic ? 'ريال' : 'SAR',
     notDefined: isArabic ? 'غير محدد' : 'N/A',
     selectedOffer: isArabic ? 'العرض المحدد' : 'Selected Offer',
@@ -359,6 +382,17 @@ export default function RentOfferSelector({
             options={[{ value: null as any, label: `-- ${t.all} --` }, ...jobOptions]}
           />
         </Col>
+        {!externalOffers && (
+          <Col xs={24} sm="auto" style={{ display: 'flex', alignItems: 'center' }}>
+            <Tooltip title={t.refresh}>
+              <Button
+                icon={<ReloadOutlined />}
+                loading={isLoadingOffers}
+                onClick={() => refetchOffers()}
+              />
+            </Tooltip>
+          </Col>
+        )}
       </Row>
 
       {/* Selected Offer Info Banner */}

@@ -209,7 +209,7 @@ export default function AddPackageOfferPage() {
         isPremium: true, // Package/Premium offer flag
       });
       message.success(t('createSuccess'));
-      router.push('/operation/rent-prices-offers');
+      router.push('/contracts/operation/rent-prices-offers');
     } catch {
       message.error(t('createError'));
     } finally {
@@ -247,7 +247,7 @@ export default function AddPackageOfferPage() {
             experienceIndicator: 0,
             showForExternalCustomers: false,
             showForReception: false,
-            isActive: false,
+            isActive: true,
             offersCount: 1,
           }}
         >
@@ -549,7 +549,7 @@ export default function AddPackageOfferPage() {
               <Button
                 size="large"
                 icon={language === 'ar' ? <ArrowRightOutlined /> : <ArrowLeftOutlined />}
-                onClick={() => router.push('/operation/rent-prices-offers')}
+                onClick={() => router.push('/contracts/operation/rent-prices-offers')}
                 style={{ minWidth: 150 }}
               >
                 {t('back')}
