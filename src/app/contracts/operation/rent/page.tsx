@@ -56,7 +56,7 @@ import {
 
 import { useAuthStore } from '@/store/authStore';
 import { useEmploymentOperatingContracts } from '@/hooks/api/useEmploymentOperatingContracts';
-import { useNationalities } from '@/hooks/api/useNationalities';
+import { NATIONALITIES } from '@/constants/enums';
 import { useJobs } from '@/hooks/api/useJobs';
 import { useCustomers } from '@/hooks/api/useCustomers';
 import RentOfferSelector from '@/components/contracts/RentOfferSelector';
@@ -82,6 +82,7 @@ interface RentContract {
   workerNameAr: string;
   nationality: string;
   nationalityAr: string;
+  nationalityId: number;
   profession: string;
   professionAr: string;
   agent: string;
@@ -105,7 +106,7 @@ export default function RentContractsPage() {
   const [mounted, setMounted] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [nationalityFilter, setNationalityFilter] = useState<string>('all');
+  const [nationalityFilter, setNationalityFilter] = useState<number | 'all'>('all');
   const [dateRange, setDateRange] = useState<[any, any] | null>(null);
   const [selectedContract, setSelectedContract] = useState<RentContract | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -126,7 +127,6 @@ export default function RentContractsPage() {
   } = useEmploymentOperatingContracts();
 
   // Lookup hooks for resolving null names
-  const { data: nationalities = [] } = useNationalities();
   const { data: jobs = [] } = useJobs();
   const { customers = [] } = useCustomers();
 
@@ -145,20 +145,17 @@ export default function RentContractsPage() {
     return [];
   }, [apiContracts]);
 
-  // Helper: resolve nationality name from ID
+  // Helper: resolve nationality name from ID (using NATIONALITIES enum)
   const getNationalityNameById = useMemo(() => {
     const map = new Map<number, { ar: string; en: string }>();
-    (nationalities as any[]).forEach((n: any) => {
-      map.set(n.id, {
-        ar: n.nationalityNameAr || n.name || `#${n.id}`,
-        en: n.nationalityName || n.name || n.nationalityNameAr || `#${n.id}`,
-      });
+    NATIONALITIES.forEach((n) => {
+      map.set(n.value, { ar: n.labelAr, en: n.labelEn });
     });
     return (id: number | null | undefined): { ar: string; en: string } => {
       if (!id) return { ar: 'غير معروف', en: 'Unknown' };
       return map.get(id) || { ar: 'غير معروف', en: 'Unknown' };
     };
-  }, [nationalities]);
+  }, []);
 
   // Helper: resolve job name from ID
   const getJobNameById = useMemo(() => {
@@ -229,6 +226,7 @@ export default function RentContractsPage() {
         workerNameAr: jobNameResolved.ar,
         nationality: natName.en,
         nationalityAr: natName.ar,
+        nationalityId: contract.nationalityId || 0,
         profession: jobNameResolved.en,
         professionAr: jobNameResolved.ar,
         agent: 'Unknown',
@@ -323,7 +321,7 @@ export default function RentContractsPage() {
 
       const matchesStatus = statusFilter === 'all' || contract.status === statusFilter;
       const matchesNationality =
-        nationalityFilter === 'all' || contract.nationality === nationalityFilter;
+        nationalityFilter === 'all' || contract.nationalityId === nationalityFilter;
 
       const matchesDate =
         !dateRange ||
@@ -920,10 +918,10 @@ export default function RentContractsPage() {
               size="large"
               options={[
                 { value: 'all', label: t.allNationalities },
-                { value: 'Philippines', label: language === 'ar' ? 'الفلبين' : 'Philippines' },
-                { value: 'India', label: language === 'ar' ? 'الهند' : 'India' },
-                { value: 'Indonesia', label: language === 'ar' ? 'إندونيسيا' : 'Indonesia' },
-                { value: 'Bangladesh', label: language === 'ar' ? 'بنغلاديش' : 'Bangladesh' },
+                ...NATIONALITIES.map((n) => ({
+                  value: n.value,
+                  label: language === 'ar' ? n.labelAr : n.labelEn,
+                })),
               ]}
             />
           </Col>
@@ -1083,9 +1081,9 @@ export default function RentContractsPage() {
                     showSearch
                     optionFilterProp="label"
                     placeholder={isRtl ? 'اختر الجنسية' : 'Select Nationality'}
-                    options={(nationalities as any[]).map((n: any) => ({
-                      value: n.id,
-                      label: isRtl ? n.nationalityNameAr || n.name : n.nationalityName || n.name,
+                    options={NATIONALITIES.map((n) => ({
+                      value: n.value,
+                      label: isRtl ? n.labelAr : n.labelEn,
                     }))}
                   />
                 </Form.Item>

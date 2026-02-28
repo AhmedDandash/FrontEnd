@@ -28,7 +28,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useEmploymentContractOffers } from '@/hooks/api/useEmploymentContractOffers';
 import { useBranches } from '@/hooks/api/useBranches';
 import { useJobs } from '@/hooks/api/useJobs';
-import { useNationalities } from '@/hooks/api/useNationalities';
+import { NATIONALITIES } from '@/constants/enums';
 import styles from '../RentPricesOffers.module.css';
 
 // Period types with months count
@@ -57,22 +57,16 @@ export default function AddOfferPage() {
   const { createOfferAsync } = useEmploymentContractOffers();
   const { branches } = useBranches();
   const { data: jobsData, isLoading: isLoadingJobs } = useJobs();
-  const { data: nationalitiesData = [] } = useNationalities();
-
-  // Build dynamic nationality options from API
+  // Build nationality options from enum
   const dynamicNationalityOptions = useMemo(() => {
-    const opts = [{ value: 0, label: { ar: 'الكل', en: 'All' } }];
-    (nationalitiesData as any[]).forEach((n: any) => {
-      opts.push({
-        value: n.id,
-        label: {
-          ar: n.nationalityNameAr || n.name || `#${n.id}`,
-          en: n.nationalityName || n.name || n.nationalityNameAr || `#${n.id}`,
-        },
-      });
+    const opts: { value: number; label: { ar: string; en: string } }[] = [
+      { value: 0, label: { ar: 'الكل', en: 'All' } },
+    ];
+    NATIONALITIES.forEach((n) => {
+      opts.push({ value: n.value, label: { ar: n.labelAr, en: n.labelEn } });
     });
     return opts;
-  }, [nationalitiesData]);
+  }, []);
 
   // Safely extract jobs array from API response and filter active jobs only
   const jobs = useMemo(() => {

@@ -35,7 +35,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { useEmploymentContractOffers } from '@/hooks/api/useEmploymentContractOffers';
 import { useBranches } from '@/hooks/api/useBranches';
-import { useNationalities } from '@/hooks/api/useNationalities';
+import { NATIONALITIES } from '@/constants/enums';
 import { useJobs } from '@/hooks/api/useJobs';
 import type { EmploymentContractOfferSummary } from '@/types/api.types';
 import styles from './RentPricesOffers.module.css';
@@ -52,7 +52,6 @@ export default function RentPricesOffersPage() {
   const { summary, isSummaryLoading, refetchSummary } = useEmploymentContractOffers();
 
   const { branches } = useBranches();
-  const { data: nationalities = [] } = useNationalities();
   const { data: apiJobs = [] } = useJobs();
 
   const t = (key: string) => {
@@ -89,16 +88,13 @@ export default function RentPricesOffersPage() {
     return translations[key]?.[language] || key;
   };
 
-  // Dynamic nationality options from API
+  // Nationality options from enum
   const nationalityOptions = useMemo(() => {
-    return (nationalities as any[]).map((n: any) => ({
-      value: n.id,
-      label: {
-        ar: n.nationalityNameAr || n.name || `#${n.id}`,
-        en: n.nationalityName || n.name || n.nationalityNameAr || `#${n.id}`,
-      },
+    return NATIONALITIES.map((n) => ({
+      value: n.value,
+      label: { ar: n.labelAr, en: n.labelEn },
     }));
-  }, [nationalities]);
+  }, []);
 
   // Dynamic job options from API
   const jobOptions = useMemo(() => {
@@ -114,14 +110,11 @@ export default function RentPricesOffersPage() {
   // Nationality lookup map for O(1) access
   const nationalityMap = useMemo(() => {
     const map = new Map<number, { ar: string; en: string }>();
-    (nationalities as any[]).forEach((n: any) => {
-      map.set(n.id, {
-        ar: n.nationalityNameAr || n.name || `#${n.id}`,
-        en: n.nationalityName || n.name || n.nationalityNameAr || `#${n.id}`,
-      });
+    NATIONALITIES.forEach((n) => {
+      map.set(n.value, { ar: n.labelAr, en: n.labelEn });
     });
     return map;
-  }, [nationalities]);
+  }, []);
 
   // Job lookup map for O(1) access
   const jobMap = useMemo(() => {

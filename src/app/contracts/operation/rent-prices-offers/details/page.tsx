@@ -37,7 +37,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useEmploymentContractOffers } from '@/hooks/api/useEmploymentContractOffers';
 import { useBranches } from '@/hooks/api/useBranches';
 import { useJobs } from '@/hooks/api/useJobs';
-import { useNationalities } from '@/hooks/api/useNationalities';
+import { NATIONALITIES } from '@/constants/enums';
 import type { EmploymentContractOffer, UpdateEmploymentContractOfferDto } from '@/types/api.types';
 import styles from '../RentPricesOffers.module.css';
 
@@ -98,7 +98,6 @@ function DetailsContent() {
 
   const { branches } = useBranches();
   const { data: jobsData } = useJobs();
-  const { data: nationalitiesData = [] } = useNationalities();
 
   const t = (key: string) => {
     const translations: Record<string, { ar: string; en: string }> = {
@@ -177,11 +176,9 @@ function DetailsContent() {
   // Lookup maps
   const nationalityMap = useMemo(() => {
     const m = new Map<number, string>();
-    (nationalitiesData as any[]).forEach((n: any) =>
-      m.set(n.id, isArabic ? n.nationalityNameAr || n.name : n.nationalityName || n.name)
-    );
+    NATIONALITIES.forEach((n) => m.set(n.value, isArabic ? n.labelAr : n.labelEn));
     return m;
-  }, [nationalitiesData, isArabic]);
+  }, [isArabic]);
 
   const jobMap = useMemo(() => {
     const m = new Map<number, string>();
@@ -404,15 +401,14 @@ function DetailsContent() {
 
   // Nationality options for select
   const natOptions = useMemo(() => {
-    const opts = [{ value: 0, label: isArabic ? 'الكل' : 'All' }];
-    (nationalitiesData as any[]).forEach((n: any) =>
-      opts.push({
-        value: n.id,
-        label: isArabic ? n.nationalityNameAr || n.name : n.nationalityName || n.name,
-      })
+    const opts: { value: number; label: string }[] = [
+      { value: 0, label: isArabic ? 'الكل' : 'All' },
+    ];
+    NATIONALITIES.forEach((n) =>
+      opts.push({ value: n.value, label: isArabic ? n.labelAr : n.labelEn })
     );
     return opts;
-  }, [nationalitiesData, isArabic]);
+  }, [isArabic]);
 
   const jobOptions = useMemo(() => {
     const arr = Array.isArray(jobsData) ? jobsData : ((jobsData as any)?.data ?? []);

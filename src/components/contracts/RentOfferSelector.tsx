@@ -23,11 +23,10 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useEmploymentContractOffers } from '@/hooks/api/useEmploymentContractOffers';
-import { useNationalities } from '@/hooks/api/useNationalities';
 import { useJobs } from '@/hooks/api/useJobs';
 import { useBranches } from '@/hooks/api/useBranches';
 import type { EmploymentContractOffer } from '@/types/api.types';
-import { OFFER_TYPE, getEnumLabel } from '@/constants/enums';
+import { OFFER_TYPE, NATIONALITIES, getEnumLabel } from '@/constants/enums';
 
 interface RentOfferSelectorProps {
   /** Currently selected offer ID (controlled) */
@@ -83,7 +82,6 @@ export default function RentOfferSelector({
   }, [externalOffers, apiOffers]);
 
   // Lookup data for display
-  const { data: nationalities = [] } = useNationalities();
   const { data: jobs = [] } = useJobs();
   const { branches } = useBranches();
 
@@ -126,17 +124,14 @@ export default function RentOfferSelector({
     (offer: EmploymentContractOffer): string => {
       // 1. Use joined name from API
       if (offer.nationalityName) return offer.nationalityName;
-      // 2. Lookup from nationalities API
+      // 2. Lookup from NATIONALITIES enum
       if (offer.nationalityId) {
-        const nat = (nationalities as any[]).find((n: any) => n.id === offer.nationalityId);
-        if (nat)
-          return isArabic
-            ? nat.nationalityNameAr || nat.name || nat.nationalityName
-            : nat.nationalityName || nat.name || nat.nationalityNameAr;
+        const nat = NATIONALITIES.find((n) => n.value === offer.nationalityId);
+        if (nat) return isArabic ? nat.labelAr : nat.labelEn;
       }
       return t.notDefined;
     },
-    [nationalities, isArabic, t.notDefined]
+    [isArabic, t.notDefined]
   );
 
   // Helper: resolve job name
@@ -175,24 +170,11 @@ export default function RentOfferSelector({
   // Nationality options for filter dropdown
   const nationalityOptions = useMemo(() => {
     const usedIds = new Set(offers.map((o) => o.nationalityId).filter(Boolean));
-    const opts: { value: number; label: string }[] = [];
-    const seen = new Set<number>();
-
-    // From API nationalities
-    (nationalities as any[]).forEach((n: any) => {
-      if (usedIds.has(n.id) && !seen.has(n.id)) {
-        seen.add(n.id);
-        opts.push({
-          value: n.id,
-          label: isArabic
-            ? n.nationalityNameAr || n.name || `#${n.id}`
-            : n.nationalityName || n.name || `#${n.id}`,
-        });
-      }
-    });
-
-    return opts;
-  }, [nationalities, offers, isArabic]);
+    return NATIONALITIES.filter((n) => usedIds.has(n.value)).map((n) => ({
+      value: n.value,
+      label: isArabic ? n.labelAr : n.labelEn,
+    }));
+  }, [offers, isArabic]);
 
   // Job options for filter dropdown
   const jobOptions = useMemo(() => {
