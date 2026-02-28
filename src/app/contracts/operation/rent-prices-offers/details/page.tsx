@@ -87,8 +87,14 @@ function DetailsContent() {
   const [editSalary, setEditSalary] = useState(0);
   const [editPeriodId, setEditPeriodId] = useState<number>(periodTypes[0].id);
 
-  const { offers: offersRaw, isLoading, updateOfferAsync, deleteOffer, isUpdating, isDeleting } =
-    useEmploymentContractOffers();
+  const {
+    offers: offersRaw,
+    isLoading,
+    updateOfferAsync,
+    deleteOffer,
+    isUpdating,
+    isDeleting,
+  } = useEmploymentContractOffers();
 
   const { branches } = useBranches();
   const { data: jobsData } = useJobs();
@@ -100,7 +106,10 @@ function DetailsContent() {
       back: { ar: 'رجوع', en: 'Back' },
       edit: { ar: 'تعديل', en: 'Edit' },
       delete: { ar: 'حذف', en: 'Delete' },
-      deleteConfirm: { ar: 'هل أنت متأكد من حذف هذا العرض؟', en: 'Are you sure you want to delete this offer?' },
+      deleteConfirm: {
+        ar: 'هل أنت متأكد من حذف هذا العرض؟',
+        en: 'Are you sure you want to delete this offer?',
+      },
       deleteOk: { ar: 'حذف', en: 'Delete' },
       deleteCancel: { ar: 'إلغاء', en: 'Cancel' },
       editOffer: { ar: 'تعديل العرض', en: 'Edit Offer' },
@@ -146,7 +155,11 @@ function DetailsContent() {
   const allOffers = useMemo((): EmploymentContractOffer[] => {
     if (!offersRaw) return [];
     if (Array.isArray(offersRaw)) return offersRaw;
-    if (typeof offersRaw === 'object' && 'data' in offersRaw && Array.isArray((offersRaw as any).data))
+    if (
+      typeof offersRaw === 'object' &&
+      'data' in offersRaw &&
+      Array.isArray((offersRaw as any).data)
+    )
       return (offersRaw as any).data;
     return [];
   }, [offersRaw]);
@@ -172,9 +185,7 @@ function DetailsContent() {
 
   const jobMap = useMemo(() => {
     const m = new Map<number, string>();
-    const arr = Array.isArray(jobsData)
-      ? jobsData
-      : (jobsData as any)?.data ?? [];
+    const arr = Array.isArray(jobsData) ? jobsData : ((jobsData as any)?.data ?? []);
     (arr as any[]).forEach((j: any) =>
       m.set(j.id, isArabic ? j.jobNameAr || j.name : j.jobNameEn || j.jobNameAr || j.name)
     );
@@ -183,9 +194,7 @@ function DetailsContent() {
 
   const branchMap = useMemo(() => {
     const m = new Map<number, string>();
-    (branches || []).forEach((b: any) =>
-      m.set(b.id, isArabic ? b.nameAr : b.nameEn)
-    );
+    (branches || []).forEach((b: any) => m.set(b.id, isArabic ? b.nameAr : b.nameEn));
     return m;
   }, [branches, isArabic]);
 
@@ -199,7 +208,9 @@ function DetailsContent() {
     return p ? p.label[language] : String(id);
   };
   const formatSAR = (v?: number | null) =>
-    v != null ? `${v.toLocaleString(isArabic ? 'ar-SA' : 'en-US')} ${isArabic ? 'ريال' : 'SAR'}` : '—';
+    v != null
+      ? `${v.toLocaleString(isArabic ? 'ar-SA' : 'en-US')} ${isArabic ? 'ريال' : 'SAR'}`
+      : '—';
 
   // Live calculation while editing
   const editedPeriod = periodTypes.find((p) => p.id === editPeriodId);
@@ -293,7 +304,8 @@ function DetailsContent() {
       key: 'offerType',
       width: 130,
       render: (_: any, record) => {
-        const typeLabel = offerTypeLabels[record.offerType ?? 1]?.[language] ?? String(record.offerType);
+        const typeLabel =
+          offerTypeLabels[record.offerType ?? 1]?.[language] ?? String(record.offerType);
         const ctLabel = contractTypeLabels[record.offerContractType ?? 1]?.[language] ?? '';
         const isDaily = isDailyOffer(record);
         return (
@@ -346,9 +358,7 @@ function DetailsContent() {
       dataIndex: 'totalCostWithTax',
       key: 'totalCostWithTax',
       align: 'end',
-      render: (v: number) => (
-        <strong style={{ color: '#00478C' }}>{formatSAR(v)}</strong>
-      ),
+      render: (v: number) => <strong style={{ color: '#00478C' }}>{formatSAR(v)}</strong>,
     },
     {
       title: t('isActive'),
@@ -397,13 +407,16 @@ function DetailsContent() {
   const natOptions = useMemo(() => {
     const opts = [{ value: 0, label: isArabic ? 'الكل' : 'All' }];
     (nationalitiesData as any[]).forEach((n: any) =>
-      opts.push({ value: n.id, label: isArabic ? n.nationalityNameAr || n.name : n.nationalityName || n.name })
+      opts.push({
+        value: n.id,
+        label: isArabic ? n.nationalityNameAr || n.name : n.nationalityName || n.name,
+      })
     );
     return opts;
   }, [nationalitiesData, isArabic]);
 
   const jobOptions = useMemo(() => {
-    const arr = Array.isArray(jobsData) ? jobsData : (jobsData as any)?.data ?? [];
+    const arr = Array.isArray(jobsData) ? jobsData : ((jobsData as any)?.data ?? []);
     return (arr as any[]).map((j: any) => ({
       value: j.id,
       label: isArabic ? j.jobNameAr || j.name : j.jobNameEn || j.jobNameAr || j.name,
@@ -529,16 +542,27 @@ function DetailsContent() {
                 <Form.Item label={t('previousExperience')} name="experienceIndicator">
                   <Select
                     size="large"
-                    options={experienceOptions.map((e) => ({ value: e.value, label: e.label[language] }))}
+                    options={experienceOptions.map((e) => ({
+                      value: e.value,
+                      label: e.label[language],
+                    }))}
                   />
                 </Form.Item>
 
                 <Divider />
 
-                <Form.Item label={t('showForExternalCustomers')} name="showForExternalCustomers" valuePropName="checked">
+                <Form.Item
+                  label={t('showForExternalCustomers')}
+                  name="showForExternalCustomers"
+                  valuePropName="checked"
+                >
                   <Switch />
                 </Form.Item>
-                <Form.Item label={t('showForReception')} name="showForReception" valuePropName="checked">
+                <Form.Item
+                  label={t('showForReception')}
+                  name="showForReception"
+                  valuePropName="checked"
+                >
                   <Switch />
                 </Form.Item>
                 <Form.Item label={t('activate')} name="isActive" valuePropName="checked">
@@ -572,7 +596,9 @@ function DetailsContent() {
                     <Divider style={{ margin: '6px 0' }} />
                     <div className={styles.priceRow}>
                       <span style={{ fontWeight: 700 }}>{t('totalCostWithTax')}</span>
-                      <strong style={{ fontSize: 20, color: '#00478C' }}>{editTotal.toFixed(2)}</strong>
+                      <strong style={{ fontSize: 20, color: '#00478C' }}>
+                        {editTotal.toFixed(2)}
+                      </strong>
                     </div>
                   </div>
                 </div>
@@ -635,10 +661,20 @@ function DetailsContent() {
                 {isDailyOffer(editingOffer) && (
                   <>
                     <Form.Item label={t('dailyPrice')} name="dailyPrice">
-                      <Input type="number" size="large" min={0} addonAfter={isArabic ? 'ريال' : 'SAR'} />
+                      <Input
+                        type="number"
+                        size="large"
+                        min={0}
+                        addonAfter={isArabic ? 'ريال' : 'SAR'}
+                      />
                     </Form.Item>
                     <Form.Item label={t('promissoryNote')} name="promissoryNoteAmount">
-                      <Input type="number" size="large" min={0} addonAfter={isArabic ? 'ريال' : 'SAR'} />
+                      <Input
+                        type="number"
+                        size="large"
+                        min={0}
+                        addonAfter={isArabic ? 'ريال' : 'SAR'}
+                      />
                     </Form.Item>
                   </>
                 )}
