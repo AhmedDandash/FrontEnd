@@ -19,6 +19,8 @@ import {
   Dropdown,
   Pagination,
   Form,
+  Switch,
+  Tooltip,
   message,
 } from 'antd';
 import {
@@ -57,7 +59,15 @@ import {
 } from '@/hooks/api/useMediationContractFollowUps';
 import { useNationalities } from '@/hooks/api/useNationalities';
 import { useAgents } from '@/hooks/api/useAgents';
-import type { MediationContract, MediationFollowUpStatus } from '@/types/api.types';
+import {
+  useNationalityFollowUpStatuses,
+  useToggleNationalityFollowUpActive,
+} from '@/hooks/api/useNationalityFollowUpStatuses';
+import type {
+  MediationContract,
+  MediationFollowUpStatus,
+  NationalityFollowUpStatus,
+} from '@/types/api.types';
 import styles from './AutomaticFollowup.module.css';
 
 dayjs.extend(relativeTime);
@@ -73,6 +83,8 @@ export default function AutomaticFollowupPage() {
   const { data: parentStatuses } = useMediationFollowUpStatuses();
   const { data: nationalities } = useNationalities();
   const { data: agents } = useAgents();
+  const { data: nationalityFollowUpStatuses } = useNationalityFollowUpStatuses();
+  const toggleNatStatusActive = useToggleNationalityFollowUpActive();
 
   // ─── Filter State ───
   const [searchText, setSearchText] = useState('');
@@ -189,15 +201,7 @@ export default function AutomaticFollowupPage() {
     }
 
     if (nationalityFilter !== 'all') {
-      list = list.filter(
-        (c) =>
-          (c.nationalityName || '').toLowerCase() ===
-            nationalities
-              ?.find((n) => n.id === nationalityFilter)
-              ?.nationalityNameEn?.toLowerCase() ||
-          (c.nationalityNameAr || '') ===
-            nationalities?.find((n) => n.id === nationalityFilter)?.nationalityNameAr
-      );
+      list = list.filter((c) => c.nationalityId === nationalityFilter);
     }
 
     if (agentFilter !== 'all') {
@@ -229,7 +233,47 @@ export default function AutomaticFollowupPage() {
     return `${dayjs().diff(dayjs(dateStr), 'day')} ${t.days}`;
   };
 
+  /** Resolve nationality display name — fallback to nationalities lookup by ID */
+  const getNationalityName = (contract: MediationContract): string => {
+    const fromLookup = nationalities?.find((n) => n.id === contract.nationalityId);
+    if (isAr) {
+      return (
+        fromLookup?.nationalityNameAr ||
+        contract.nationalityNameAr ||
+        contract.nationalityName ||
+        '—'
+      );
+    }
+    return (
+      fromLookup?.nationalityNameEn || contract.nationalityName || contract.nationalityNameAr || '—'
+    );
+  };
+
+  /** NationalityFollowUpStatus records assigned to a given nationality */
+  const getNatAssignedStatuses = (nationalityId?: number | null): NationalityFollowUpStatus[] => {
+    if (!nationalityId || !Array.isArray(nationalityFollowUpStatuses)) return [];
+    return nationalityFollowUpStatuses.filter((ns) => ns.nationalityId === nationalityId);
+  };
+
+  /** Parent statuses filtered to only those linked to the nationality */
+  const getFilteredParentStatuses = (nationalityId?: number | null): MediationFollowUpStatus[] => {
+    const assigned = getNatAssignedStatuses(nationalityId);
+    if (!Array.isArray(parentStatuses)) return [];
+    if (assigned.length === 0) return [];
+    const assignedIds = new Set(assigned.map((a) => a.mediationFollowUpStatusesId));
+    return parentStatuses.filter((ps) => assignedIds.has(ps.id));
+  };
+
   const openStatusModal = (contract: MediationContract, parentStatusId?: number) => {
+    const assigned = getNatAssignedStatuses(contract.nationalityId);
+    if (assigned.length === 0) {
+      message.warning(
+        isAr
+          ? 'لا توجد حالات متابعة مخصصة لجنسية هذا العقد'
+          : "No follow-up statuses are assigned to this contract's nationality"
+      );
+      return;
+    }
     setActiveContract(contract);
     setSelectedParentId(parentStatusId ?? null);
     setSelectedSubId(null);
@@ -283,31 +327,6 @@ export default function AutomaticFollowupPage() {
       danger: true,
     },
   ];
-
-  // ─── Quick-update button config (visible in bottom section) ───
-  const quickStatuses: { label: string; icon: React.ReactNode; statusName: string }[] =
-    useMemo(() => {
-      // Map each quick button to the matching parent status (by English name keyword)
-      const base = [
-        { label: t.medical, icon: <SafetyOutlined />, statusName: 'medical' },
-        { label: t.biometric, icon: <IdcardOutlined />, statusName: 'biometric' },
-        { label: t.tesda, icon: <FileTextOutlined />, statusName: 'tesda' },
-        { label: t.owwa, icon: <SafetyOutlined />, statusName: 'owwa' },
-        { label: t.visaStamp, icon: <CheckCircleOutlined />, statusName: 'visa' },
-        { label: t.travelClearance, icon: <CheckOutlined />, statusName: 'travel' },
-        { label: t.flightTicket, icon: <EnvironmentOutlined />, statusName: 'flight' },
-      ];
-      return base;
-    }, [t]);
-
-  const findParentStatus = (keyword: string): MediationFollowUpStatus | undefined => {
-    if (!parentStatuses || !Array.isArray(parentStatuses)) return undefined;
-    return parentStatuses.find(
-      (s) =>
-        (s.nameEn || '').toLowerCase().includes(keyword.toLowerCase()) ||
-        (s.nameAr || '').includes(keyword)
-    );
-  };
 
   // ─── Card Renderer ───
   const renderCard = (contract: MediationContract) => {
@@ -394,11 +413,7 @@ export default function AutomaticFollowupPage() {
                   <EnvironmentOutlined className={styles.infoIcon} />
                   <div className={styles.infoText}>
                     <span className={styles.infoLabel}>{t.nationality}</span>
-                    <span className={styles.infoValue}>
-                      {isAr
-                        ? contract.nationalityNameAr || contract.nationalityName || '—'
-                        : contract.nationalityName || contract.nationalityNameAr || '—'}
-                    </span>
+                    <span className={styles.infoValue}>{getNationalityName(contract)}</span>
                   </div>
                 </div>
                 <div className={styles.infoItem}>
@@ -525,35 +540,67 @@ export default function AutomaticFollowupPage() {
             {/* ── BOTTOM ── */}
             <div className={styles.cardBottom}>
               <div className={styles.buttonGroup}>
-                <Button
-                  type="primary"
-                  size="middle"
-                  icon={<EditOutlined />}
-                  className={styles.updateStatusBtn}
-                  onClick={() => openStatusModal(contract)}
-                >
-                  {t.updateStatus}
-                </Button>
-              </div>
-              <div className={styles.buttonGroup}>
-                <span className={styles.groupLabel}>{t.quickUpdates}</span>
-                <div className={styles.groupButtons}>
-                  {quickStatuses.map((qs) => {
-                    const parentStatus = findParentStatus(qs.statusName);
-                    return (
+                {(() => {
+                  const hasStatuses = getNatAssignedStatuses(contract.nationalityId).length > 0;
+                  return (
+                    <Tooltip
+                      title={
+                        !hasStatuses
+                          ? isAr
+                            ? 'لا توجد حالات متابعة مخصصة لجنسية هذا العقد'
+                            : "No follow-up statuses assigned to this contract's nationality"
+                          : undefined
+                      }
+                    >
                       <Button
-                        key={qs.statusName}
-                        size="small"
-                        icon={qs.icon}
-                        className={styles.actionBtn}
-                        onClick={() => openStatusModal(contract, parentStatus?.id)}
+                        type="primary"
+                        size="middle"
+                        icon={<EditOutlined />}
+                        className={styles.updateStatusBtn}
+                        onClick={() => openStatusModal(contract)}
+                        disabled={!hasStatuses}
                       >
-                        {qs.label}
+                        {t.updateStatus}
                       </Button>
-                    );
-                  })}
-                </div>
+                    </Tooltip>
+                  );
+                })()}
               </div>
+              {(() => {
+                const natStatuses = getNatAssignedStatuses(contract.nationalityId);
+                if (natStatuses.length === 0) return null;
+                return (
+                  <div className={styles.buttonGroup}>
+                    <span className={styles.groupLabel}>{t.quickUpdates}</span>
+                    <div className={styles.groupButtons}>
+                      {natStatuses.map((ns) => {
+                        const ps = Array.isArray(parentStatuses)
+                          ? parentStatuses.find((p) => p.id === ns.mediationFollowUpStatusesId)
+                          : null;
+                        const label = ps
+                          ? isAr
+                            ? ps.nameAr || ps.nameEn || '—'
+                            : ps.nameEn || ps.nameAr || '—'
+                          : String(ns.mediationFollowUpStatusesId);
+                        return (
+                          <Button
+                            key={ns.id}
+                            size="small"
+                            icon={<EditOutlined />}
+                            className={`${styles.actionBtn}${!ns.isActive ? ` ${styles.actionBtnInactive}` : ''}`}
+                            disabled={!ns.isActive}
+                            onClick={() =>
+                              openStatusModal(contract, ns.mediationFollowUpStatusesId ?? undefined)
+                            }
+                          >
+                            {label}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </Card>
@@ -763,7 +810,11 @@ export default function AutomaticFollowupPage() {
 
       {/* ─── Status Update Modal ─── */}
       <Modal
-        title={activeContract ? `${t.updateStatus} — #${activeContract.id}` : t.updateStatus}
+        title={
+          activeContract
+            ? `${t.updateStatus} — #${activeContract.id} · ${getNationalityName(activeContract)}`
+            : t.updateStatus
+        }
         open={statusModalOpen}
         onCancel={() => setStatusModalOpen(false)}
         className={styles.statusModal}
@@ -780,10 +831,73 @@ export default function AutomaticFollowupPage() {
             {t.save}
           </Button>,
         ]}
-        width={520}
+        width={560}
       >
-        <Form layout="vertical" style={{ marginBlockStart: 16 }}>
-          {/* Parent Status */}
+        {/* ── Nationality-assigned statuses with active toggle ── */}
+        {activeContract &&
+          (() => {
+            const assignedNatStatuses = getNatAssignedStatuses(activeContract.nationalityId);
+            return assignedNatStatuses.length > 0 ? (
+              <div
+                style={{
+                  background: '#f0f5ff',
+                  border: '1px solid #d6e4ff',
+                  borderRadius: 8,
+                  padding: '10px 14px',
+                  marginBlockEnd: 16,
+                }}
+              >
+                <p
+                  style={{
+                    margin: '0 0 8px',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: '#003366',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.4px',
+                  }}
+                >
+                  {isAr
+                    ? 'حالات المتابعة المخصصة لهذه الجنسية'
+                    : 'Assigned follow-up statuses for this nationality'}
+                </p>
+                {assignedNatStatuses.map((ns) => {
+                  const ps = Array.isArray(parentStatuses)
+                    ? parentStatuses.find((p) => p.id === ns.mediationFollowUpStatusesId)
+                    : null;
+                  return (
+                    <div
+                      key={ns.id}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '3px 0',
+                        borderBottom: '1px dashed #d6e4ff',
+                      }}
+                    >
+                      <span style={{ fontSize: 13, color: ns.isActive ? '#262626' : '#aaa' }}>
+                        {ps
+                          ? isAr
+                            ? ps.nameAr || ps.nameEn
+                            : ps.nameEn || ps.nameAr
+                          : `#${ns.mediationFollowUpStatusesId}`}
+                      </span>
+                      <Switch
+                        size="small"
+                        checked={!!ns.isActive}
+                        onChange={() => toggleNatStatusActive.mutate(ns.id)}
+                        loading={toggleNatStatusActive.isPending}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null;
+          })()}
+
+        <Form layout="vertical">
+          {/* Parent Status — filtered to nationality-assigned ones */}
           <Form.Item label={t.selectStatus} required>
             <Select
               value={selectedParentId}
@@ -793,14 +907,15 @@ export default function AutomaticFollowupPage() {
               }}
               placeholder={t.selectStatus}
               style={{ width: '100%' }}
-              options={
-                Array.isArray(parentStatuses)
-                  ? parentStatuses.map((s) => ({
-                      value: s.id,
-                      label: isAr ? s.nameAr || s.nameEn : s.nameEn || s.nameAr,
-                    }))
-                  : []
-              }
+              options={getFilteredParentStatuses(activeContract?.nationalityId).map((s) => ({
+                value: s.id,
+                label: isAr ? s.nameAr || s.nameEn : s.nameEn || s.nameAr,
+                disabled: !(
+                  getNatAssignedStatuses(activeContract?.nationalityId).find(
+                    (ns) => ns.mediationFollowUpStatusesId === s.id
+                  )?.isActive ?? true
+                ),
+              }))}
             />
           </Form.Item>
 
@@ -893,11 +1008,7 @@ export default function AutomaticFollowupPage() {
               <Col span={12}>
                 <div className={styles.modalSection}>
                   <h4>{t.nationality}</h4>
-                  <p className={styles.modalValue}>
-                    {isAr
-                      ? detailsContract.nationalityNameAr || detailsContract.nationalityName
-                      : detailsContract.nationalityName || detailsContract.nationalityNameAr || '—'}
-                  </p>
+                  <p className={styles.modalValue}>{getNationalityName(detailsContract)}</p>
                 </div>
               </Col>
               <Col span={12}>

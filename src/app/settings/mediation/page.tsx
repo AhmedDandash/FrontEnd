@@ -44,7 +44,7 @@ import {
   useToggleNationalityFollowUpActive,
   useDeleteNationalityFollowUp,
 } from '@/hooks/api/useNationalityFollowUpStatuses';
-import { useNationalities } from '@/hooks/api/useNationalities';
+import { NATIONALITIES } from '@/constants/enums';
 import type {
   MediationFollowUpStatus,
   MediationStatus,
@@ -360,7 +360,6 @@ interface NationalityFollowUpTabProps {
 
 function NationalityFollowUpTab({ parentStatuses, t, isRTL }: NationalityFollowUpTabProps) {
   const { data: associations = [], isLoading } = useNationalityFollowUpStatuses();
-  const { data: nationalities = [] } = useNationalities();
   const createMutation = useCreateNationalityFollowUp();
   const toggleActiveMutation = useToggleNationalityFollowUpActive();
   const deleteMutation = useDeleteNationalityFollowUp();
@@ -370,13 +369,10 @@ function NationalityFollowUpTab({ parentStatuses, t, isRTL }: NationalityFollowU
 
   const nationalityOptions = useMemo(
     () =>
-      nationalities.map((n) => ({
-        value: n.id,
-        label: isRTL
-          ? n.nationalityNameAr || n.nationalityNameEn
-          : n.nationalityNameEn || n.nationalityNameAr,
-      })),
-    [nationalities, isRTL]
+      (NATIONALITIES as readonly { value: number; labelAr: string; labelEn: string }[]).map(
+        (n) => ({ value: n.value, label: isRTL ? n.labelAr : n.labelEn })
+      ),
+    [isRTL]
   );
 
   const statusOptions = useMemo(
@@ -402,12 +398,17 @@ function NationalityFollowUpTab({ parentStatuses, t, isRTL }: NationalityFollowU
   const columns = [
     {
       title: t('nationality'),
-      dataIndex: isRTL ? 'nationalityNameAr' : 'nationalityNameEn',
       key: 'nationality',
-      render: (_: any, record: NationalityFollowUpStatus) =>
-        (isRTL ? record.nationalityNameAr : record.nationalityNameEn) ||
-        record.nationalityNameAr ||
-        '—',
+      render: (_: any, record: NationalityFollowUpStatus) => {
+        const entry = (
+          NATIONALITIES as readonly { value: number; labelAr: string; labelEn: string }[]
+        ).find((n) => n.value === record.nationalityId);
+        return entry
+          ? isRTL
+            ? entry.labelAr
+            : entry.labelEn
+          : record.nationalityNameAr || record.nationalityNameEn || record.nationalityId || '—';
+      },
     },
     {
       title: t('followUpStatus'),

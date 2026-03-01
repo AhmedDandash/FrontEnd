@@ -584,6 +584,11 @@
   background: linear-gradient(135deg, #003366 0%, #00478c 100%) !important;
 }
 
+.actionBtnInactive {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* ============ Status Update Modal ============ */
 .statusModal :global(.ant-modal-header) {
   border-block-end: 1px solid #f0f0f0;

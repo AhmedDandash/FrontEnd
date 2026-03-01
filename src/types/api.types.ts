@@ -815,6 +815,7 @@ export interface NationalityExtended {
 
 export interface CreateNationalityDto {
   nationalityId?: number | null;
+  nationalityName?: string | null;
   authorizationSystem?: number | null;
   ticketPrice?: number | null;
   headerFile?: string | null;
@@ -823,6 +824,7 @@ export interface CreateNationalityDto {
 
 export interface UpdateNationalityDto {
   nationalityId?: number | null;
+  nationalityName?: string | null;
   authorizationSystem?: number | null;
   ticketPrice?: number | null;
   headerFile?: string | null;
@@ -899,6 +901,7 @@ export interface MediationContract {
   statusId?: number | null;
   contractType?: number | null;
   customerId?: number | null;
+  nationalityId?: number | null;
   musanedContractNumber?: string | null;
   musanedDocumentationNumber?: string | null;
   marketerId?: number | null;
