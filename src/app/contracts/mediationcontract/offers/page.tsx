@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import {
   Table,
@@ -160,6 +160,22 @@ export default function MediationOffersPage() {
     return translations[language]?.[key] || key;
   };
 
+  // Helper: resolve branch name from branches list (API joined branchName is null)
+  const getBranchDisplayName = useCallback(
+    (offer: { branchId?: number | null; branchName?: string | null }): string => {
+      if (offer.branchName) return offer.branchName;
+      if (offer.branchId) {
+        const branch = branches.find((b: any) => Number(b.id) === Number(offer.branchId));
+        if (branch)
+          return isArabic
+            ? branch.nameAr || branch.nameEn || ''
+            : branch.nameEn || branch.nameAr || '';
+      }
+      return '';
+    },
+    [branches, isArabic]
+  );
+
   // Filtered data
   const filteredOffers = useMemo(() => {
     return offers.filter((offer) => {
@@ -171,12 +187,12 @@ export default function MediationOffersPage() {
         !searchTerm ||
         (offer.nationalityName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (offer.jobName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (offer.branchName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getBranchDisplayName(offer).toLowerCase().includes(searchTerm.toLowerCase()) ||
         (offer.agentName || '').toLowerCase().includes(searchTerm.toLowerCase());
 
       return matchesNationality && matchesJob && matchesWorkerType && matchesSearch;
     });
-  }, [offers, nationalityFilter, jobFilter, workerTypeFilter, searchTerm]);
+  }, [offers, nationalityFilter, jobFilter, workerTypeFilter, searchTerm, getBranchDisplayName]);
 
   // Summary statistics
   const stats = useMemo(() => {
@@ -191,22 +207,25 @@ export default function MediationOffersPage() {
     };
   }, [offers]);
 
-  // Nationality select options from API, with enum fallback for names
+  // Nationality select options — value is nationalityId (enum value, e.g. 359)
+  // Names come from NATIONALITIES enum since API joined fields are null
   const nationalityOptions = useMemo(() => {
-    const natsArray = [...NATIONALITIES] as { value: number; labelAr: string; labelEn: string }[];
-    return nationalities.map((n) => {
-      const natEntry = natsArray.find((nat) => nat.value === n.nationalityId);
-      return {
-        value: n.id,
-        label: isArabic
-          ? n.nationalityNameAr || natEntry?.labelAr || `#${n.id}`
-          : n.nationalityNameEn ||
-            natEntry?.labelEn ||
-            n.nationalityNameAr ||
-            natEntry?.labelAr ||
-            `#${n.id}`,
-      };
-    });
+    return nationalities
+      .filter((n) => n.nationalityId != null)
+      .map((n) => {
+        const enumEntry = (
+          NATIONALITIES as ReadonlyArray<{ value: number; labelAr: string; labelEn: string }>
+        ).find((e) => e.value === n.nationalityId);
+        return {
+          value: n.nationalityId as number,
+          label: isArabic
+            ? n.nationalityNameAr || enumEntry?.labelAr || `#${n.nationalityId}`
+            : n.nationalityNameEn ||
+              enumEntry?.labelEn ||
+              enumEntry?.labelAr ||
+              `#${n.nationalityId}`,
+        };
+      });
   }, [nationalities, isArabic]);
 
   // Job select options from API
@@ -269,6 +288,7 @@ export default function MediationOffersPage() {
   const handleModalSubmit = async () => {
     try {
       const values = await form.validateFields();
+      console.log('📤 Offer form values:', values);
       if (editingOffer) {
         const dto: UpdateMediationContractOfferDto = values;
         updateMutation.mutate(
@@ -310,7 +330,7 @@ export default function MediationOffersPage() {
       render: (text: string, record: MediationContractOffer) => {
         if (text) return text;
         if (record.branchId) {
-          const branch = branches.find((b: any) => b.id === record.branchId);
+          const branch = branches.find((b: any) => Number(b.id) === Number(record.branchId));
           if (branch)
             return isArabic ? branch.nameAr || branch.nameEn : branch.nameEn || branch.nameAr;
         }
@@ -325,11 +345,8 @@ export default function MediationOffersPage() {
       render: (text: string, record: MediationContractOffer) => {
         if (text) return text;
         if (record.nationalityId) {
-          const nat = nationalities.find((n) => n.nationalityId === record.nationalityId);
-          if (nat)
-            return isArabic
-              ? nat.nationalityNameAr || nat.nationalityNameEn
-              : nat.nationalityNameEn || nat.nationalityNameAr;
+          const enumEntry = NATIONALITIES.find((e) => e.value === record.nationalityId);
+          if (enumEntry) return isArabic ? enumEntry.labelAr : enumEntry.labelEn;
         }
         return isArabic ? 'غير محدد' : 'N/A';
       },
