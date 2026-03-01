@@ -168,6 +168,10 @@ export default function Sidebar({
               label: language === 'ar' ? 'عقود الوساطة' : 'Mediation Contracts',
             },
             {
+              key: '/contracts/mediationcontract/automaticfollowup',
+              label: language === 'ar' ? 'المتابعة التلقائية' : 'Automatic Follow-up',
+            },
+            {
               key: '/contracts/mediationcontract/offers',
               label: language === 'ar' ? 'عروض عقود الوساطة' : 'Mediation Offers',
             },
@@ -218,10 +222,6 @@ export default function Sidebar({
       icon: <CalendarOutlined />,
       label: language === 'ar' ? 'المتابعة' : 'Follow-up',
       children: [
-        {
-          key: '/followup/automatic',
-          label: language === 'ar' ? 'المتابعة التلقائية' : 'Automatic Follow-up',
-        },
         { key: '/followup/none', label: language === 'ar' ? 'بدون متابعة' : 'No Follow-up' },
         { key: '/followup/warranty', label: language === 'ar' ? 'الضمان' : 'Warranty' },
       ],
@@ -333,6 +333,14 @@ export default function Sidebar({
           label: language === 'ar' ? 'إعدادات الموقع' : 'Webpage Settings',
         },
         { key: '/settings/sms', label: language === 'ar' ? 'إعدادات الرسائل' : 'SMS Settings' },
+        {
+          key: '/settings/mediation',
+          label: language === 'ar' ? 'إعدادات المتابعة' : 'Follow-Up Settings',
+        },
+        {
+          key: '/contract-creation-requirements',
+          label: language === 'ar' ? 'متطلبات إنشاء العقود' : 'Contract Requirements',
+        },
       ],
     },
     {
@@ -351,20 +359,6 @@ export default function Sidebar({
             {
               key: '/system/airline-companies',
               label: language === 'ar' ? 'شركات الطيران' : 'Airline Companies',
-            },
-          ],
-        },
-        {
-          key: 'templates-reports',
-          label: language === 'ar' ? 'قوالب وتقارير' : 'Templates & Reports',
-          children: [
-            {
-              key: '/management/templates',
-              label: language === 'ar' ? 'قوالب التقارير' : 'Report Templates',
-            },
-            {
-              key: '/management/report-generator',
-              label: language === 'ar' ? 'منشئ التقارير' : 'Report Generator',
             },
           ],
         },

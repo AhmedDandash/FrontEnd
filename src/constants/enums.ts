@@ -37,8 +37,10 @@ export function toSelectOptions(options: readonly EnumOption[], language: 'ar' |
 // ==================== Worker Type ====================
 // نوع العامل
 export const WORKER_TYPE = [
-  { value: 0, labelAr: 'غير معين', labelEn: 'Unassigned' },
-  { value: 1, labelAr: 'معين', labelEn: 'Assigned' },
+  { value: 0, labelAr: 'غير معين', labelEn: 'Not Appointed' },
+  { value: 1, labelAr: 'معين', labelEn: 'Appointed' },
+  { value: 2, labelAr: 'تفويض', labelEn: 'Authorization' },
+  { value: 3, labelAr: 'معروفه', labelEn: 'Known' },
 ] as const;
 
 // ==================== Religion ====================

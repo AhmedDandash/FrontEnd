@@ -1037,3 +1037,165 @@ export interface CreateInvoiceDto {
   musanedContractNumber?: string | null;
   mediationContractId: number;
 }
+
+// ==================== Mediation Follow-Up Status (Parent) ====================
+export interface MediationFollowUpStatus {
+  id: number;
+  nameAr?: string | null;
+  nameEn?: string | null;
+  isActive?: boolean | null;
+  createdAt?: string | null;
+  createdBy?: number | null;
+  updatedAt?: string | null;
+  updatedBy?: number | null;
+}
+
+export interface CreateMediationFollowUpStatusDto {
+  nameAr: string;
+  nameEn: string;
+}
+
+// ==================== Mediation Status (Sub-Status) ====================
+export interface MediationStatus {
+  id: number;
+  nameStatusAr?: string | null;
+  nameStatusEn?: string | null;
+  nameStatusWhatsAppEn?: string | null;
+  caseOrder?: number | null;
+  isActionFinish?: boolean | null;
+  isActive?: boolean | null;
+  mediationFollowUpStatusesId?: number | null;
+  createdAt?: string | null;
+  createdBy?: number | null;
+  updatedAt?: string | null;
+  updatedBy?: number | null;
+}
+
+export interface CreateMediationStatusDto {
+  nameStatusAr: string;
+  nameStatusEn: string;
+  nameStatusWhatsAppEn?: string | null;
+  caseOrder?: number | null;
+  isActionFinish?: boolean | null;
+  isActive?: boolean | null;
+  mediationFollowUpStatusesId: number;
+}
+
+export interface UpdateMediationStatusDto {
+  nameStatusAr?: string | null;
+  nameStatusEn?: string | null;
+  nameStatusWhatsAppEn?: string | null;
+  caseOrder?: number | null;
+  isActionFinish?: boolean | null;
+  isActive?: boolean | null;
+  mediationFollowUpStatusesId?: number | null;
+}
+
+// ==================== Contract Creation Requirement ====================
+export interface ContractCreationRequirement {
+  id: number;
+  nationalityId?: number | null;
+  nationality_in_system?: number | null;
+  jobNameAr?: string | null;
+  jobId?: number | null;
+  contractRequirements?: string | null;
+  createdAt?: string | null;
+  createdBy?: number | null;
+  updatedAt?: string | null;
+  updatedBy?: number | null;
+  // Joined fields
+  nationalityNameAr?: string | null;
+  nationalityNameEn?: string | null;
+  jobNameEn?: string | null;
+}
+
+export interface CreateContractCreationRequirementDto {
+  nationalityId: number;
+  jobId: number;
+  contractRequirements: string;
+}
+
+export interface UpdateContractCreationRequirementDto {
+  nationalityId?: number | null;
+  jobId?: number | null;
+  contractRequirements?: string | null;
+}
+
+export interface GetRequirementFilterDto {
+  nationalityId?: number | null;
+  jobId?: number | null;
+}
+
+// ==================== Mediation Contract Follow-Up ====================
+export interface MediationContractFollowUp {
+  id: number;
+  contractId?: number | null;
+  examinationDate?: string | null;
+  mediationFollowUpStatusesId?: number | null;
+  mediationStatusesId?: number | null;
+  notes?: string | null;
+  createdAt?: string | null;
+  createdBy?: number | null;
+  updatedAt?: string | null;
+  updatedBy?: number | null;
+  // Joined fields
+  followUpStatusNameAr?: string | null;
+  followUpStatusNameEn?: string | null;
+  subStatusNameAr?: string | null;
+  subStatusNameEn?: string | null;
+  createdByName?: string | null;
+}
+
+export interface CreateMediationContractFollowUpDto {
+  contractId: number;
+  examinationDate: string;
+  mediationFollowUpStatusesId: number;
+  mediationStatusesId: number;
+  notes?: string | null;
+}
+
+export interface GetByContractDto {
+  contractId: number;
+  mediationFollowUpStatusesId?: number | null;
+}
+
+// ==================== Mediation Contract Messages ====================
+export interface MediationContractMessage {
+  id: number;
+  contractId?: number | null;
+  message?: string | null;
+  nameWorker?: string | null;
+  createdAt?: string | null;
+}
+
+export interface CreateMediationContractMessageDto {
+  contractId: number;
+  message: string;
+}
+
+// ==================== Nationality Follow-Up Status ====================
+export interface NationalityFollowUpStatus {
+  id: number;
+  nationalityId?: number | null;
+  mediationFollowUpStatusesId?: number | null;
+  isActive?: boolean | null;
+  createdAt?: string | null;
+  createdBy?: number | null;
+  updatedAt?: string | null;
+  updatedBy?: number | null;
+  // Joined fields
+  nationalityNameAr?: string | null;
+  nationalityNameEn?: string | null;
+  followUpStatusNameAr?: string | null;
+  followUpStatusNameEn?: string | null;
+}
+
+export interface CreateNationalityFollowUpStatusDto {
+  nationalityId: number;
+  mediationFollowUpStatusesId: number;
+}
+
+export interface UpdateNationalityFollowUpStatusDto {
+  nationalityId?: number | null;
+  mediationFollowUpStatusesId?: number | null;
+}

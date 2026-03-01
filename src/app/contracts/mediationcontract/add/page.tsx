@@ -41,6 +41,7 @@ import {
   toSelectOptions,
 } from '@/constants/enums';
 import OfferSelector from '@/components/contracts/OfferSelector';
+import RequirementCard from '@/components/contracts/RequirementCard';
 import styles from './AddMediationContract.module.css';
 
 const { TextArea } = Input;
@@ -392,6 +393,18 @@ export default function AddMediationContractPage() {
         onSelect={handleOfferSelect}
         compact
       />
+
+      {/* Read-only requirement card — auto-fetches when offer has nationality + job */}
+      {selectedOffer && (
+        <div style={{ marginTop: 16 }}>
+          <RequirementCard
+            nationalityId={selectedOffer.nationalityId ?? null}
+            jobId={selectedOffer.jobId ?? null}
+            nationalityName={selectedOffer.nationalityName ?? undefined}
+            jobName={selectedOffer.jobName ?? undefined}
+          />
+        </div>
+      )}
     </>
   );
 
