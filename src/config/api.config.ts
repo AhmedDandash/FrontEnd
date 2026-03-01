@@ -169,4 +169,50 @@ export const API_ENDPOINTS = {
     GET_INVOICE_BY_ID: (id: number) => `/api/MediationContract/GetInvoiceById/${id}`,
     CREATE_INVOICE: '/api/MediationContract/CreateInvoice',
   },
+
+  // Contract Creation Requirements
+  CONTRACT_CREATION_REQUIREMENTS: {
+    GET_ALL: '/api/ContractCreationRequirements',
+    CREATE: '/api/ContractCreationRequirements',
+    GET_BY_ID: (id: number) => `/api/ContractCreationRequirements/${id}`,
+    UPDATE: (id: number) => `/api/ContractCreationRequirements/${id}`,
+    DELETE: (id: number) => `/api/ContractCreationRequirements/${id}`,
+    GET_REQUIREMENT: '/api/ContractCreationRequirements/GetRequirement',
+  },
+
+  // Mediation Follow-Up Statuses
+  MEDIATION_FOLLOWUP_STATUSES: {
+    GET_ALL_PARENTS: '/api/MediationFollowUpStatuses/GetAllFollowUpStatuses',
+    CREATE_PARENT: '/api/MediationFollowUpStatuses/CreateFollowUpStatuses',
+    GET_SUB_STATUSES: (parentId: number) =>
+      `/api/MediationFollowUpStatuses/GetAllSubFollowUpStatus/${parentId}`,
+    CREATE_SUB: '/api/MediationFollowUpStatuses/CreateSubFollowUpStatus',
+    UPDATE_SUB: (id: number) => `/api/MediationFollowUpStatuses/UpdateSubFollowUpStatus/${id}`,
+    TOGGLE_ACTIVE: '/api/MediationFollowUpStatuses/SubFollowUpStatusIsActive',
+    TOGGLE_FINISH: '/api/MediationFollowUpStatuses/SubFollowUpStatusIsActionFinish',
+    UPDATE_CASE_ORDER: '/api/MediationFollowUpStatuses/SubFollowUpStatusCaseOrder',
+  },
+
+  // Mediation Contract Follow-Up
+  MEDIATION_CONTRACT_FOLLOWUP: {
+    GET_BY_CONTRACT: '/api/MediationContractFollowUp/GetByContract',
+    CREATE: '/api/MediationContractFollowUp/Create',
+  },
+
+  // Mediation Contract Messages
+  MEDIATION_CONTRACT_MESSAGES: {
+    GET_BY_CONTRACT: (contractId: number) =>
+      `/api/MediationContractMessages/ByContract/${contractId}`,
+    CREATE: '/api/MediationContractMessages',
+    DELETE: (id: number) => `/api/MediationContractMessages/${id}`,
+  },
+
+  // Nationality Follow-Up Status
+  NATIONALITY_FOLLOWUP: {
+    GET_ALL: '/api/Nationality/GetAllNationalityFollowUpStatus',
+    CREATE: '/api/Nationality/CreateNationalityFollowUpStatus',
+    UPDATE: (id: number) => `/api/Nationality/UpdateNationalityFollowUpStatus/${id}`,
+    TOGGLE_ACTIVE: (id: number) => `/api/Nationality/NationalityFollowUpStatusIsActive/${id}`,
+    DELETE: (id: number) => `/api/Nationality/DeleteNationalityFollowUpStatus/${id}`,
+  },
 } as const;

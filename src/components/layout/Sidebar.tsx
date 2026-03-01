@@ -168,6 +168,10 @@ export default function Sidebar({
               label: language === 'ar' ? 'عقود الوساطة' : 'Mediation Contracts',
             },
             {
+              key: '/contracts/mediationcontract/automaticfollowup',
+              label: language === 'ar' ? 'المتابعة التلقائية' : 'Automatic Follow-up',
+            },
+            {
               key: '/contracts/mediationcontract/offers',
               label: language === 'ar' ? 'عروض عقود الوساطة' : 'Mediation Offers',
             },
@@ -218,10 +222,6 @@ export default function Sidebar({
       icon: <CalendarOutlined />,
       label: language === 'ar' ? 'المتابعة' : 'Follow-up',
       children: [
-        {
-          key: '/followup/automatic',
-          label: language === 'ar' ? 'المتابعة التلقائية' : 'Automatic Follow-up',
-        },
         { key: '/followup/none', label: language === 'ar' ? 'بدون متابعة' : 'No Follow-up' },
         { key: '/followup/warranty', label: language === 'ar' ? 'الضمان' : 'Warranty' },
       ],
@@ -322,17 +322,31 @@ export default function Sidebar({
           key: '/settings/general',
           label: language === 'ar' ? 'الإعدادات العامة' : 'General Settings',
         },
-        { key: '/settings/users', label: language === 'ar' ? 'المستخدمين' : 'Users' },
+        // { key: '/settings/users', label: language === 'ar' ? 'المستخدمين' : 'Users' },
+        // {
+        //   key: '/settings/privileges',
+        //   label: language === 'ar' ? 'صلاحيات المستخدمين' : 'User Privileges',
+        // },
+        // { key: '/settings/themes', label: language === 'ar' ? 'المظهر' : 'Themes' },
+        // {
+        //   key: '/settings/webpage',
+        //   label: language === 'ar' ? 'إعدادات الموقع' : 'Webpage Settings',
+        // },
+        // { key: '/settings/sms', label: language === 'ar' ? 'إعدادات الرسائل' : 'SMS Settings' },
         {
-          key: '/settings/privileges',
-          label: language === 'ar' ? 'صلاحيات المستخدمين' : 'User Privileges',
+          key: 'mediation-settings',
+          label: language === 'ar' ? 'إعدادات الوساطة' : 'Mediation Settings',
+          children: [
+            {
+              key: '/settings/mediation',
+              label: language === 'ar' ? 'إعدادات المتابعة' : 'Follow-Up Settings',
+            },
+            {
+              key: '/contract-creation-requirements',
+              label: language === 'ar' ? 'متطلبات إنشاء العقود' : 'Contract Requirements',
+            },
+          ],
         },
-        { key: '/settings/themes', label: language === 'ar' ? 'المظهر' : 'Themes' },
-        {
-          key: '/settings/webpage',
-          label: language === 'ar' ? 'إعدادات الموقع' : 'Webpage Settings',
-        },
-        { key: '/settings/sms', label: language === 'ar' ? 'إعدادات الرسائل' : 'SMS Settings' },
       ],
     },
     {
@@ -351,20 +365,6 @@ export default function Sidebar({
             {
               key: '/system/airline-companies',
               label: language === 'ar' ? 'شركات الطيران' : 'Airline Companies',
-            },
-          ],
-        },
-        {
-          key: 'templates-reports',
-          label: language === 'ar' ? 'قوالب وتقارير' : 'Templates & Reports',
-          children: [
-            {
-              key: '/management/templates',
-              label: language === 'ar' ? 'قوالب التقارير' : 'Report Templates',
-            },
-            {
-              key: '/management/report-generator',
-              label: language === 'ar' ? 'منشئ التقارير' : 'Report Generator',
             },
           ],
         },

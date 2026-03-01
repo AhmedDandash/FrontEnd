@@ -73,6 +73,8 @@ import {
   toSelectOptions,
 } from '@/constants/enums';
 import OfferSelector from '@/components/contracts/OfferSelector';
+import FollowUpTimeline from '@/components/contracts/FollowUpTimeline';
+import MessageThread from '@/components/contracts/MessageThread';
 import styles from './MediationContracts.module.css';
 
 export default function MediationContractsPage() {
@@ -1420,7 +1422,7 @@ export default function MediationContractsPage() {
             </Button>
           </div>
         }
-        width={700}
+        width={900}
         destroyOnClose
       >
         {selectedContract &&
@@ -1571,6 +1573,18 @@ export default function MediationContractsPage() {
                       </div>
                     </Col>
                   )}
+
+                  {/* Follow-Up Timeline */}
+                  <Col span={24}>
+                    <Divider>{language === 'ar' ? 'متابعة العقد' : 'Contract Follow-Up'}</Divider>
+                    <FollowUpTimeline contractId={selectedContract.id} language={language} />
+                  </Col>
+
+                  {/* Messages Chat */}
+                  <Col span={24}>
+                    <Divider>{language === 'ar' ? 'الرسائل' : 'Messages'}</Divider>
+                    <MessageThread contractId={selectedContract.id} language={language} />
+                  </Col>
 
                   {selectedContract.cancelNote && (
                     <>

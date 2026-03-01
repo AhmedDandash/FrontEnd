@@ -383,7 +383,14 @@ export default function GeneralSettingsPage() {
   const handleNatCreateSubmit = async () => {
     try {
       const values = await natCreateForm.validateFields();
-      await createNatMutation.mutateAsync(values as CreateNationalityDto);
+      const natEntry = (
+        NATIONALITIES as readonly { value: number; labelAr: string; labelEn: string }[]
+      ).find((n) => n.value === values.nationalityId);
+      const payload: CreateNationalityDto = {
+        ...values,
+        nationalityName: natEntry ? (isRTL ? natEntry.labelAr : natEntry.labelEn) : undefined,
+      };
+      await createNatMutation.mutateAsync(payload);
       setIsNatCreateOpen(false);
       natCreateForm.resetFields();
     } catch (error) {
@@ -395,9 +402,16 @@ export default function GeneralSettingsPage() {
     if (!selectedNationality) return;
     try {
       const values = await natEditForm.validateFields();
+      const natEntry = (
+        NATIONALITIES as readonly { value: number; labelAr: string; labelEn: string }[]
+      ).find((n) => n.value === values.nationalityId);
+      const payload: UpdateNationalityDto = {
+        ...values,
+        nationalityName: natEntry ? (isRTL ? natEntry.labelAr : natEntry.labelEn) : undefined,
+      };
       await updateNatMutation.mutateAsync({
         id: selectedNationality.id,
-        data: values as UpdateNationalityDto,
+        data: payload,
       });
       setIsNatEditOpen(false);
       setSelectedNationality(null);
@@ -480,7 +494,6 @@ export default function GeneralSettingsPage() {
         }
         bordered={false}
         className={styles.jobCard}
-      
       >
         {isNatLoading ? (
           <div className={styles.loadingContainer}>
