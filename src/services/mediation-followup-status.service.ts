@@ -106,14 +106,18 @@ export class MediationFollowUpStatusService {
    * Toggle sub-status active state
    */
   static async toggleActive(id: number): Promise<void> {
-    await api.post(API_ENDPOINTS.MEDIATION_FOLLOWUP_STATUSES.TOGGLE_ACTIVE, { id });
+    await api.post(API_ENDPOINTS.MEDIATION_FOLLOWUP_STATUSES.TOGGLE_ACTIVE, null, {
+      params: { id : id },
+    });
   }
 
   /**
    * Toggle sub-status action finish state
    */
   static async toggleFinish(id: number): Promise<void> {
-    await api.post(API_ENDPOINTS.MEDIATION_FOLLOWUP_STATUSES.TOGGLE_FINISH, { id });
+    await api.post(API_ENDPOINTS.MEDIATION_FOLLOWUP_STATUSES.TOGGLE_FINISH, null, {
+      params: { id : id },
+    });
   }
 
   /**

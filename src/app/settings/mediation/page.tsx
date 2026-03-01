@@ -44,7 +44,7 @@ import {
   useToggleNationalityFollowUpActive,
   useDeleteNationalityFollowUp,
 } from '@/hooks/api/useNationalityFollowUpStatuses';
-import { NATIONALITIES } from '@/constants/enums';
+import { useNationalities } from '@/hooks/api/useNationalities';
 import type {
   MediationFollowUpStatus,
   MediationStatus,
@@ -360,6 +360,7 @@ interface NationalityFollowUpTabProps {
 
 function NationalityFollowUpTab({ parentStatuses, t, isRTL }: NationalityFollowUpTabProps) {
   const { data: associations = [], isLoading } = useNationalityFollowUpStatuses();
+  const { data: nationalities = [] } = useNationalities();
   const createMutation = useCreateNationalityFollowUp();
   const toggleActiveMutation = useToggleNationalityFollowUpActive();
   const deleteMutation = useDeleteNationalityFollowUp();
@@ -369,10 +370,13 @@ function NationalityFollowUpTab({ parentStatuses, t, isRTL }: NationalityFollowU
 
   const nationalityOptions = useMemo(
     () =>
-      (NATIONALITIES as readonly { value: number; labelAr: string; labelEn: string }[]).map(
-        (n) => ({ value: n.value, label: isRTL ? n.labelAr : n.labelEn })
-      ),
-    [isRTL]
+      nationalities
+        .filter((n) => n.nationalityId != null)
+        .map((n) => ({
+          value: n.nationalityId as number,
+          label: n.nationalityName || String(n.nationalityId),
+        })),
+    [nationalities]
   );
 
   const statusOptions = useMemo(
@@ -400,14 +404,14 @@ function NationalityFollowUpTab({ parentStatuses, t, isRTL }: NationalityFollowU
       title: t('nationality'),
       key: 'nationality',
       render: (_: any, record: NationalityFollowUpStatus) => {
-        const entry = (
-          NATIONALITIES as readonly { value: number; labelAr: string; labelEn: string }[]
-        ).find((n) => n.value === record.nationalityId);
-        return entry
-          ? isRTL
-            ? entry.labelAr
-            : entry.labelEn
-          : record.nationalityNameAr || record.nationalityNameEn || record.nationalityId || '—';
+        const entry = nationalities.find((n) => n.nationalityId === record.nationalityId);
+        return (
+          entry?.nationalityName ||
+          record.nationalityNameAr ||
+          record.nationalityNameEn ||
+          record.nationalityId ||
+          '—'
+        );
       },
     },
     {
@@ -572,12 +576,12 @@ function SubStatusTable({ parentId, t, isRTL }: SubStatusTableProps) {
     setEditValues({});
   };
 
-  const handleToggleActive = (sub: MediationStatus) => {
-    toggleActiveMutation.mutate(sub.id);
+  const handleToggleActive = (sub: MediationStatus, checked: boolean) => {
+    toggleActiveMutation.mutate({ id: sub.id, parentId, nextValue: checked });
   };
 
-  const handleToggleFinish = (sub: MediationStatus) => {
-    toggleFinishMutation.mutate(sub.id);
+  const handleToggleFinish = (sub: MediationStatus, checked: boolean) => {
+    toggleFinishMutation.mutate({ id: sub.id, parentId, nextValue: checked });
   };
 
   const handleOrderChange = (sub: MediationStatus, newOrder: number) => {
@@ -670,8 +674,10 @@ function SubStatusTable({ parentId, t, isRTL }: SubStatusTableProps) {
           <Switch
             size="small"
             checked={!!sub.isActive}
-            onChange={() => handleToggleActive(sub)}
-            loading={toggleActiveMutation.isPending}
+            onChange={(checked) => handleToggleActive(sub, checked)}
+            loading={
+              toggleActiveMutation.isPending && toggleActiveMutation.variables?.id === sub.id
+            }
             aria-label={t('isActive')}
           />
 
@@ -680,8 +686,10 @@ function SubStatusTable({ parentId, t, isRTL }: SubStatusTableProps) {
             <Switch
               size="small"
               checked={!!sub.isActionFinish}
-              onChange={() => handleToggleFinish(sub)}
-              loading={toggleFinishMutation.isPending}
+              onChange={(checked) => handleToggleFinish(sub, checked)}
+              loading={
+                toggleFinishMutation.isPending && toggleFinishMutation.variables?.id === sub.id
+              }
               aria-label={t('isFinish')}
             />
             {sub.isActionFinish && (

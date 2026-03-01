@@ -809,6 +809,7 @@ export interface NationalityExtended {
   updatedAt?: string | null;
   updatedBy?: number | null;
   // Joined fields
+  nationalityName?: string | null;
   nationalityNameAr?: string | null;
   nationalityNameEn?: string | null;
 }

@@ -8,6 +8,7 @@ import { MediationFollowUpStatusService } from '@/services/mediation-followup-st
 import type {
   CreateMediationFollowUpStatusDto,
   CreateMediationStatusDto,
+  MediationStatus,
   UpdateMediationStatusDto,
 } from '@/types/api.types';
 
@@ -105,13 +106,26 @@ export function useToggleSubStatusActive() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => MediationFollowUpStatusService.toggleActive(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [SUB_QUERY_KEY] });
+    mutationFn: ({ id }: { id: number; parentId: number; nextValue: boolean }) =>
+      MediationFollowUpStatusService.toggleActive(id),
+    onMutate: async ({ id, parentId, nextValue }) => {
+      await queryClient.cancelQueries({ queryKey: [SUB_QUERY_KEY, parentId] });
+      const previous = queryClient.getQueryData<MediationStatus[]>([SUB_QUERY_KEY, parentId]);
+
+      queryClient.setQueryData<MediationStatus[]>([SUB_QUERY_KEY, parentId], (old = []) =>
+        old.map((item) => (item.id === id ? { ...item, isActive: nextValue } : item))
+      );
+
+      return { previous, parentId };
     },
-    onError: () => {
-      queryClient.invalidateQueries({ queryKey: [SUB_QUERY_KEY] });
+    onError: (_error, _variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData([SUB_QUERY_KEY, context.parentId], context.previous);
+      }
       message.error('فشل في تغيير حالة التفعيل | Failed to toggle active status');
+    },
+    onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({ queryKey: [SUB_QUERY_KEY, variables.parentId] });
     },
   });
 }
@@ -123,13 +137,26 @@ export function useToggleSubStatusFinish() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => MediationFollowUpStatusService.toggleFinish(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [SUB_QUERY_KEY] });
+    mutationFn: ({ id }: { id: number; parentId: number; nextValue: boolean }) =>
+      MediationFollowUpStatusService.toggleFinish(id),
+    onMutate: async ({ id, parentId, nextValue }) => {
+      await queryClient.cancelQueries({ queryKey: [SUB_QUERY_KEY, parentId] });
+      const previous = queryClient.getQueryData<MediationStatus[]>([SUB_QUERY_KEY, parentId]);
+
+      queryClient.setQueryData<MediationStatus[]>([SUB_QUERY_KEY, parentId], (old = []) =>
+        old.map((item) => (item.id === id ? { ...item, isActionFinish: nextValue } : item))
+      );
+
+      return { previous, parentId };
     },
-    onError: () => {
-      queryClient.invalidateQueries({ queryKey: [SUB_QUERY_KEY] });
+    onError: (_error, _variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData([SUB_QUERY_KEY, context.parentId], context.previous);
+      }
       message.error('فشل في تغيير حالة الإنهاء | Failed to toggle finish status');
+    },
+    onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({ queryKey: [SUB_QUERY_KEY, variables.parentId] });
     },
   });
 }

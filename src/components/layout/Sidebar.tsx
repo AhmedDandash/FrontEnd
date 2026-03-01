@@ -322,24 +322,30 @@ export default function Sidebar({
           key: '/settings/general',
           label: language === 'ar' ? 'الإعدادات العامة' : 'General Settings',
         },
-        { key: '/settings/users', label: language === 'ar' ? 'المستخدمين' : 'Users' },
+        // { key: '/settings/users', label: language === 'ar' ? 'المستخدمين' : 'Users' },
+        // {
+        //   key: '/settings/privileges',
+        //   label: language === 'ar' ? 'صلاحيات المستخدمين' : 'User Privileges',
+        // },
+        // { key: '/settings/themes', label: language === 'ar' ? 'المظهر' : 'Themes' },
+        // {
+        //   key: '/settings/webpage',
+        //   label: language === 'ar' ? 'إعدادات الموقع' : 'Webpage Settings',
+        // },
+        // { key: '/settings/sms', label: language === 'ar' ? 'إعدادات الرسائل' : 'SMS Settings' },
         {
-          key: '/settings/privileges',
-          label: language === 'ar' ? 'صلاحيات المستخدمين' : 'User Privileges',
-        },
-        { key: '/settings/themes', label: language === 'ar' ? 'المظهر' : 'Themes' },
-        {
-          key: '/settings/webpage',
-          label: language === 'ar' ? 'إعدادات الموقع' : 'Webpage Settings',
-        },
-        { key: '/settings/sms', label: language === 'ar' ? 'إعدادات الرسائل' : 'SMS Settings' },
-        {
-          key: '/settings/mediation',
-          label: language === 'ar' ? 'إعدادات المتابعة' : 'Follow-Up Settings',
-        },
-        {
-          key: '/contract-creation-requirements',
-          label: language === 'ar' ? 'متطلبات إنشاء العقود' : 'Contract Requirements',
+          key: 'mediation-settings',
+          label: language === 'ar' ? 'إعدادات الوساطة' : 'Mediation Settings',
+          children: [
+            {
+              key: '/settings/mediation',
+              label: language === 'ar' ? 'إعدادات المتابعة' : 'Follow-Up Settings',
+            },
+            {
+              key: '/contract-creation-requirements',
+              label: language === 'ar' ? 'متطلبات إنشاء العقود' : 'Contract Requirements',
+            },
+          ],
         },
       ],
     },
