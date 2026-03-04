@@ -210,6 +210,8 @@ export const API_ENDPOINTS = {
   // Nationality Follow-Up Status
   NATIONALITY_FOLLOWUP: {
     GET_ALL: '/api/Nationality/GetAllNationalityFollowUpStatus',
+    GET_BY_NATIONALITY: (nationalityId: number) =>
+      `/api/Nationality/GetNationalityFollowUpStatus/${nationalityId}`,
     CREATE: '/api/Nationality/CreateNationalityFollowUpStatus',
     UPDATE: (id: number) => `/api/Nationality/UpdateNationalityFollowUpStatus/${id}`,
     TOGGLE_ACTIVE: (id: number) => `/api/Nationality/NationalityFollowUpStatusIsActive/${id}`,

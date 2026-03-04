@@ -30,6 +30,25 @@ export class NationalityFollowUpService {
   }
 
   /**
+   * Get follow-up statuses for a specific nationality
+   */
+  static async getByNationality(nationalityId: number): Promise<NationalityFollowUpStatus[]> {
+    const response = await api.get<any>(
+      API_ENDPOINTS.NATIONALITY_FOLLOWUP.GET_BY_NATIONALITY(nationalityId)
+    );
+    let items: NationalityFollowUpStatus[] = [];
+    if (Array.isArray(response.data)) {
+      items = response.data;
+    } else if (response.data && typeof response.data === 'object') {
+      const data = response.data as any;
+      if (Array.isArray(data.data)) items = data.data;
+      else if (Array.isArray(data.result)) items = data.result;
+      else if (Array.isArray(data.items)) items = data.items;
+    }
+    return items;
+  }
+
+  /**
    * Create nationality follow-up status association
    */
   static async create(

@@ -50,6 +50,7 @@ import type {
   MediationStatus,
   NationalityFollowUpStatus,
 } from '@/types/api.types';
+import { NATIONALITIES, getEnumLabel } from '@/constants/enums';
 import styles from './MediationSettings.module.css';
 
 export default function MediationSettingsPage() {
@@ -374,9 +375,12 @@ function NationalityFollowUpTab({ parentStatuses, t, isRTL }: NationalityFollowU
         .filter((n) => n.nationalityId != null)
         .map((n) => ({
           value: n.nationalityId as number,
-          label: n.nationalityName || String(n.nationalityId),
+          label:
+            getEnumLabel(NATIONALITIES, n.nationalityId, isRTL ? 'ar' : 'en') ||
+            n.nationalityName ||
+            String(n.nationalityId),
         })),
-    [nationalities]
+    [nationalities, isRTL]
   );
 
   const statusOptions = useMemo(
@@ -404,9 +408,8 @@ function NationalityFollowUpTab({ parentStatuses, t, isRTL }: NationalityFollowU
       title: t('nationality'),
       key: 'nationality',
       render: (_: any, record: NationalityFollowUpStatus) => {
-        const entry = nationalities.find((n) => n.nationalityId === record.nationalityId);
         return (
-          entry?.nationalityName ||
+          getEnumLabel(NATIONALITIES, record.nationalityId, isRTL ? 'ar' : 'en') ||
           record.nationalityNameAr ||
           record.nationalityNameEn ||
           record.nationalityId ||
@@ -416,11 +419,12 @@ function NationalityFollowUpTab({ parentStatuses, t, isRTL }: NationalityFollowU
     },
     {
       title: t('followUpStatus'),
-      dataIndex: isRTL ? 'followUpStatusNameAr' : 'followUpStatusNameEn',
       key: 'followUpStatus',
       render: (_: any, record: NationalityFollowUpStatus) =>
-        (isRTL ? record.followUpStatusNameAr : record.followUpStatusNameEn) ||
-        record.followUpStatusNameAr ||
+        record.nameAr ||
+        parentStatuses.find((s) => s.id === record.followUpStatusId)?.[
+          isRTL ? 'nameAr' : 'nameEn'
+        ] ||
         '—',
     },
     {
@@ -519,7 +523,7 @@ function NationalityFollowUpTab({ parentStatuses, t, isRTL }: NationalityFollowU
             />
           </Form.Item>
           <Form.Item
-            name="mediationFollowUpStatusesId"
+            name="followUpStatusId"
             label={t('followUpStatus')}
             rules={[{ required: true, message: t('required') }]}
           >

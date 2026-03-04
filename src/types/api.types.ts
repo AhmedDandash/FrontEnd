@@ -1181,25 +1181,42 @@ export interface CreateMediationContractMessageDto {
 export interface NationalityFollowUpStatus {
   id: number;
   nationalityId?: number | null;
-  mediationFollowUpStatusesId?: number | null;
+  followUpStatusId?: number | null;
+  nameAr?: string | null;
+  statusOrder?: number | null;
+  dependsOnStatusId?: number | null;
+  fileNameEn?: string | null;
+  fileNameAr?: string | null;
+  whatsAppStatusName?: string | null;
+  maxDays?: number | null;
   isActive?: boolean | null;
   createdAt?: string | null;
   createdBy?: number | null;
   updatedAt?: string | null;
   updatedBy?: number | null;
-  // Joined fields
+  // Joined fields (kept for backward compat)
   nationalityNameAr?: string | null;
   nationalityNameEn?: string | null;
-  followUpStatusNameAr?: string | null;
-  followUpStatusNameEn?: string | null;
 }
 
 export interface CreateNationalityFollowUpStatusDto {
   nationalityId: number;
-  mediationFollowUpStatusesId: number;
+  followUpStatusId: number;
+  statusOrder?: number;
+  dependsOnStatusId?: number | null;
+  fileNameEn?: string;
+  fileNameAr?: string;
+  whatsAppStatusName?: string;
+  maxDays?: number;
 }
 
 export interface UpdateNationalityFollowUpStatusDto {
   nationalityId?: number | null;
-  mediationFollowUpStatusesId?: number | null;
+  followUpStatusId?: number | null;
+  statusOrder?: number | null;
+  dependsOnStatusId?: number | null;
+  fileNameEn?: string | null;
+  fileNameAr?: string | null;
+  whatsAppStatusName?: string | null;
+  maxDays?: number | null;
 }

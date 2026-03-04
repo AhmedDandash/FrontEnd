@@ -3,8 +3,9 @@
  * React Query hooks for nationality-to-follow-up-status association CRUD
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueries, useQueryClient } from '@tanstack/react-query';
 import { NationalityFollowUpService } from '@/services/nationality-followup.service';
+import { NationalityService } from '@/services/nationality.service';
 import type {
   NationalityFollowUpStatus,
   CreateNationalityFollowUpStatusDto,
@@ -15,13 +16,34 @@ import { message } from 'antd';
 const QUERY_KEY = 'nationalityFollowUpStatuses';
 
 /**
- * Fetch all nationality follow-up status associations
+ * Fetch follow-up statuses for all nationalities by calling
+ * GET /api/Nationality/GetNationalityFollowUpStatus/{nationalityId}
+ * for each nationality obtained from GetAllNationality.
  */
 export const useNationalityFollowUpStatuses = () => {
-  return useQuery<NationalityFollowUpStatus[], Error>({
-    queryKey: [QUERY_KEY],
-    queryFn: NationalityFollowUpService.getAll,
+  // Step 1: fetch all nationalities
+  const { data: nationalities = [], isLoading: natLoading } = useQuery({
+    queryKey: ['nationalities'],
+    queryFn: NationalityService.getAll,
   });
+
+  const nationalityIds = nationalities
+    .filter((n) => n.nationalityId != null)
+    .map((n) => n.nationalityId as number);
+
+  // Step 2: for each nationality, fetch its follow-up statuses
+  const queries = useQueries({
+    queries: nationalityIds.map((id) => ({
+      queryKey: [QUERY_KEY, 'byNationality', id],
+      queryFn: () => NationalityFollowUpService.getByNationality(id),
+      enabled: !natLoading && nationalityIds.length > 0,
+    })),
+  });
+
+  const isLoading = natLoading || queries.some((q) => q.isLoading);
+  const data: NationalityFollowUpStatus[] = queries.flatMap((q) => q.data ?? []);
+
+  return { data, isLoading };
 };
 
 /**

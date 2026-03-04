@@ -37,6 +37,7 @@ import {
 import { useNationalities } from '@/hooks/api/useNationalities';
 import { useJobs } from '@/hooks/api/useJobs';
 import type { ContractCreationRequirement } from '@/types/api.types';
+import { NATIONALITIES, getEnumLabel } from '@/constants/enums';
 import styles from './ContractRequirements.module.css';
 
 const { TextArea } = Input;
@@ -187,10 +188,7 @@ export default function ContractCreationRequirementsPage() {
   // ==================== Nationality/Job lookup ====================
   const getNationalityName = (natId: number | null | undefined) => {
     if (!natId) return isRTL ? 'غير محدد' : 'N/A';
-    const nat = nationalities.find((n: any) => n.id === natId);
-    return nat
-      ? (isRTL ? nat.nationalityNameAr : nat.nationalityNameEn) || `#${natId}`
-      : `#${natId}`;
+    return getEnumLabel(NATIONALITIES, natId, isRTL ? 'ar' : 'en');
   };
 
   const getJobName = (jobId: number | null | undefined) => {
@@ -201,10 +199,15 @@ export default function ContractCreationRequirementsPage() {
 
   const nationalityOptions = useMemo(
     () =>
-      nationalities.map((n: any) => ({
-        value: n.id,
-        label: isRTL ? n.nationalityNameAr : n.nationalityNameEn || n.nationalityNameAr,
-      })),
+      nationalities
+        .filter((n: any) => n.nationalityId != null)
+        .map((n: any) => ({
+          value: n.nationalityId as number,
+          label:
+            getEnumLabel(NATIONALITIES, n.nationalityId, isRTL ? 'ar' : 'en') ||
+            n.nationalityName ||
+            String(n.nationalityId),
+        })),
     [nationalities, isRTL]
   );
 
