@@ -729,7 +729,10 @@ export default function AutomaticFollowupPage() {
                       .filter((n) => n.nationalityId != null)
                       .map((n) => ({
                         value: n.nationalityId as number,
-                        label: getEnumLabel(NATIONALITIES, n.nationalityId, isAr ? 'ar' : 'en') || n.nationalityName || String(n.nationalityId),
+                        label:
+                          getEnumLabel(NATIONALITIES, n.nationalityId, isAr ? 'ar' : 'en') ||
+                          n.nationalityName ||
+                          String(n.nationalityId),
                       }))
                   : []),
               ]}
