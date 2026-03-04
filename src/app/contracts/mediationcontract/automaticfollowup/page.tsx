@@ -68,6 +68,7 @@ import type {
   MediationFollowUpStatus,
   NationalityFollowUpStatus,
 } from '@/types/api.types';
+import { NATIONALITIES, getEnumLabel } from '@/constants/enums';
 import styles from './AutomaticFollowup.module.css';
 
 dayjs.extend(relativeTime);
@@ -233,20 +234,9 @@ export default function AutomaticFollowupPage() {
     return `${dayjs().diff(dayjs(dateStr), 'day')} ${t.days}`;
   };
 
-  /** Resolve nationality display name — fallback to nationalities lookup by ID */
+  /** Resolve nationality display name via NATIONALITIES enum */
   const getNationalityName = (contract: MediationContract): string => {
-    const fromLookup = nationalities?.find((n) => n.id === contract.nationalityId);
-    if (isAr) {
-      return (
-        fromLookup?.nationalityNameAr ||
-        contract.nationalityNameAr ||
-        contract.nationalityName ||
-        '—'
-      );
-    }
-    return (
-      fromLookup?.nationalityNameEn || contract.nationalityName || contract.nationalityNameAr || '—'
-    );
+    return getEnumLabel(NATIONALITIES, contract.nationalityId, isAr ? 'ar' : 'en');
   };
 
   /** NationalityFollowUpStatus records assigned to a given nationality */
@@ -260,7 +250,7 @@ export default function AutomaticFollowupPage() {
     const assigned = getNatAssignedStatuses(nationalityId);
     if (!Array.isArray(parentStatuses)) return [];
     if (assigned.length === 0) return [];
-    const assignedIds = new Set(assigned.map((a) => a.mediationFollowUpStatusesId));
+    const assignedIds = new Set(assigned.map((a) => a.followUpStatusId));
     return parentStatuses.filter((ps) => assignedIds.has(ps.id));
   };
 
@@ -575,13 +565,13 @@ export default function AutomaticFollowupPage() {
                     <div className={styles.groupButtons}>
                       {natStatuses.map((ns) => {
                         const ps = Array.isArray(parentStatuses)
-                          ? parentStatuses.find((p) => p.id === ns.mediationFollowUpStatusesId)
+                          ? parentStatuses.find((p) => p.id === ns.followUpStatusId)
                           : null;
                         const label = ps
                           ? isAr
                             ? ps.nameAr || ps.nameEn || '—'
                             : ps.nameEn || ps.nameAr || '—'
-                          : String(ns.mediationFollowUpStatusesId);
+                          : String(ns.followUpStatusId);
                         return (
                           <Button
                             key={ns.id}
@@ -590,7 +580,7 @@ export default function AutomaticFollowupPage() {
                             className={`${styles.actionBtn}${!ns.isActive ? ` ${styles.actionBtnInactive}` : ''}`}
                             disabled={!ns.isActive}
                             onClick={() =>
-                              openStatusModal(contract, ns.mediationFollowUpStatusesId ?? undefined)
+                              openStatusModal(contract, ns.followUpStatusId ?? undefined)
                             }
                           >
                             {label}
@@ -735,12 +725,12 @@ export default function AutomaticFollowupPage() {
               options={[
                 { value: 'all', label: t.allNationalities },
                 ...(Array.isArray(nationalities)
-                  ? nationalities.map((n) => ({
-                      value: n.id,
-                      label: isAr
-                        ? n.nationalityNameAr || n.nationalityNameEn
-                        : n.nationalityNameEn || n.nationalityNameAr,
-                    }))
+                  ? nationalities
+                      .filter((n) => n.nationalityId != null)
+                      .map((n) => ({
+                        value: n.nationalityId as number,
+                        label: getEnumLabel(NATIONALITIES, n.nationalityId, isAr ? 'ar' : 'en') || n.nationalityName || String(n.nationalityId),
+                      }))
                   : []),
               ]}
             />
@@ -863,7 +853,7 @@ export default function AutomaticFollowupPage() {
                 </p>
                 {assignedNatStatuses.map((ns) => {
                   const ps = Array.isArray(parentStatuses)
-                    ? parentStatuses.find((p) => p.id === ns.mediationFollowUpStatusesId)
+                    ? parentStatuses.find((p) => p.id === ns.followUpStatusId)
                     : null;
                   return (
                     <div
@@ -881,7 +871,7 @@ export default function AutomaticFollowupPage() {
                           ? isAr
                             ? ps.nameAr || ps.nameEn
                             : ps.nameEn || ps.nameAr
-                          : `#${ns.mediationFollowUpStatusesId}`}
+                          : `#${ns.followUpStatusId}`}
                       </span>
                       <Switch
                         size="small"
@@ -912,7 +902,7 @@ export default function AutomaticFollowupPage() {
                 label: isAr ? s.nameAr || s.nameEn : s.nameEn || s.nameAr,
                 disabled: !(
                   getNatAssignedStatuses(activeContract?.nationalityId).find(
-                    (ns) => ns.mediationFollowUpStatusesId === s.id
+                    (ns) => ns.followUpStatusId === s.id
                   )?.isActive ?? true
                 ),
               }))}
