@@ -831,25 +831,8 @@ export default function AutomaticFollowupPage() {
           (() => {
             const assignedNatStatuses = getNatAssignedStatuses(activeContract.nationalityId);
             return assignedNatStatuses.length > 0 ? (
-              <div
-                style={{
-                  background: '#f0f5ff',
-                  border: '1px solid #d6e4ff',
-                  borderRadius: 8,
-                  padding: '10px 14px',
-                  marginBlockEnd: 16,
-                }}
-              >
-                <p
-                  style={{
-                    margin: '0 0 8px',
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: '#003366',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.4px',
-                  }}
-                >
+              <div className={styles.assignedStatusesBox}>
+                <p className={styles.assignedStatusesLabel}>
                   {isAr
                     ? 'حالات المتابعة المخصصة لهذه الجنسية'
                     : 'Assigned follow-up statuses for this nationality'}
@@ -859,17 +842,14 @@ export default function AutomaticFollowupPage() {
                     ? parentStatuses.find((p) => p.id === ns.followUpStatusId)
                     : null;
                   return (
-                    <div
-                      key={ns.id}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '3px 0',
-                        borderBottom: '1px dashed #d6e4ff',
-                      }}
-                    >
-                      <span style={{ fontSize: 13, color: ns.isActive ? '#262626' : '#aaa' }}>
+                    <div key={ns.id} className={styles.assignedStatusRow}>
+                      <span
+                        className={
+                          ns.isActive
+                            ? styles.assignedStatusName
+                            : styles.assignedStatusNameInactive
+                        }
+                      >
                         {ps
                           ? isAr
                             ? ps.nameAr || ps.nameEn
@@ -1031,12 +1011,10 @@ export default function AutomaticFollowupPage() {
             </Row>
 
             {/* Follow-Up History */}
-            <div style={{ marginBlockStart: 24 }}>
-              <h4 style={{ fontWeight: 600, marginBlockEnd: 12, color: '#003366' }}>
-                {t.followUpHistory}
-              </h4>
+            <div className={styles.followUpHistorySection}>
+              <h4 className={styles.followUpHistoryTitle}>{t.followUpHistory}</h4>
               {Array.isArray(contractFollowUps) && contractFollowUps.length > 0 ? (
-                <div style={{ maxBlockSize: 300, overflow: 'auto' }}>
+                <div className={styles.followUpHistoryList}>
                   {contractFollowUps.map((fu) => (
                     <Card key={fu.id} size="small" style={{ marginBlockEnd: 8, borderRadius: 8 }}>
                       <Row gutter={8}>
@@ -1060,15 +1038,9 @@ export default function AutomaticFollowupPage() {
                             : '—'}
                         </Col>
                       </Row>
-                      {fu.notes && (
-                        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#595959' }}>
-                          {fu.notes}
-                        </p>
-                      )}
+                      {fu.notes && <p className={styles.followUpNotes}>{fu.notes}</p>}
                       {fu.createdByName && (
-                        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#8c8c8c' }}>
-                          {fu.createdByName}
-                        </p>
+                        <p className={styles.followUpCreatedBy}>{fu.createdByName}</p>
                       )}
                     </Card>
                   ))}

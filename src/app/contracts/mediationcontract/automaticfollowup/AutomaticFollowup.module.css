@@ -36,7 +36,6 @@
   padding-inline: 12px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 10px;
-  backdrop-filter: blur(10px);
   flex-shrink: 0;
 }
 
@@ -836,6 +835,71 @@
     box-shadow: none;
     border: 1px solid #d9d9d9;
   }
+}
+
+/* ============ Status Modal – Assigned Statuses Box ============ */
+.assignedStatusesBox {
+  background: #f0f5ff;
+  border: 1px solid #d6e4ff;
+  border-radius: 8px;
+  padding-block: 10px;
+  padding-inline: 14px;
+  margin-block-end: 16px;
+}
+
+.assignedStatusesLabel {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #003366;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.assignedStatusRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-block: 3px;
+  border-bottom: 1px dashed #d6e4ff;
+}
+
+.assignedStatusName {
+  font-size: 13px;
+  color: #262626;
+}
+
+.assignedStatusNameInactive {
+  font-size: 13px;
+  color: #aaa;
+}
+
+/* ============ Details Modal – Follow-Up History ============ */
+.followUpHistorySection {
+  margin-block-start: 24px;
+}
+
+.followUpHistoryTitle {
+  font-weight: 600;
+  margin-block-end: 12px;
+  color: #003366;
+}
+
+.followUpHistoryList {
+  max-block-size: 300px;
+  overflow: auto;
+}
+
+.followUpNotes {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #595959;
+}
+
+.followUpCreatedBy {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #8c8c8c;
 }
 
 /* ============ RTL Support ============ */
