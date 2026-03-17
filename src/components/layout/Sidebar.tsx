@@ -3,17 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Drawer, Badge } from 'antd';
 import {
-  DashboardOutlined,
+  // DashboardOutlined,
   BarChartOutlined,
   TeamOutlined,
   FileTextOutlined,
-  UserAddOutlined,
-  CalendarOutlined,
-  FileSearchOutlined,
-  GiftOutlined,
+  // UserAddOutlined,
+  // CalendarOutlined,
+  // FileSearchOutlined,
+  // GiftOutlined,
   MessageOutlined,
   UserOutlined,
-  IdcardOutlined,
+  // IdcardOutlined,
   WarningOutlined,
   SettingOutlined,
   ShopOutlined,
@@ -57,12 +57,12 @@ export default function Sidebar({
   }, [pathname]);
 
   const menuItems: MenuItem[] = [
-    {
-      key: '/dashboard',
-      icon: <DashboardOutlined />,
-      label: language === 'ar' ? 'لوحة التحكم' : 'Dashboard',
-      onClick: () => router.push('/dashboard'),
-    },
+    // {
+    //   key: '/dashboard',
+    //   icon: <DashboardOutlined />,
+    //   label: language === 'ar' ? 'لوحة التحكم' : 'Dashboard',
+    //   onClick: () => router.push('/dashboard'),
+    // },
     {
       key: 'branch',
       icon: <ShopOutlined />,
@@ -78,33 +78,33 @@ export default function Sidebar({
         },
       ],
     },
-    {
-      key: 'statistics',
-      icon: <BarChartOutlined />,
-      label: language === 'ar' ? 'الإحصائيات' : 'Statistics',
-      children: [
-        {
-          key: '/statistics/agent-productivity',
-          label: language === 'ar' ? 'إنتاجية الوكلاء' : 'Agent Productivity',
-        },
-        {
-          key: '/statistics/office-productivity',
-          label: language === 'ar' ? 'إنتاجية المكتب' : 'Office Productivity',
-        },
-        {
-          key: '/statistics/followup',
-          label: language === 'ar' ? 'إحصائيات المتابعة' : 'Follow-up Stats',
-        },
-        {
-          key: '/statistics/applicants',
-          label: language === 'ar' ? 'إحصائيات المتقدمين' : 'Applicant Stats',
-        },
-        {
-          key: '/statistics/visas',
-          label: language === 'ar' ? 'إحصائيات التأشيرات' : 'Visa Stats',
-        },
-      ],
-    },
+    // {
+    //   key: 'statistics',
+    //   icon: <BarChartOutlined />,
+    //   label: language === 'ar' ? 'الإحصائيات' : 'Statistics',
+    //   children: [
+    //     {
+    //       key: '/statistics/agent-productivity',
+    //       label: language === 'ar' ? 'إنتاجية الوكلاء' : 'Agent Productivity',
+    //     },
+    //     {
+    //       key: '/statistics/office-productivity',
+    //       label: language === 'ar' ? 'إنتاجية المكتب' : 'Office Productivity',
+    //     },
+    //     {
+    //       key: '/statistics/followup',
+    //       label: language === 'ar' ? 'إحصائيات المتابعة' : 'Follow-up Stats',
+    //     },
+    //     {
+    //       key: '/statistics/applicants',
+    //       label: language === 'ar' ? 'إحصائيات المتقدمين' : 'Applicant Stats',
+    //     },
+    //     {
+    //       key: '/statistics/visas',
+    //       label: language === 'ar' ? 'إحصائيات التأشيرات' : 'Visa Stats',
+    //     },
+    //   ],
+    // },
     {
       key: 'Workers',
       icon: <BarChartOutlined />,
@@ -139,25 +139,7 @@ export default function Sidebar({
       icon: <FileTextOutlined />,
       label: language === 'ar' ? 'العقود' : 'Contracts',
       children: [
-        // {
-        //   key: '/contracts/mediationcontract',
-        //   label: language === 'ar' ? 'عقود الوساطة' : 'Mediation Contracts',
-        // },
-        // {
-        //   key: '/contracts/rent',
-        //   label: language === 'ar' ? 'عقود التشغيل' : 'Operation Contracts',
-        // },
-        // { key: '/contracts/delegates', label: language === 'ar' ? 'مندوبو العقود' : 'Delegates' },
-        // { key: '/contracts/penalties', label: language === 'ar' ? 'غرامات العقود' : 'Penalties' },
-        // { key: '/contracts/transmital', label: language === 'ar' ? 'نقل العقود' : 'Transfer' },
-        // {
-        //   key: '/contracts/cancellation',
-        //   label: language === 'ar' ? 'إلغاء العقود' : 'Cancellation',
-        // },
-        // {
-        //   key: '/contracts/collection-renewal',
-        //   label: language === 'ar' ? 'التحصيل والتجديد' : 'Collection & Renewal',
-        // },
+       
 
         {
           key: 'contracts-mediation',
@@ -198,66 +180,66 @@ export default function Sidebar({
         },
       ],
     },
-    {
-      key: 'recruitment',
-      icon: <UserAddOutlined />,
-      label: language === 'ar' ? 'طلبات الاستقدام' : 'Recruitment',
-      children: [
-        {
-          key: '/recruitment/requests',
-          label: language === 'ar' ? 'طلبات الاستقدام' : 'Recruitment',
-        },
-        {
-          key: '/recruitment/applicants',
-          label: language === 'ar' ? 'المتقدمون المتاحون' : 'Available Applicants',
-        },
-        {
-          key: '/recruitment/visas',
-          label: language === 'ar' ? 'إدارة التأشيرات' : 'Visa Management',
-        },
-      ],
-    },
-    {
-      key: 'followup',
-      icon: <CalendarOutlined />,
-      label: language === 'ar' ? 'المتابعة' : 'Follow-up',
-      children: [
-        { key: '/followup/none', label: language === 'ar' ? 'بدون متابعة' : 'No Follow-up' },
-        { key: '/followup/warranty', label: language === 'ar' ? 'الضمان' : 'Warranty' },
-      ],
-    },
-    {
-      key: 'reports',
-      icon: <FileSearchOutlined />,
-      label: language === 'ar' ? 'التقارير' : 'Reports',
-      children: [
-        { key: '/reports/arrival', label: language === 'ar' ? 'تقرير الوصول' : 'Arrival Report' },
-        {
-          key: '/reports/alternatives',
-          label: language === 'ar' ? 'تقرير البدائل' : 'Alternatives Report',
-        },
-        {
-          key: '/reports/employees-productivity',
-          label: language === 'ar' ? 'إنتاجية الموظفين' : 'Employee Productivity',
-        },
-      ],
-    },
-    {
-      key: 'offers',
-      icon: <GiftOutlined />,
-      label: language === 'ar' ? 'العروض' : 'Offers',
-      children: [
-        {
-          key: '/offers/mediation',
-          label: language === 'ar' ? 'عروض واسعار التوسط الوساطة' : 'Mediation Offers',
-        },
-        { key: '/offers/rent', label: language === 'ar' ? 'عروض الإيجار' : 'Rent Offers' },
-        {
-          key: '/offers/rent-prices',
-          label: language === 'ar' ? 'عروض أسعار الإيجار' : 'Rent Price Offers',
-        },
-      ],
-    },
+    // {
+    //   key: 'recruitment',
+    //   icon: <UserAddOutlined />,
+    //   label: language === 'ar' ? 'طلبات الاستقدام' : 'Recruitment',
+    //   children: [
+    //     {
+    //       key: '/recruitment/requests',
+    //       label: language === 'ar' ? 'طلبات الاستقدام' : 'Recruitment',
+    //     },
+    //     {
+    //       key: '/recruitment/applicants',
+    //       label: language === 'ar' ? 'المتقدمون المتاحون' : 'Available Applicants',
+    //     },
+    //     {
+    //       key: '/recruitment/visas',
+    //       label: language === 'ar' ? 'إدارة التأشيرات' : 'Visa Management',
+    //     },
+    //   ],
+    // },
+    // {
+    //   key: 'followup',
+    //   icon: <CalendarOutlined />,
+    //   label: language === 'ar' ? 'المتابعة' : 'Follow-up',
+    //   children: [
+    //     { key: '/followup/none', label: language === 'ar' ? 'بدون متابعة' : 'No Follow-up' },
+    //     { key: '/followup/warranty', label: language === 'ar' ? 'الضمان' : 'Warranty' },
+    //   ],
+    // },
+    // {
+    //   key: 'reports',
+    //   icon: <FileSearchOutlined />,
+    //   label: language === 'ar' ? 'التقارير' : 'Reports',
+    //   children: [
+    //     { key: '/reports/arrival', label: language === 'ar' ? 'تقرير الوصول' : 'Arrival Report' },
+    //     {
+    //       key: '/reports/alternatives',
+    //       label: language === 'ar' ? 'تقرير البدائل' : 'Alternatives Report',
+    //     },
+    //     {
+    //       key: '/reports/employees-productivity',
+    //       label: language === 'ar' ? 'إنتاجية الموظفين' : 'Employee Productivity',
+    //     },
+    //   ],
+    // },
+    // {
+    //   key: 'offers',
+    //   icon: <GiftOutlined />,
+    //   label: language === 'ar' ? 'العروض' : 'Offers',
+    //   children: [
+    //     {
+    //       key: '/offers/mediation',
+    //       label: language === 'ar' ? 'عروض واسعار التوسط الوساطة' : 'Mediation Offers',
+    //     },
+    //     { key: '/offers/rent', label: language === 'ar' ? 'عروض الإيجار' : 'Rent Offers' },
+    //     {
+    //       key: '/offers/rent-prices',
+    //       label: language === 'ar' ? 'عروض أسعار الإيجار' : 'Rent Price Offers',
+    //     },
+    //   ],
+    // },
     {
       key: 'communication',
       icon: <MessageOutlined />,
@@ -291,18 +273,18 @@ export default function Sidebar({
         },
       ],
     },
-    {
-      key: 'hr',
-      icon: <IdcardOutlined />,
-      label: language === 'ar' ? 'الموارد البشرية' : 'Human Resources',
-      children: [
-        { key: '/hr/departments', label: language === 'ar' ? 'الأقسام' : 'Departments' },
-        {
-          key: '/hr/requests-archive',
-          label: language === 'ar' ? 'أرشيف الطلبات' : 'Requests Archive',
-        },
-      ],
-    },
+    // {
+    //   key: 'hr',
+    //   icon: <IdcardOutlined />,
+    //   label: language === 'ar' ? 'الموارد البشرية' : 'Human Resources',
+    //   children: [
+    //     { key: '/hr/departments', label: language === 'ar' ? 'الأقسام' : 'Departments' },
+    //     {
+    //       key: '/hr/requests-archive',
+    //       label: language === 'ar' ? 'أرشيف الطلبات' : 'Requests Archive',
+    //     },
+    //   ],
+    // },
     {
       key: '/complaints',
       icon: <WarningOutlined />,
@@ -349,27 +331,27 @@ export default function Sidebar({
         },
       ],
     },
-    {
-      key: 'system-settings',
-      icon: <SettingOutlined />,
-      label: language === 'ar' ? 'إعدادات النظام' : 'System Settings',
-      children: [
-        {
-          key: 'general-settings',
-          label: language === 'ar' ? 'الإعدادات العامة' : 'General Settings',
-          children: [
-            {
-              key: '/system/system-entities',
-              label: language === 'ar' ? 'كيانات النظام' : 'System Entities',
-            },
-            {
-              key: '/system/airline-companies',
-              label: language === 'ar' ? 'شركات الطيران' : 'Airline Companies',
-            },
-          ],
-        },
-      ],
-    },
+    // {
+    //   key: 'system-settings',
+    //   icon: <SettingOutlined />,
+    //   label: language === 'ar' ? 'إعدادات النظام' : 'System Settings',
+    //   children: [
+    //     {
+    //       key: 'general-settings',
+    //       label: language === 'ar' ? 'الإعدادات العامة' : 'General Settings',
+    //       children: [
+    //         {
+    //           key: '/system/system-entities',
+    //           label: language === 'ar' ? 'كيانات النظام' : 'System Entities',
+    //         },
+    //         {
+    //           key: '/system/airline-companies',
+    //           label: language === 'ar' ? 'شركات الطيران' : 'Airline Companies',
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // },
   ];
 
   const handleMenuClick = (e: { key: string }) => {
