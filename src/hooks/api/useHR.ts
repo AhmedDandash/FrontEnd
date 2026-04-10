@@ -60,12 +60,12 @@ export const useHREmployee = (id: string) =>
     enabled: !!id,
   });
 
-// export const useCurrentHREmployee = (userId: number | null) =>
-//   useQuery({
-//     queryKey: ['hr-current-employee', userId],
-//     queryFn: () => HREmployeeService.getCurrent(userId!),
-//     enabled: userId !== null,
-//   });
+export const useCurrentHREmployee = (userId: number | null) =>
+  useQuery({
+    queryKey: ['hr-current-employee', userId],
+    queryFn: () => HREmployeeService.getCurrent(userId!),
+    enabled: userId !== null,
+  });
 
 export const useHREmployeeSearch = (query: string) =>
   useQuery({

@@ -59,6 +59,48 @@ import {
   MOCK_HR_COMPLAINTS,
 } from '@/features/hr/mock/hr.mock';
 
+const TOKEN_ROLE_CLAIM = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
+const TOKEN_NAME_CLAIM = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name';
+const TOKEN_NAME_ID_CLAIM = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
+
+const decodeStoredJwtPayload = (): Record<string, unknown> | null => {
+  if (typeof window === 'undefined') return null;
+
+  const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+  if (!token) return null;
+
+  try {
+    const payloadBase64 = token.split('.')[1];
+    return JSON.parse(atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/')));
+  } catch {
+    return null;
+  }
+};
+
+const readClaim = (payload: Record<string, unknown> | null, keys: string[]): unknown => {
+  if (!payload) return null;
+  for (const key of keys) {
+    const value = payload[key];
+    if (value !== undefined && value !== null) return value;
+  }
+  return null;
+};
+
+const toSafeText = (value: unknown, fallback = '-'): string => {
+  if (Array.isArray(value)) {
+    const joined = value
+      .map((item) => String(item ?? '').trim())
+      .filter(Boolean)
+      .join(', ');
+    return joined || fallback;
+  }
+
+  if (value === undefined || value === null) return fallback;
+
+  const text = String(value).trim();
+  return text || fallback;
+};
+
 // ─────────────────────────────────────────────
 // Employees
 // ─────────────────────────────────────────────
@@ -82,12 +124,35 @@ export class HREmployeeService {
     return MOCK_EMPLOYEES.find((e) => e.id === id);
   }
 
-  // static async getCurrent(userId: number): Promise<HREmployee | undefined> {
-  //   // TODO: replace with real API
-  //   // const response = await api.get(API_ENDPOINTS.HR_EMPLOYEES.GET_CURRENT);
-  //   // return response.data;
-  //   return MOCK_HR_EMPLOYEES[0]; // placeholder until auth-linked employee API is ready
-  // }
+  static async getCurrent(userId: number): Promise<HREmployee | undefined> {
+    // TODO: replace with real API
+    // const response = await api.get(API_ENDPOINTS.HR_EMPLOYEES.GET_CURRENT);
+    // return response.data;
+    const payload = decodeStoredJwtPayload();
+
+    const tokenUserId = readClaim(payload, ['nameid', 'sub', 'id', 'userId', TOKEN_NAME_ID_CLAIM]);
+    const tokenUsername = readClaim(payload, ['unique_name', 'name', 'username', 'preferred_username', TOKEN_NAME_CLAIM]);
+    const tokenRole = readClaim(payload, ['role', 'roles', TOKEN_ROLE_CLAIM]);
+
+    const safeUserId = toSafeText(tokenUserId ?? userId);
+    const safeUsername = toSafeText(tokenUsername, '-');
+    const safeRole = toSafeText(tokenRole, '-');
+    const fallbackEmployee = MOCK_HR_EMPLOYEES[0];
+
+    return {
+      ...fallbackEmployee,
+      id: safeUserId,
+      employeeNumber: safeUserId,
+      nameAr: safeUsername,
+      nameEn: safeUsername,
+      jobName: safeRole,
+      idNumber: safeUserId,
+      departmentName: fallbackEmployee?.departmentName || '-',
+      nationalityName: fallbackEmployee?.nationalityName || '-',
+      mobileNumber: fallbackEmployee?.mobileNumber || '-',
+      hiringDate: fallbackEmployee?.hiringDate ?? '-',
+    };
+  }
 
   static async search(query: string): Promise<HREmployee[]> {
     // TODO: replace with real API
