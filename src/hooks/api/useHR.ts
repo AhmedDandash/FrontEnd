@@ -40,7 +40,7 @@ import type {
   LeaveBalanceFilterDto,
   CreateHRComplaintDto,
   ReplyHRComplaintDto,
-  EmployeeCommission,
+  // EmployeeCommission,
 } from '@/types/hr.types';
 
 // ─────────────────────────────────────────────
