@@ -14,11 +14,10 @@ import {
   Divider,
   Spin,
   Upload,
-  Switch,
 } from 'antd';
 import { UploadOutlined, SendOutlined } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
-import { useCurrentHREmployee, useVacationRequests, useCreateVacationRequest } from '@/hooks/api/useHR';
+import { useCurrentHREmployee, useCreateVacationRequest } from '@/hooks/api/useHR';
 import { HR_VACATION_TYPE } from '@/constants/hr.enums';
 import { toSelectOptions } from '@/constants/enums';
 import EmployeeInfoCard from '@/features/hr/components/EmployeeInfoCard';

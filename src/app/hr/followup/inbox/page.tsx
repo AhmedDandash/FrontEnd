@@ -66,7 +66,7 @@ export default function RequestsInboxPage() {
       title: '',
       key: 'actions',
       width: 60,
-      render: (_, record) => (
+      render: () => (
         <Tooltip title={isAr ? 'عرض' : 'View'}>
           <Button type="text" icon={<EyeOutlined />} size="small" />
         </Tooltip>
