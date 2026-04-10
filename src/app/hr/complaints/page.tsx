@@ -7,15 +7,12 @@ import {
   Modal,
   Form,
   Input,
-  Select,
   Row,
   Col,
   Card,
   Tag,
   Typography,
   Space,
-  Popconfirm,
-  Tooltip,
   Dropdown,
 } from 'antd';
 import {
@@ -35,7 +32,7 @@ import {
   useReplyHRComplaint,
   useCloseHRComplaint,
 } from '@/hooks/api/useHR';
-import { useHREmployees, useCurrentHREmployee } from '@/hooks/api/useHR';
+import { useCurrentHREmployee } from '@/hooks/api/useHR';
 import { HR_COMPLAINT_STATUS } from '@/constants/hr.enums';
 import { getEnumLabel } from '@/constants/enums';
 import type { HRComplaint, CreateHRComplaintDto, ReplyHRComplaintDto } from '@/types/hr.types';
@@ -57,7 +54,6 @@ export default function HRComplaintsPage() {
   const [selected, setSelected] = useState<HRComplaint | null>(null);
 
   const { data: complaints = [], isLoading } = useHRComplaints();
-  const { data: employees = [] } = useHREmployees();
   const { data: currentEmployee } = useCurrentHREmployee(userId);
   const { mutate: createComplaint, isPending: creating } = useCreateHRComplaint();
   const { mutate: replyComplaint, isPending: replying } = useReplyHRComplaint();
@@ -68,11 +64,6 @@ export default function HRComplaintsPage() {
       createForm.setFieldValue('employeeId', currentEmployee.id);
     }
   }, [currentEmployee, createOpen, createForm]);
-
-  const empOptions = employees.map((e) => ({
-    value: e.id,
-    label: isAr ? e.nameAr : e.nameEn,
-  }));
 
   const handleCreate = (values: CreateHRComplaintDto) => {
     createComplaint(values, {
@@ -236,9 +227,7 @@ export default function HRComplaintsPage() {
 
           <Row justify="end" gutter={8}>
             <Col>
-              <Button onClick={() => setCreateOpen(false)}>
-                {isAr ? 'إلغاء' : 'Cancel'}
-              </Button>
+              <Button onClick={() => setCreateOpen(false)}>{isAr ? 'إلغاء' : 'Cancel'}</Button>
             </Col>
             <Col>
               <Button type="primary" htmlType="submit" loading={creating}>
@@ -261,10 +250,7 @@ export default function HRComplaintsPage() {
         destroyOnClose
       >
         {selected && (
-          <Card
-            size="small"
-            style={{ marginBottom: 16, background: '#f5f5f5' }}
-          >
+          <Card size="small" style={{ marginBottom: 16, background: '#f5f5f5' }}>
             <p>
               <strong>{isAr ? 'الشكوى:' : 'Complaint:'}</strong> {selected.complaintNotes}
             </p>
@@ -278,26 +264,18 @@ export default function HRComplaintsPage() {
           <Form.Item
             name="replyNotes"
             label={isAr ? 'نص الرد' : 'Reply'}
-            rules={[
-              { required: true, message: isAr ? 'مطلوب' : 'Required' },
-              { min: 5 },
-            ]}
+            rules={[{ required: true, message: isAr ? 'مطلوب' : 'Required' }, { min: 5 }]}
           >
             <TextArea rows={4} maxLength={1000} showCount />
           </Form.Item>
 
-          <Form.Item
-            name="sendReplyTo"
-            label={isAr ? 'إرسال الرد إلى' : 'Send Reply To'}
-          >
+          <Form.Item name="sendReplyTo" label={isAr ? 'إرسال الرد إلى' : 'Send Reply To'}>
             <Input placeholder={isAr ? 'اسم المستقبل' : 'Recipient name'} />
           </Form.Item>
 
           <Row justify="end" gutter={8}>
             <Col>
-              <Button onClick={() => setReplyOpen(false)}>
-                {isAr ? 'إلغاء' : 'Cancel'}
-              </Button>
+              <Button onClick={() => setReplyOpen(false)}>{isAr ? 'إلغاء' : 'Cancel'}</Button>
             </Col>
             <Col>
               <Button type="primary" htmlType="submit" loading={replying}>
