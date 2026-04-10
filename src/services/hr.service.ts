@@ -82,12 +82,12 @@ export class HREmployeeService {
     return MOCK_EMPLOYEES.find((e) => e.id === id);
   }
 
-  static async getCurrent(userId: number): Promise<HREmployee | undefined> {
-    // TODO: replace with real API
-    // const response = await api.get(API_ENDPOINTS.HR_EMPLOYEES.GET_CURRENT);
-    // return response.data;
-    return MOCK_HR_EMPLOYEES[0]; // placeholder until auth-linked employee API is ready
-  }
+  // static async getCurrent(userId: number): Promise<HREmployee | undefined> {
+  //   // TODO: replace with real API
+  //   // const response = await api.get(API_ENDPOINTS.HR_EMPLOYEES.GET_CURRENT);
+  //   // return response.data;
+  //   return MOCK_HR_EMPLOYEES[0]; // placeholder until auth-linked employee API is ready
+  // }
 
   static async search(query: string): Promise<HREmployee[]> {
     // TODO: replace with real API
