@@ -30,9 +30,7 @@ export default function RequestsInboxPage() {
     {
       title: isAr ? 'نوع الطلب' : 'Request Type',
       dataIndex: 'processState',
-      render: (v) => (
-        <Tag>{getEnumLabel(HR_PROCESS_STATE, v, language)}</Tag>
-      ),
+      render: (v) => <Tag>{getEnumLabel(HR_PROCESS_STATE, v, language)}</Tag>,
     },
     {
       title: isAr ? 'اسم الموظف' : 'Employee',
