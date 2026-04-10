@@ -21,3 +21,21 @@ export { MediationFollowUpStatusService } from './mediation-followup-status.serv
 export { MediationContractFollowUpService } from './mediation-contract-followup.service';
 export { MediationContractMessageService } from './mediation-contract-message.service';
 export { NationalityFollowUpService } from './nationality-followup.service';
+export {
+  HREmployeeService,
+  HRLookupService,
+  HRVacationService,
+  HRPermissionService,
+  HRCustodyService,
+  HRJobModificationService,
+  HRResignationService,
+  HREntitlementsService,
+  HRLoansService,
+  HRRequestsInboxService,
+  HRRequestsOutboxService,
+  HRCommissionService,
+  HRCommissionSliceService,
+  HRAttendanceService,
+  HRLeaveBalanceService,
+  HRComplaintService,
+} from './hr.service';

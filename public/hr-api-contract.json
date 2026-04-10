@@ -1,0 +1,927 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "version": "1.0.0",
+  "title": "HR Module – Backend API Contract",
+  "description": "Production-ready API contract for the HR module. Frontend models are aligned to this contract exactly. All endpoints follow the pattern /api/HR/{Domain}/{Action}.",
+  "generated": "2026-04-10",
+  "authentication": {
+    "type": "Bearer JWT",
+    "header": "Authorization: Bearer <token>",
+    "claims": {
+      "nameid": "User numeric ID (maps to employee lookup)",
+      "unique_name": "Display name",
+      "role": "User role string"
+    },
+    "notes": "The GET /api/HR/Employee/GetCurrent endpoint resolves the logged-in user to their HR employee record using the JWT nameid claim."
+  },
+  "commonResponses": {
+    "200": "Success",
+    "400": { "message": "string", "errors": { "field": ["string"] } },
+    "401": { "message": "Unauthorized" },
+    "403": { "message": "Forbidden" },
+    "404": { "message": "Not found" },
+    "500": { "message": "Internal server error" }
+  },
+  "pagination": {
+    "queryParams": {
+      "page": "integer (1-based, default 1)",
+      "pageSize": "integer (default 20)",
+      "sortBy": "string (field name)",
+      "sortDir": "asc | desc"
+    },
+    "responseWrapper": {
+      "data": "array",
+      "total": "integer",
+      "page": "integer",
+      "pageSize": "integer"
+    }
+  },
+  "enums": {
+    "HRRequestResult": {
+      "0": "Unspecified",
+      "1": "Approved",
+      "2": "Rejected",
+      "3": "Pending"
+    },
+    "HRProcessState": {
+      "1": "Vacation",
+      "2": "Permission",
+      "4": "Custody",
+      "5": "JobModification",
+      "6": "Resignation",
+      "7": "Entitlements",
+      "8": "Loans",
+      "9": "Other"
+    },
+    "HRPermissionType": {
+      "1": "ComeLate",
+      "2": "PartTime",
+      "3": "OutEarly"
+    },
+    "HRPermissionNature": {
+      "1": "Official",
+      "2": "Personal"
+    },
+    "HRVacationType": {
+      "81": "AnnualLeave",
+      "72": "SickLeave",
+      "77": "UnpaidLeave",
+      "78": "MaternityLeave",
+      "79": "CasualLeave",
+      "84": "HajjLeave",
+      "80": "MarriageLeave",
+      "73": "BereavementLeave",
+      "82": "EmergencyLeave",
+      "83": "SportsLeave"
+    },
+    "HREntitlementType": {
+      "1": "HousingAllowance",
+      "2": "TransportationAllowance",
+      "3": "PhoneAllowance",
+      "4": "MedicalAllowance",
+      "5": "Other"
+    },
+    "AttendanceStatus": {
+      "0": "Unknown",
+      "1": "Present",
+      "2": "Absent",
+      "3": "Late"
+    },
+    "HRComplaintStatus": {
+      "1": "Open",
+      "2": "Resolved",
+      "3": "Closed"
+    },
+    "CommissionType": {
+      "1": "Bonus",
+      "2": "SalesCommission",
+      "3": "Incentive",
+      "4": "Other"
+    }
+  },
+  "domains": {
+    "employees": {
+      "description": "HR employee records and lookups",
+      "endpoints": [
+        {
+          "id": "get-all-employees",
+          "method": "GET",
+          "url": "/api/HR/Employee/GetAll",
+          "description": "List all employees with optional filters",
+          "queryParams": {
+            "nameAr": "string?",
+            "loginName": "string?",
+            "email": "string?"
+          },
+          "response": {
+            "type": "array",
+            "items": {
+              "id": "string (GUID)",
+              "employeeNumber": "string",
+              "nameAr": "string",
+              "nameEn": "string",
+              "email": "string?",
+              "loginName": "string?",
+              "jobId": "integer",
+              "jobName": "string",
+              "departmentId": "integer",
+              "departmentName": "string",
+              "nationalityId": "integer",
+              "nationalityName": "string",
+              "idNumber": "string",
+              "mobileNumber": "string?",
+              "hiringDate": "string (ISO date)?",
+              "isActive": "boolean"
+            }
+          }
+        },
+        {
+          "id": "get-employee-by-id",
+          "method": "GET",
+          "url": "/api/HR/Employee/GetById/{id}",
+          "pathParams": { "id": "string (GUID)" },
+          "response": { "$ref": "#/domains/employees/endpoints/0/response/items" }
+        },
+        {
+          "id": "get-current-employee",
+          "method": "GET",
+          "url": "/api/HR/Employee/GetCurrent",
+          "description": "Returns the HR employee record for the authenticated user (resolved via JWT nameid)",
+          "response": {
+            "id": "string (GUID)",
+            "employeeNumber": "string",
+            "nameAr": "string",
+            "nameEn": "string",
+            "jobName": "string",
+            "departmentId": "integer",
+            "departmentName": "string",
+            "nationalityName": "string",
+            "idNumber": "string",
+            "mobileNumber": "string?",
+            "hiringDate": "string?",
+            "basicSalary": "number?",
+            "housingAllowance": "number?",
+            "mobilityAllowance": "number?",
+            "otherAllowances": "number?",
+            "totalSalary": "number?"
+          }
+        },
+        {
+          "id": "search-employees",
+          "method": "GET",
+          "url": "/api/HR/Employee/Search",
+          "queryParams": { "q": "string (min 2 chars)" },
+          "response": { "type": "array", "items": { "$ref": "#/domains/employees/endpoints/2/response" } }
+        }
+      ]
+    },
+    "lookups": {
+      "description": "Static lookup data for select dropdowns",
+      "endpoints": [
+        {
+          "id": "departments",
+          "method": "GET",
+          "url": "/api/HR/Lookup/Departments",
+          "response": {
+            "type": "array",
+            "items": { "id": "integer", "nameAr": "string", "nameEn": "string" }
+          }
+        },
+        {
+          "id": "salary-scales",
+          "method": "GET",
+          "url": "/api/HR/Lookup/SalaryScales",
+          "response": {
+            "type": "array",
+            "items": { "id": "integer", "nameAr": "string", "nameEn": "string" }
+          }
+        },
+        {
+          "id": "custody-types",
+          "method": "GET",
+          "url": "/api/HR/Lookup/CustodyTypes",
+          "response": {
+            "type": "array",
+            "items": { "id": "integer", "nameAr": "string", "nameEn": "string" }
+          }
+        }
+      ]
+    },
+    "vacationRequest": {
+      "description": "Vacation leave requests",
+      "statusFlow": ["Pending(3) → Approved(1) | Rejected(2)"],
+      "endpoints": [
+        {
+          "id": "get-all-vacation",
+          "method": "GET",
+          "url": "/api/HR/VacationRequest/GetAll",
+          "response": { "type": "array", "items": { "$ref": "#/schemas/VacationRequest" } }
+        },
+        {
+          "id": "get-vacation-by-id",
+          "method": "GET",
+          "url": "/api/HR/VacationRequest/GetById/{id}",
+          "pathParams": { "id": "integer" },
+          "response": { "$ref": "#/schemas/VacationRequest" }
+        },
+        {
+          "id": "create-vacation",
+          "method": "POST",
+          "url": "/api/HR/VacationRequest/Create",
+          "request_body": {
+            "createdTo": "string (GUID, employee ID)",
+            "vacationType": "integer (HRVacationType enum)",
+            "vacationDays": "integer (1–365)",
+            "vacationDate": "string (YYYY-MM-DD)",
+            "finalizeDate": "string (YYYY-MM-DD)",
+            "substituteId": "string? (GUID)",
+            "mobileNumber": "string? (max 24)",
+            "reasons": "string (min 10, max 500)",
+            "attachmentFile": "file? (base64 or multipart)"
+          },
+          "response": { "$ref": "#/schemas/VacationRequest" },
+          "errors": {
+            "400": "Validation failure (days out of range, dates invalid)",
+            "409": "Overlapping vacation request exists"
+          }
+        },
+        {
+          "id": "approve-vacation",
+          "method": "POST",
+          "url": "/api/HR/VacationRequest/Approve/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": {},
+          "response": { "$ref": "#/schemas/VacationRequest" }
+        },
+        {
+          "id": "reject-vacation",
+          "method": "POST",
+          "url": "/api/HR/VacationRequest/Reject/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": { "reason": "string" },
+          "response": { "$ref": "#/schemas/VacationRequest" }
+        }
+      ]
+    },
+    "permissionRequest": {
+      "description": "Leave permission (late arrival, part-time, early departure)",
+      "statusFlow": ["Pending(3) → Approved(1) | Rejected(2)"],
+      "endpoints": [
+        {
+          "id": "get-all-permission",
+          "method": "GET",
+          "url": "/api/HR/PermissionRequest/GetAll",
+          "response": { "type": "array", "items": { "$ref": "#/schemas/PermissionRequest" } }
+        },
+        {
+          "id": "create-permission",
+          "method": "POST",
+          "url": "/api/HR/PermissionRequest/Create",
+          "request_body": {
+            "createdTo": "string (GUID)",
+            "permissionDate": "string (YYYY-MM-DD)",
+            "permissionType": "integer (HRPermissionType: 1|2|3)",
+            "permissionNature": "integer (1=Official, 2=Personal)",
+            "comeLateTime": "string? (HH:mm, required when permissionType=1)",
+            "partTimeStart": "string? (HH:mm, required when permissionType=2)",
+            "partTimeFinish": "string? (HH:mm, required when permissionType=2)",
+            "outEarlyTime": "string? (HH:mm, required when permissionType=3)",
+            "reasons": "string (min 10, max 500)"
+          },
+          "response": { "$ref": "#/schemas/PermissionRequest" },
+          "errors": {
+            "400": "Validation failure or conflicting time fields for permission type"
+          }
+        },
+        {
+          "id": "approve-permission",
+          "method": "POST",
+          "url": "/api/HR/PermissionRequest/Approve/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": {},
+          "response": { "$ref": "#/schemas/PermissionRequest" }
+        },
+        {
+          "id": "reject-permission",
+          "method": "POST",
+          "url": "/api/HR/PermissionRequest/Reject/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": { "reason": "string" },
+          "response": { "$ref": "#/schemas/PermissionRequest" }
+        }
+      ]
+    },
+    "custodyRequest": {
+      "description": "Receipt of custody items (equipment, vehicles, etc.)",
+      "endpoints": [
+        {
+          "id": "get-all-custody",
+          "method": "GET",
+          "url": "/api/HR/CustodyRequest/GetAll",
+          "response": { "type": "array", "items": { "$ref": "#/schemas/CustodyRequest" } }
+        },
+        {
+          "id": "create-custody",
+          "method": "POST",
+          "url": "/api/HR/CustodyRequest/Create",
+          "request_body": {
+            "createdTo": "string (GUID)",
+            "details": "string? (max 500)",
+            "reasons": "string?",
+            "custodyItems": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "custodyId": "integer (custody type ID)",
+                "quantity": "integer (>0)",
+                "deliveryDate": "string (YYYY-MM-DD)",
+                "temporal": "boolean",
+                "shortNote": "string? (max 200)"
+              }
+            }
+          },
+          "response": { "$ref": "#/schemas/CustodyRequest" }
+        },
+        {
+          "id": "approve-custody",
+          "method": "POST",
+          "url": "/api/HR/CustodyRequest/Approve/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": {},
+          "response": { "$ref": "#/schemas/CustodyRequest" }
+        },
+        {
+          "id": "reject-custody",
+          "method": "POST",
+          "url": "/api/HR/CustodyRequest/Reject/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": { "reason": "string" },
+          "response": { "$ref": "#/schemas/CustodyRequest" }
+        }
+      ]
+    },
+    "jobModificationRequest": {
+      "description": "Request to change department, salary scale, or total salary",
+      "endpoints": [
+        {
+          "id": "get-all-job-modification",
+          "method": "GET",
+          "url": "/api/HR/JobModificationRequest/GetAll",
+          "response": { "type": "array", "items": { "$ref": "#/schemas/JobModificationRequest" } }
+        },
+        {
+          "id": "create-job-modification",
+          "method": "POST",
+          "url": "/api/HR/JobModificationRequest/Create",
+          "request_body": {
+            "createdTo": "string (GUID)",
+            "newDepartmentId": "integer",
+            "newSalaryScaleId": "integer",
+            "newTotalSalary": "number (>0)",
+            "reasons": "string (min 10, max 500)"
+          },
+          "response": { "$ref": "#/schemas/JobModificationRequest" }
+        },
+        {
+          "id": "approve-job-modification",
+          "method": "POST",
+          "url": "/api/HR/JobModificationRequest/Approve/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": {},
+          "response": { "$ref": "#/schemas/JobModificationRequest" }
+        },
+        {
+          "id": "reject-job-modification",
+          "method": "POST",
+          "url": "/api/HR/JobModificationRequest/Reject/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": { "reason": "string" },
+          "response": { "$ref": "#/schemas/JobModificationRequest" }
+        }
+      ]
+    },
+    "resignationRequest": {
+      "description": "Employee resignation requests",
+      "statusFlow": ["Pending(3) → Approved(1) | Rejected(2)"],
+      "endpoints": [
+        {
+          "id": "get-all-resignation",
+          "method": "GET",
+          "url": "/api/HR/ResignationRequest/GetAll",
+          "response": { "type": "array", "items": { "$ref": "#/schemas/ResignationRequest" } }
+        },
+        {
+          "id": "create-resignation",
+          "method": "POST",
+          "url": "/api/HR/ResignationRequest/Create",
+          "request_body": {
+            "createdTo": "string (GUID)",
+            "resignationDate": "string (YYYY-MM-DD)",
+            "endDate": "string (YYYY-MM-DD, must be >= resignationDate)",
+            "reasons": "string (min 10, max 500)"
+          },
+          "response": { "$ref": "#/schemas/ResignationRequest" },
+          "errors": {
+            "400": "endDate must be >= resignationDate"
+          }
+        },
+        {
+          "id": "approve-resignation",
+          "method": "POST",
+          "url": "/api/HR/ResignationRequest/Approve/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": {},
+          "response": { "$ref": "#/schemas/ResignationRequest" }
+        },
+        {
+          "id": "reject-resignation",
+          "method": "POST",
+          "url": "/api/HR/ResignationRequest/Reject/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": { "reason": "string" },
+          "response": { "$ref": "#/schemas/ResignationRequest" }
+        }
+      ]
+    },
+    "entitlementsRequest": {
+      "description": "Employee entitlements (allowances) requests",
+      "endpoints": [
+        {
+          "id": "get-all-entitlements",
+          "method": "GET",
+          "url": "/api/HR/EntitlementsRequest/GetAll",
+          "response": { "type": "array", "items": { "$ref": "#/schemas/EntitlementsRequest" } }
+        },
+        {
+          "id": "create-entitlements",
+          "method": "POST",
+          "url": "/api/HR/EntitlementsRequest/Create",
+          "request_body": {
+            "createdTo": "string (GUID)",
+            "entitlementType": "integer (HREntitlementType enum)",
+            "notes": "string? (max 500)",
+            "reasons": "string (min 10, max 500)"
+          },
+          "response": { "$ref": "#/schemas/EntitlementsRequest" }
+        },
+        {
+          "id": "approve-entitlements",
+          "method": "POST",
+          "url": "/api/HR/EntitlementsRequest/Approve/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": {},
+          "response": { "$ref": "#/schemas/EntitlementsRequest" }
+        },
+        {
+          "id": "reject-entitlements",
+          "method": "POST",
+          "url": "/api/HR/EntitlementsRequest/Reject/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": { "reason": "string" },
+          "response": { "$ref": "#/schemas/EntitlementsRequest" }
+        }
+      ]
+    },
+    "loanRequest": {
+      "description": "Employee salary loans",
+      "businessRules": "Loan amount cannot exceed 3x totalSalary",
+      "endpoints": [
+        {
+          "id": "get-all-loans",
+          "method": "GET",
+          "url": "/api/HR/LoanRequest/GetAll",
+          "response": { "type": "array", "items": { "$ref": "#/schemas/LoanRequest" } }
+        },
+        {
+          "id": "create-loan",
+          "method": "POST",
+          "url": "/api/HR/LoanRequest/Create",
+          "request_body": {
+            "createdTo": "string (GUID)",
+            "loanAmount": "number (>0, max = totalSalary * 3)",
+            "reasons": "string? (max 500)"
+          },
+          "response": { "$ref": "#/schemas/LoanRequest" },
+          "errors": {
+            "400": "loanAmount exceeds 3x totalSalary"
+          }
+        },
+        {
+          "id": "approve-loan",
+          "method": "POST",
+          "url": "/api/HR/LoanRequest/Approve/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": {},
+          "response": { "$ref": "#/schemas/LoanRequest" }
+        },
+        {
+          "id": "reject-loan",
+          "method": "POST",
+          "url": "/api/HR/LoanRequest/Reject/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": { "reason": "string" },
+          "response": { "$ref": "#/schemas/LoanRequest" }
+        }
+      ]
+    },
+    "requestsInbox": {
+      "description": "View incoming HR requests assigned to the current user/manager",
+      "endpoints": [
+        {
+          "id": "filter-inbox",
+          "method": "POST",
+          "url": "/api/HR/RequestsInbox/Filter",
+          "request_body": {
+            "processState": "integer? (HRProcessState enum)",
+            "processGroups": "integer[]?",
+            "processResults": "integer[]? (HRRequestResult enum)",
+            "startsDate": "string? (YYYY-MM-DD)",
+            "endingDate": "string? (YYYY-MM-DD)"
+          },
+          "response": {
+            "type": "array",
+            "items": { "$ref": "#/schemas/HRRequestSummary" }
+          }
+        }
+      ]
+    },
+    "requestsOutbox": {
+      "description": "View outgoing HR requests created by the current employee",
+      "endpoints": [
+        {
+          "id": "filter-outbox",
+          "method": "POST",
+          "url": "/api/HR/RequestsOutbox/Filter",
+          "request_body": {
+            "processState": "integer?",
+            "processGroups": "integer[]?",
+            "processResults": "integer[]?",
+            "startsDate": "string?",
+            "endingDate": "string?"
+          },
+          "response": {
+            "type": "array",
+            "items": { "$ref": "#/schemas/HRRequestSummary" }
+          }
+        }
+      ]
+    },
+    "commission": {
+      "description": "Employee commission records",
+      "endpoints": [
+        {
+          "id": "get-all-commissions",
+          "method": "GET",
+          "url": "/api/HR/Commission/GetAll",
+          "queryParams": {
+            "empId": "string? (GUID)",
+            "comDate": "string? (YYYY-MM-DD)",
+            "comDateTo": "string? (YYYY-MM-DD)"
+          },
+          "response": {
+            "type": "array",
+            "items": {
+              "id": "integer",
+              "empId": "string (GUID)",
+              "employeeName": "string",
+              "comDate": "string (YYYY-MM-DD)",
+              "comDateTo": "string (YYYY-MM-DD)",
+              "typeId": "integer (CommissionType enum)",
+              "typeName": "string",
+              "amount": "number",
+              "isTaxable": "boolean",
+              "bankFees": "number",
+              "bankFeesTax": "number",
+              "taxValue": "number",
+              "accountId": "integer"
+            }
+          }
+        },
+        {
+          "id": "create-commission",
+          "method": "POST",
+          "url": "/api/HR/Commission/Create",
+          "request_body": {
+            "empId": "string (GUID)",
+            "comDate": "string (YYYY-MM-DD)",
+            "comDateTo": "string (YYYY-MM-DD)",
+            "typeId": "integer",
+            "amount": "number",
+            "isTaxable": "boolean",
+            "bankFees": "number",
+            "bankFeesTax": "number",
+            "taxValue": "number",
+            "accountId": "integer"
+          },
+          "response": { "id": "integer", "... (all fields above)": "" }
+        },
+        {
+          "id": "delete-commission",
+          "method": "DELETE",
+          "url": "/api/HR/Commission/Delete/{id}",
+          "pathParams": { "id": "integer" },
+          "response": {}
+        }
+      ]
+    },
+    "commissionSlices": {
+      "description": "Commission tier/slice configuration",
+      "endpoints": [
+        {
+          "id": "get-all-slices",
+          "method": "GET",
+          "url": "/api/HR/CommissionSlice/GetAll",
+          "response": {
+            "type": "array",
+            "items": {
+              "id": "integer",
+              "commissionName": "string",
+              "commissionTypeId": "integer",
+              "commissionTypeName": "string",
+              "commissionId": "integer",
+              "amount": "number",
+              "isPercent": "boolean",
+              "includeTax": "boolean",
+              "withDetails": "boolean"
+            }
+          }
+        },
+        {
+          "id": "create-slice",
+          "method": "POST",
+          "url": "/api/HR/CommissionSlice/Create",
+          "request_body": {
+            "commissionName": "string (max 100)",
+            "commissionTypeId": "integer",
+            "commissionId": "integer",
+            "amount": "number",
+            "isPercent": "boolean",
+            "includeTax": "boolean",
+            "withDetails": "boolean"
+          },
+          "response": { "id": "integer", "... (all fields above)": "" }
+        },
+        {
+          "id": "update-slice",
+          "method": "PUT",
+          "url": "/api/HR/CommissionSlice/Update/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": { "$ref": "create-slice/request_body" },
+          "response": { "$ref": "get-all-slices/items" }
+        },
+        {
+          "id": "delete-slice",
+          "method": "DELETE",
+          "url": "/api/HR/CommissionSlice/Delete/{id}",
+          "pathParams": { "id": "integer" },
+          "response": {}
+        }
+      ]
+    },
+    "attendance": {
+      "description": "Employee daily attendance records (check-in / check-out)",
+      "endpoints": [
+        {
+          "id": "filter-attendance",
+          "method": "POST",
+          "url": "/api/HR/Attendance/Filter",
+          "request_body": {
+            "employeeId": "string? (GUID)",
+            "attendanceDay": "string? (YYYY-MM-DD)",
+            "month": "integer? (1-12)",
+            "year": "integer?"
+          },
+          "response": {
+            "type": "array",
+            "items": {
+              "id": "integer",
+              "employeeId": "string (GUID)",
+              "employeeName": "string",
+              "employeeNumber": "string",
+              "attendanceDay": "string (YYYY-MM-DD)",
+              "checkInTime": "string? (HH:mm)",
+              "checkOutTime": "string? (HH:mm)",
+              "status": "integer (AttendanceStatus enum)"
+            }
+          }
+        }
+      ]
+    },
+    "leaveBalance": {
+      "description": "Annual and sick leave balance per employee per year",
+      "endpoints": [
+        {
+          "id": "filter-leave-balance",
+          "method": "POST",
+          "url": "/api/HR/LeaveBalance/Filter",
+          "request_body": {
+            "employeeId": "string? (GUID)",
+            "year": "integer?"
+          },
+          "response": {
+            "type": "array",
+            "items": {
+              "employeeId": "string (GUID)",
+              "employeeName": "string",
+              "year": "integer",
+              "annualBalance": "integer",
+              "usedBalance": "integer",
+              "remainingBalance": "integer",
+              "sickBalance": "integer",
+              "usedSickBalance": "integer",
+              "remainingSickBalance": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "hrComplaints": {
+      "description": "Internal HR complaint management",
+      "statusFlow": ["Open(1) → Resolved(2) | Closed(3)"],
+      "endpoints": [
+        {
+          "id": "get-all-hr-complaints",
+          "method": "GET",
+          "url": "/api/HR/Complaint/GetAll",
+          "response": {
+            "type": "array",
+            "items": {
+              "id": "integer",
+              "employeeId": "string (GUID)",
+              "employeeName": "string",
+              "employeeNumber": "string",
+              "complaintId": "integer",
+              "complaintNotes": "string",
+              "replyNotes": "string?",
+              "sendTheComplaintTo": "string",
+              "sendReplyTo": "string?",
+              "status": "integer (HRComplaintStatus enum)",
+              "createdAt": "string (ISO 8601)",
+              "updatedAt": "string? (ISO 8601)"
+            }
+          }
+        },
+        {
+          "id": "create-hr-complaint",
+          "method": "POST",
+          "url": "/api/HR/Complaint/Create",
+          "request_body": {
+            "employeeId": "string (GUID) – auto-filled from current user",
+            "complaintNotes": "string (min 10, max 1000)",
+            "sendTheComplaintTo": "string"
+          },
+          "response": { "$ref": "get-all-hr-complaints/items" },
+          "notes": "On creation: status defaults to Open(1)"
+        },
+        {
+          "id": "reply-hr-complaint",
+          "method": "POST",
+          "url": "/api/HR/Complaint/Reply",
+          "request_body": {
+            "id": "integer",
+            "replyNotes": "string (min 5, max 1000)",
+            "sendReplyTo": "string?"
+          },
+          "response": { "$ref": "get-all-hr-complaints/items" },
+          "notes": "Sets status to Resolved(2)"
+        },
+        {
+          "id": "close-hr-complaint",
+          "method": "POST",
+          "url": "/api/HR/Complaint/Close/{id}",
+          "pathParams": { "id": "integer" },
+          "request_body": {},
+          "response": {},
+          "notes": "Sets status to Closed(3)"
+        },
+        {
+          "id": "delete-hr-complaint",
+          "method": "DELETE",
+          "url": "/api/HR/Complaint/Delete/{id}",
+          "pathParams": { "id": "integer" },
+          "response": {}
+        }
+      ]
+    }
+  },
+  "schemas": {
+    "HRRequestBase": {
+      "id": "integer",
+      "createdTo": "string (GUID)",
+      "employeeName": "string",
+      "employeeNumber": "string",
+      "departmentName": "string",
+      "jobName": "string",
+      "screenId": "string",
+      "result": "integer (HRRequestResult enum)",
+      "processState": "integer (HRProcessState enum)",
+      "reasons": "string?",
+      "assigneeEmp": "string?",
+      "assignNote": "string?",
+      "rejectedReason": "string?",
+      "createdAt": "string (ISO 8601)",
+      "updatedAt": "string? (ISO 8601)"
+    },
+    "VacationRequest": {
+      "$extends": "HRRequestBase",
+      "vacationType": "integer (HRVacationType enum)",
+      "vacationDays": "integer",
+      "vacationDate": "string (YYYY-MM-DD)",
+      "finalizeDate": "string (YYYY-MM-DD)",
+      "comeBackDate": "string (YYYY-MM-DD)",
+      "substituteId": "string? (GUID)",
+      "substituteJobName": "string?",
+      "mobileNumber": "string?",
+      "minRange": "integer?",
+      "maxRange": "integer?",
+      "exhausted": "integer?",
+      "available": "integer?",
+      "attachmentUrl": "string?"
+    },
+    "PermissionRequest": {
+      "$extends": "HRRequestBase",
+      "permissionDate": "string (YYYY-MM-DD)",
+      "permissionType": "integer (HRPermissionType)",
+      "permissionNature": "integer (HRPermissionNature)",
+      "comeLateTime": "string? (HH:mm)",
+      "partTimeStart": "string? (HH:mm)",
+      "partTimeFinish": "string? (HH:mm)",
+      "outEarlyTime": "string? (HH:mm)"
+    },
+    "CustodyRequest": {
+      "$extends": "HRRequestBase",
+      "details": "string?",
+      "custodyItems": [
+        {
+          "custodyId": "integer",
+          "custodyName": "string",
+          "quantity": "integer",
+          "deliveryDate": "string (YYYY-MM-DD)",
+          "temporal": "boolean",
+          "shortNote": "string?"
+        }
+      ]
+    },
+    "JobModificationRequest": {
+      "$extends": "HRRequestBase",
+      "oldDepartmentName": "string",
+      "oldSalaryScaleName": "string",
+      "oldTotalSalary": "number",
+      "newDepartmentId": "integer",
+      "newDepartmentName": "string",
+      "newSalaryScaleId": "integer",
+      "newSalaryScaleName": "string",
+      "newTotalSalary": "number"
+    },
+    "ResignationRequest": {
+      "$extends": "HRRequestBase",
+      "resignationDate": "string (YYYY-MM-DD)",
+      "endDate": "string (YYYY-MM-DD)"
+    },
+    "EntitlementsRequest": {
+      "$extends": "HRRequestBase",
+      "entitlementType": "integer (HREntitlementType)",
+      "notes": "string?"
+    },
+    "LoanRequest": {
+      "$extends": "HRRequestBase",
+      "loanAmount": "number",
+      "basicSalary": "number",
+      "housingAllowance": "number",
+      "mobilityAllowance": "number",
+      "otherAllowances": "number",
+      "totalSalary": "number",
+      "hiringDate": "string (YYYY-MM-DD)"
+    },
+    "HRRequestSummary": {
+      "id": "integer",
+      "screenId": "string",
+      "processState": "integer (HRProcessState)",
+      "processGroup": "integer",
+      "result": "integer (HRRequestResult)",
+      "employeeName": "string",
+      "employeeNumber": "string",
+      "departmentName": "string",
+      "createdAt": "string (ISO 8601)",
+      "updatedAt": "string?",
+      "assigneeEmpName": "string?"
+    }
+  },
+  "frontendRoutesMapping": {
+    "/hr/requests/vacation": "VacationRequest – POST /api/HR/VacationRequest/Create",
+    "/hr/requests/permission": "PermissionRequest – POST /api/HR/PermissionRequest/Create",
+    "/hr/requests/custody": "CustodyRequest – POST /api/HR/CustodyRequest/Create",
+    "/hr/requests/job-modification": "JobModificationRequest – POST /api/HR/JobModificationRequest/Create",
+    "/hr/requests/resignation": "ResignationRequest – POST /api/HR/ResignationRequest/Create",
+    "/hr/requests/entitlements": "EntitlementsRequest – POST /api/HR/EntitlementsRequest/Create",
+    "/hr/requests/loans": "LoanRequest – POST /api/HR/LoanRequest/Create",
+    "/hr/followup/inbox": "HRRequestSummary[] – POST /api/HR/RequestsInbox/Filter",
+    "/hr/followup/outbox": "HRRequestSummary[] – POST /api/HR/RequestsOutbox/Filter",
+    "/hr/employees/management": "Employee[] – GET /api/HR/Employee/GetAll",
+    "/hr/employees/commission": "EmployeeCommission[] – GET /api/HR/Commission/GetAll",
+    "/hr/employees/commission-slices": "CommissionSlice[] – GET /api/HR/CommissionSlice/GetAll",
+    "/hr/employees/attendance": "AttendanceRecord[] – POST /api/HR/Attendance/Filter",
+    "/hr/employees/leave-balance": "LeaveBalance[] – POST /api/HR/LeaveBalance/Filter",
+    "/hr/complaints": "HRComplaint[] – GET /api/HR/Complaint/GetAll"
+  }
+}

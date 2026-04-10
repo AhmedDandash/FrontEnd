@@ -217,4 +217,138 @@ export const API_ENDPOINTS = {
     TOGGLE_ACTIVE: (id: number) => `/api/Nationality/NationalityFollowUpStatusIsActive/${id}`,
     DELETE: (id: number) => `/api/Nationality/DeleteNationalityFollowUpStatus/${id}`,
   },
+
+  // ─── HR Module ───────────────────────────────────────────────────────────
+
+  // HR Employees
+  HR_EMPLOYEES: {
+    GET_ALL: '/api/HR/Employee/GetAll',
+    GET_BY_ID: (id: string) => `/api/HR/Employee/GetById/${id}`,
+    GET_CURRENT: '/api/HR/Employee/GetCurrent',
+    SEARCH: '/api/HR/Employee/Search',
+  },
+
+  // HR Lookups
+  HR_LOOKUPS: {
+    DEPARTMENTS: '/api/HR/Lookup/Departments',
+    SALARY_SCALES: '/api/HR/Lookup/SalaryScales',
+    CUSTODY_TYPES: '/api/HR/Lookup/CustodyTypes',
+    VACATION_TYPES: '/api/HR/Lookup/VacationTypes',
+  },
+
+  // Vacation Request
+  HR_VACATION: {
+    GET_ALL: '/api/HR/VacationRequest/GetAll',
+    GET_BY_ID: (id: number) => `/api/HR/VacationRequest/GetById/${id}`,
+    CREATE: '/api/HR/VacationRequest/Create',
+    APPROVE: (id: number) => `/api/HR/VacationRequest/Approve/${id}`,
+    REJECT: (id: number) => `/api/HR/VacationRequest/Reject/${id}`,
+  },
+
+  // Permission Request
+  HR_PERMISSION: {
+    GET_ALL: '/api/HR/PermissionRequest/GetAll',
+    GET_BY_ID: (id: number) => `/api/HR/PermissionRequest/GetById/${id}`,
+    CREATE: '/api/HR/PermissionRequest/Create',
+    APPROVE: (id: number) => `/api/HR/PermissionRequest/Approve/${id}`,
+    REJECT: (id: number) => `/api/HR/PermissionRequest/Reject/${id}`,
+  },
+
+  // Custody Request
+  HR_CUSTODY: {
+    GET_ALL: '/api/HR/CustodyRequest/GetAll',
+    GET_BY_ID: (id: number) => `/api/HR/CustodyRequest/GetById/${id}`,
+    CREATE: '/api/HR/CustodyRequest/Create',
+    APPROVE: (id: number) => `/api/HR/CustodyRequest/Approve/${id}`,
+    REJECT: (id: number) => `/api/HR/CustodyRequest/Reject/${id}`,
+  },
+
+  // Job Modification Request
+  HR_JOB_MODIFICATION: {
+    GET_ALL: '/api/HR/JobModificationRequest/GetAll',
+    GET_BY_ID: (id: number) => `/api/HR/JobModificationRequest/GetById/${id}`,
+    CREATE: '/api/HR/JobModificationRequest/Create',
+    APPROVE: (id: number) => `/api/HR/JobModificationRequest/Approve/${id}`,
+    REJECT: (id: number) => `/api/HR/JobModificationRequest/Reject/${id}`,
+  },
+
+  // Resignation Request
+  HR_RESIGNATION: {
+    GET_ALL: '/api/HR/ResignationRequest/GetAll',
+    GET_BY_ID: (id: number) => `/api/HR/ResignationRequest/GetById/${id}`,
+    CREATE: '/api/HR/ResignationRequest/Create',
+    APPROVE: (id: number) => `/api/HR/ResignationRequest/Approve/${id}`,
+    REJECT: (id: number) => `/api/HR/ResignationRequest/Reject/${id}`,
+  },
+
+  // Entitlements Request
+  HR_ENTITLEMENTS: {
+    GET_ALL: '/api/HR/EntitlementsRequest/GetAll',
+    GET_BY_ID: (id: number) => `/api/HR/EntitlementsRequest/GetById/${id}`,
+    CREATE: '/api/HR/EntitlementsRequest/Create',
+    APPROVE: (id: number) => `/api/HR/EntitlementsRequest/Approve/${id}`,
+    REJECT: (id: number) => `/api/HR/EntitlementsRequest/Reject/${id}`,
+  },
+
+  // Loans Request
+  HR_LOANS: {
+    GET_ALL: '/api/HR/LoanRequest/GetAll',
+    GET_BY_ID: (id: number) => `/api/HR/LoanRequest/GetById/${id}`,
+    CREATE: '/api/HR/LoanRequest/Create',
+    APPROVE: (id: number) => `/api/HR/LoanRequest/Approve/${id}`,
+    REJECT: (id: number) => `/api/HR/LoanRequest/Reject/${id}`,
+  },
+
+  // Requests Follow-up
+  HR_REQUESTS_INBOX: {
+    GET_ALL: '/api/HR/RequestsInbox/GetAll',
+    FILTER: '/api/HR/RequestsInbox/Filter',
+  },
+
+  HR_REQUESTS_OUTBOX: {
+    GET_ALL: '/api/HR/RequestsOutbox/GetAll',
+    FILTER: '/api/HR/RequestsOutbox/Filter',
+  },
+
+  // Employee Commission
+  HR_COMMISSION: {
+    GET_ALL: '/api/HR/Commission/GetAll',
+    GET_BY_EMPLOYEE: (empId: string) => `/api/HR/Commission/GetByEmployee/${empId}`,
+    CREATE: '/api/HR/Commission/Create',
+    UPDATE: (id: number) => `/api/HR/Commission/Update/${id}`,
+    DELETE: (id: number) => `/api/HR/Commission/Delete/${id}`,
+  },
+
+  // Commission Slices
+  HR_COMMISSION_SLICES: {
+    GET_ALL: '/api/HR/CommissionSlice/GetAll',
+    GET_BY_ID: (id: number) => `/api/HR/CommissionSlice/GetById/${id}`,
+    CREATE: '/api/HR/CommissionSlice/Create',
+    UPDATE: (id: number) => `/api/HR/CommissionSlice/Update/${id}`,
+    DELETE: (id: number) => `/api/HR/CommissionSlice/Delete/${id}`,
+  },
+
+  // Attendance
+  HR_ATTENDANCE: {
+    GET_ALL: '/api/HR/Attendance/GetAll',
+    GET_BY_EMPLOYEE: (empId: string) => `/api/HR/Attendance/GetByEmployee/${empId}`,
+    FILTER: '/api/HR/Attendance/Filter',
+  },
+
+  // Leave Balance
+  HR_LEAVE_BALANCE: {
+    GET_ALL: '/api/HR/LeaveBalance/GetAll',
+    GET_BY_EMPLOYEE: (empId: string) => `/api/HR/LeaveBalance/GetByEmployee/${empId}`,
+    FILTER: '/api/HR/LeaveBalance/Filter',
+  },
+
+  // HR Complaints
+  HR_COMPLAINTS: {
+    GET_ALL: '/api/HR/Complaint/GetAll',
+    GET_BY_ID: (id: number) => `/api/HR/Complaint/GetById/${id}`,
+    CREATE: '/api/HR/Complaint/Create',
+    REPLY: '/api/HR/Complaint/Reply',
+    CLOSE: (id: number) => `/api/HR/Complaint/Close/${id}`,
+    DELETE: (id: number) => `/api/HR/Complaint/Delete/${id}`,
+  },
 } as const;
